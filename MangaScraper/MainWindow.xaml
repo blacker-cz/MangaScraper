@@ -1,0 +1,73 @@
+﻿<Window x:Class="Blacker.MangaScraper.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:blacker="clr-namespace:Blacker.MangaScraper.Converters"
+        Title="Manga Scraper" Height="421" Width="525">
+    <Window.Resources>
+        <blacker:BooleanConverter x:Key="booleanConverter" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="38" />
+            <RowDefinition Height="115*" />
+            <RowDefinition Height="133*" />
+            <RowDefinition Height="96" />
+        </Grid.RowDefinitions>
+        <ComboBox Height="23" HorizontalAlignment="Left" Margin="12,12,0,0" Name="scraperList" VerticalAlignment="Top" Width="163" ItemsSource="{Binding Scrapers}" SelectedItem="{Binding Path=CurrentScraper, Mode=TwoWay}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Path=Name}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <TextBox Height="23" Margin="181,12,41,0" Name="searchBox" VerticalAlignment="Top" Style="{StaticResource WaterMarkTextBoxStyle}" Text="{Binding Path=SearchString, UpdateSourceTrigger=PropertyChanged}">
+            <TextBox.InputBindings>
+                <KeyBinding Command="{Binding Path=SearchCommand}" Key="Enter"/>
+            </TextBox.InputBindings>
+        </TextBox>
+        <Button Height="23" HorizontalAlignment="Right" Margin="0,12,12,0" Name="searchButton" VerticalAlignment="Top" Width="23" Command="{Binding Path=SearchCommand}" ToolTip="Search">
+            <Image Source="/MangaScraper;component/Images/zoom.png" Width="16" Height="16" />
+        </Button>
+        <ListBox Margin="12,3,12,0" Name="mangaList" ItemsSource="{Binding Path=Mangas}" SelectedItem="{Binding Path=SelectedManga}" Grid.Row="1">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="2,2,0,8" HorizontalAlignment="Stretch">
+                        <TextBlock Text="{Binding Path=MangaName}" FontWeight="Bold"></TextBlock>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <ListBox Margin="12,6,12,4" Name="chapterList" ItemsSource="{Binding Path=Chapters}" SelectedItem="{Binding Path=SelectedChapter}" Grid.Row="2">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="2,2,0,8" HorizontalAlignment="Stretch">
+                        <TextBlock Text="{Binding Path=ChapterName}" FontWeight="Bold"></TextBlock>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <TextBox Height="23" Margin="12,2,93,0" Name="outputPathBox" Text="{Binding Path=OutputPath}" VerticalAlignment="Top" Grid.Row="3" />
+        <Button Content="Browse" Height="23" HorizontalAlignment="Right" Margin="0,2,12,0" Name="browsePathButton" Command="{Binding Path=BrowseCommand}"  VerticalAlignment="Top" Width="75" Grid.Row="3" />
+        <RadioButton Content="Folder" HorizontalAlignment="Left" Margin="12,0,0,42" Name="radioButton1" Height="16" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=false, Mode=TwoWay}" VerticalAlignment="Bottom" Grid.Row="3" />
+        <RadioButton Content="Compressed file" HorizontalAlignment="Left" Margin="111,0,0,42" Name="radioButton2" Height="16" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=true, Mode=TwoWay}" VerticalAlignment="Bottom" Grid.Row="3" />
+        <Button Content="Save" Margin="0,0,12,42" Name="button3" Height="23" VerticalAlignment="Bottom" Command="{Binding Path=SaveCommand}" HorizontalAlignment="Right" Width="75" Grid.Row="3" />
+        <StatusBar Name="statusBar" Height="23" VerticalAlignment="Bottom" Grid.Row="3">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <StatusBarItem>
+                <TextBlock Text="{Binding Path=CurrentActionText}" />
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="1">
+                <ProgressBar Name="progressBar" Value="{Binding Path=ProgressValue}" Maximum="{Binding Path=ProgressMax}" IsIndeterminate="{Binding Path=ProgresIndeterminate}" Width="150" Height="15" HorizontalAlignment="Right" />
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

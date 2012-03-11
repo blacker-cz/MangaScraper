@@ -1,0 +1,85 @@
+﻿using System;
+using HtmlAgilityPack;
+using System.Net;
+using System.IO;
+using Blacker.Scraper.Exceptions;
+using System.Drawing;
+
+namespace Blacker.Scraper.Helpers
+{
+    internal static class WebHelper
+    {
+        /// <summary>
+        /// Get HTML node of the remote website
+        /// </summary>
+        /// <param name="url">Website url</param>
+        /// <returns>Html node of remote website</returns>
+        /// <exception cref="HttpException" />
+        /// <exception cref="ParserException" />
+        public static HtmlNode GetHtmlDocument(string url)
+        {
+            if (url == null)
+                throw new ArgumentNullException("url");
+
+            HtmlDocument doc = new HtmlDocument();
+            try
+            {
+                var request = HttpWebRequest.Create(url);
+                using (var response = request.GetResponse())
+                using (var stream = response.GetResponseStream())
+                {
+                    doc.Load(stream, true);
+                }
+
+                return doc.DocumentNode;
+            }
+            catch (WebException ex)
+            {
+                throw new HttpException("Could not load remote website.", ex);
+            }
+            catch (IOException ex)
+            {
+                throw new HttpException("Could not load remote website.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new ParserException("Could not process remote website request.", ex);
+            }
+        }
+
+        public static Image GetImageFromUrl(string imageUrl)
+        {
+            if (imageUrl == null)
+                throw new ArgumentNullException("imageUrl");
+
+            try
+            {
+                var request = HttpWebRequest.Create(imageUrl);
+                using (var response = request.GetResponse())
+                using (var stream = response.GetResponseStream())
+                {
+                    MemoryStream memoryStream = new MemoryStream();
+                    stream.CopyTo(memoryStream);
+                    return new Bitmap(memoryStream);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new HttpException("Could not load remote website.", ex);
+            }
+        }
+
+        public static void DownloadImage(string imageUrl, string fileName)
+        {
+            if (imageUrl == null)
+                throw new ArgumentNullException("imageUrl");
+            if (fileName == null)
+                throw new ArgumentNullException("fileName");
+
+            using (var image = GetImageFromUrl(imageUrl))
+            {
+                image.Save(fileName);
+            }
+        }
+    }
+}
