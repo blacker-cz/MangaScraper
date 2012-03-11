@@ -1,0 +1,51 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+!NuGet.exe
+*.o
+*.so
+build/
+
+# NuGet repositories #
+######################
+packages/**/*
+
+# VS generated files and folders #
+##################################
+obj/
+*.pdb
+*.exe.manifest
+*.suo
+*.csproj.user
+
+# Packages #
+############
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+*.report.html
+
+# OS generated files #
+######################
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
+
+# My temp dirs #
+################
+_*/
