@@ -27,6 +27,7 @@ namespace Blacker.MangaScraper
         private MangaRecord _selectedManga;
 
         private string _outputPath;
+        private string _searchString = string.Empty;
         private readonly BackgroundWorker _downloadWorker;
 
         private static readonly Regex _invalidPathCharsRegex = new Regex(string.Format("[{0}]",
@@ -73,7 +74,15 @@ namespace Blacker.MangaScraper
             }
         }
 
-        public string SearchString { get; set; }
+        public string SearchString
+        {
+            get { return _searchString; }
+            set
+            {
+                _searchString = value;
+                SearchMangaImmediate(_searchString);
+            }
+        }
 
         public ICommand SearchCommand { get { return _searchCommand; } }
 
@@ -126,6 +135,19 @@ namespace Blacker.MangaScraper
             // todo: call should be done in different thread
             Mangas.Clear();
             foreach (var item in CurrentScraper.GetAvailableMangas(SearchString ?? String.Empty))
+            {
+                Mangas.Add(item);
+            }
+        }
+
+        private void SearchMangaImmediate(string filter)
+        {
+            if (!(CurrentScraper is IImmediateSearchProvider) || filter == null)
+                return;
+
+            // todo: should this be also called in different thread?
+            Mangas.Clear();
+            foreach (var item in (CurrentScraper as IImmediateSearchProvider).GetAvailableMangasImmediate(filter))
             {
                 Mangas.Add(item);
             }
