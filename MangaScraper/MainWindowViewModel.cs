@@ -42,7 +42,11 @@ namespace Blacker.MangaScraper
 
             _scrapers = new List<IScraper>(ReflectionHelper.GetInstances<IScraper>());
 
-            CurrentScraper = _scrapers.First();
+            if (!string.IsNullOrEmpty(Properties.Settings.Default.SelectedScraper))
+                CurrentScraper = _scrapers.FirstOrDefault(s => s.Name == Properties.Settings.Default.SelectedScraper);
+
+            if (CurrentScraper == null)
+                CurrentScraper = _scrapers.First();
 
             // load output path from user settings
             _outputPath = Properties.Settings.Default.OutputPath;
@@ -71,6 +75,10 @@ namespace Blacker.MangaScraper
 
                 _currentScraper = value;
                 _currentScraper.DownloadProgress += CurrentScraper_DownloadProgress;
+
+                // remember selected scraper
+                Properties.Settings.Default.SelectedScraper = _currentScraper.Name;
+                Properties.Settings.Default.Save();
             }
         }
 
