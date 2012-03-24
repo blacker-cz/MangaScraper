@@ -1,25 +1,24 @@
-﻿
-h1. MangaScraper
+﻿MangaScraper
 
-h2. Description
+Description
 
 MangaScraper is simple application which allows you to download manga chapters from online manga readers. Currently only MangaStream.com and MangaReader.net are supported.
 If you want support for any other site, let me know. If you feel like implemening it, let me know too ;-)
 
-Latest version can be downloaded "Here(https://github.com/downloads/blacker-cz/MangaScraper/MangaScraper-0.9.1.zip)":https://github.com/downloads/blacker-cz/MangaScraper/MangaScraper-0.9.1.zip
+Latest version can be downloaded here - https://github.com/blacker-cz/MangaScraper/downloads
 
-h2. 3rd party software, libraries, etc.
+3rd party software, libraries, etc.
 
 MangaScraper is using following 3rd-party libraries:
 
-* Html Agility Pack - "http://htmlagilitypack.codeplex.com/(http://htmlagilitypack.codeplex.com/)":http://htmlagilitypack.codeplex.com/
-* DotNetZip Library - "http://dotnetzip.codeplex.com/(http://dotnetzip.codeplex.com/)":http://dotnetzip.codeplex.com/
+* Html Agility Pack - http://htmlagilitypack.codeplex.com/
+* DotNetZip Library - http://dotnetzip.codeplex.com/
 
-these libraries are automatically loaded to the solution using "NuGet(http://nuget.codeplex.com/)":http://nuget.codeplex.com/
+these libraries are automatically loaded to the solution using NuGet (http://nuget.codeplex.com/)
 
-MangaScraper is also using some of the icons from "Silk icon set 1.3(http://www.famfamfam.com/lab/icons/silk/)":http://www.famfamfam.com/lab/icons/silk/
+MangaScraper is also using some of the icons from Silk icon set 1.3 (http://www.famfamfam.com/lab/icons/silk/)
 
-h2. License
+License
 
 MangaScraper
 Copyright (c) 2012, Lukáš Černý
