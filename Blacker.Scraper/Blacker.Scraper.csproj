@@ -53,6 +53,7 @@
     <Compile Include="Events\DownloadProgressEventArgs.cs" />
     <Compile Include="IImmediateSearchProvider.cs" />
     <Compile Include="IScraper.cs" />
+    <Compile Include="MangaReader.cs" />
     <Compile Include="Models\MangaRecord.cs" />
     <Compile Include="Scrapers.cs" />
     <Compile Include="Exceptions\HttpException.cs" />

@@ -7,6 +7,7 @@ namespace Blacker.Scraper
 {
     public enum Scrapers
 	{
-	     MangaStream    
+	    MangaStream,
+        MangaReader
 	}
 }
