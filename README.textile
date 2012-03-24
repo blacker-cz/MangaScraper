@@ -1,4 +1,3 @@
-﻿
 h1. MangaScraper
 
 h2. Description
