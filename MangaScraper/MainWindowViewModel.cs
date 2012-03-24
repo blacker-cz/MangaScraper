@@ -34,6 +34,8 @@ namespace Blacker.MangaScraper
                                     Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))),
                                RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+        private static readonly object _syncRoot = new object();
+
         public MainWindowViewModel()
         {
             _searchCommand = new SearchCommand(this);
@@ -140,12 +142,33 @@ namespace Blacker.MangaScraper
 
         public void SearchManga()
         {
-            // todo: call should be done in different thread
-            Mangas.Clear();
-            foreach (var item in CurrentScraper.GetAvailableMangas(SearchString ?? String.Empty))
-            {
-                Mangas.Add(item);
-            }
+            var asyncWrapper = new AsyncWrapper();
+            var scraper = CurrentScraper;
+            var searchString = SearchString ?? String.Empty;
+
+            ProgresIndeterminate = true;
+            InvokePropertyChanged("ProgresIndeterminate");
+
+            asyncWrapper.Call<IEnumerable<MangaRecord>>(
+                () => {
+                    lock(_syncRoot)
+                        return scraper.GetAvailableMangas(searchString);
+                },
+                (r, e) => {
+                    if (e == null && r != null)
+                    {
+                        lock (_syncRoot)
+                        {
+                            // just replace collection -> this is easier than removing and than adding records
+                            Mangas = new AsyncObservableCollection<MangaRecord>(r);
+                            InvokePropertyChanged("Mangas");
+                        }
+
+                        ProgresIndeterminate = false;
+                        InvokePropertyChanged("ProgresIndeterminate");
+                    }
+                }
+            );
         }
 
         private void SearchMangaImmediate(string filter)
@@ -153,12 +176,34 @@ namespace Blacker.MangaScraper
             if (!(CurrentScraper is IImmediateSearchProvider) || filter == null)
                 return;
 
-            // todo: should this be also called in different thread?
-            Mangas.Clear();
-            foreach (var item in (CurrentScraper as IImmediateSearchProvider).GetAvailableMangasImmediate(filter))
-            {
-                Mangas.Add(item);
-            }
+            var asyncWrapper = new AsyncWrapper();
+            var scraper = CurrentScraper as IImmediateSearchProvider;
+            var searchString = SearchString ?? String.Empty;
+
+            ProgresIndeterminate = true;
+            InvokePropertyChanged("ProgresIndeterminate");
+
+            asyncWrapper.Call<IEnumerable<MangaRecord>>(
+                () =>
+                {
+                    lock(_syncRoot)
+                        return scraper.GetAvailableMangasImmediate(searchString);
+                },
+                (r, e) =>
+                {
+                    if (e == null && r != null)
+                    {
+                        lock (_syncRoot)
+                        {
+                            Mangas = new AsyncObservableCollection<MangaRecord>(r);
+                            InvokePropertyChanged("Mangas");
+                        }
+
+                        ProgresIndeterminate = false;
+                        InvokePropertyChanged("ProgresIndeterminate");
+                    }
+                }
+            );
         }
 
         private void LoadChapters(MangaRecord manga)
@@ -166,12 +211,34 @@ namespace Blacker.MangaScraper
             if (manga == null)
                 return;
 
-            // todo: call should be done in different thread
-            Chapters.Clear();
-            foreach (var item in CurrentScraper.GetAvailableChapters(manga))
-            {
-                Chapters.Add(item);
-            }
+            var asyncWrapper = new AsyncWrapper();
+            var scraper = CurrentScraper;
+
+            ProgresIndeterminate = true;
+            InvokePropertyChanged("ProgresIndeterminate");
+
+            asyncWrapper.Call<IEnumerable<ChapterRecord>>(
+                () =>
+                {
+                    lock (_syncRoot)
+                        return scraper.GetAvailableChapters(manga);
+                },
+                (r, e) =>
+                {
+                    if (e == null && r != null)
+                    {
+                        lock (_syncRoot)
+                        {
+                            // just replace collection -> this is easier than removing and than adding records
+                            Chapters = new AsyncObservableCollection<ChapterRecord>(r);
+                            InvokePropertyChanged("Chapters");
+                        }
+
+                        ProgresIndeterminate = false;
+                        InvokePropertyChanged("ProgresIndeterminate");
+                    }
+                }
+            );
         }
 
         /// <summary>
