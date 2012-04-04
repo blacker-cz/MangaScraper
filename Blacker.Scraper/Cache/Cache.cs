@@ -135,24 +135,24 @@ namespace Blacker.Scraper.Cache
         }
 
         #endregion // IDisposable implementation
-    }
 
-    class CachedObject<TValue>
-    {
-        public CachedObject(TimeSpan timeout, TValue value)
+        private class CachedObject<TVal>
         {
-            Created = DateTime.UtcNow;
-            Timeout = timeout;
-            Value = value;
-        }
+            public CachedObject(TimeSpan timeout, TVal value)
+            {
+                Created = DateTime.UtcNow;
+                Timeout = timeout;
+                Value = value;
+            }
 
-        public DateTime Created { get; set; }
-        public TimeSpan Timeout { get; set; }
-        public TValue Value { get; set; }
+            public DateTime Created { get; set; }
+            public TimeSpan Timeout { get; set; }
+            public TVal Value { get; set; }
 
-        public bool IsValid
-        {
-            get { return Created + Timeout > DateTime.UtcNow; }
+            public bool IsValid
+            {
+                get { return Created + Timeout > DateTime.UtcNow; }
+            }
         }
     }
 }
