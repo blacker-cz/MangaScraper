@@ -13,6 +13,7 @@ MangaScraper is using following 3rd-party libraries:
 
 * Html Agility Pack - "http://htmlagilitypack.codeplex.com/(http://htmlagilitypack.codeplex.com/)":http://htmlagilitypack.codeplex.com/
 * DotNetZip Library - "http://dotnetzip.codeplex.com/(http://dotnetzip.codeplex.com/)":http://dotnetzip.codeplex.com/
+* log4net - "http://logging.apache.org/log4net/(http://logging.apache.org/log4net/)":http://logging.apache.org/log4net/
 
 these libraries are automatically loaded to the solution using "NuGet(http://nuget.codeplex.com/)":http://nuget.codeplex.com/
 

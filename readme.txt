@@ -1,4 +1,4 @@
-ï»¿MangaScraper
+MangaScraper
 
 Description
 
@@ -13,6 +13,7 @@ MangaScraper is using following 3rd-party libraries:
 
 * Html Agility Pack - http://htmlagilitypack.codeplex.com/
 * DotNetZip Library - http://dotnetzip.codeplex.com/
+* log4net - http://logging.apache.org/log4net/
 
 these libraries are automatically loaded to the solution using NuGet (http://nuget.codeplex.com/)
 
@@ -21,7 +22,7 @@ MangaScraper is also using some of the icons from Silk icon set 1.3 (http://www.
 License
 
 MangaScraper
-Copyright (c) 2012, LukÃ¡Å¡ ÄŒernÃ½
+Copyright (c) 2012, Lukáš Èerný
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
