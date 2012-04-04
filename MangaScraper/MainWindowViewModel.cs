@@ -14,11 +14,13 @@ using Blacker.MangaScraper.Helpers;
 
 namespace Blacker.MangaScraper
 {
-    class MainWindowViewModel : BaseViewModel
+    class MainWindowViewModel : BaseViewModel, ICleanup
     {
         private readonly IList<IScraper> _scrapers;
 
         private IScraper _currentScraper;
+
+        private AsyncRequestQueue _requestQueue;
 
         private readonly ICommand _searchCommand;
         private readonly ICommand _browseCommand;
@@ -63,6 +65,9 @@ namespace Blacker.MangaScraper
             ZipFile = true;
             ProgressMax = 1;
             ProgressValue = 0;
+
+            _requestQueue = new AsyncRequestQueue(System.Threading.SynchronizationContext.Current);
+            _requestQueue.Initialize();
         }
 
         public IList<IScraper> Scrapers { get { return _scrapers; } }
@@ -124,7 +129,7 @@ namespace Blacker.MangaScraper
 
         public int ProgressMax { get; set; }
 
-        public bool ProgresIndeterminate { get; set; }
+        public bool ProgressIndeterminate { get; set; }
 
         public MangaRecord SelectedManga
         {
@@ -142,30 +147,29 @@ namespace Blacker.MangaScraper
 
         public void SearchManga()
         {
-            var asyncWrapper = new AsyncWrapper();
             var scraper = CurrentScraper;
             var searchString = SearchString ?? String.Empty;
 
-            ProgresIndeterminate = true;
-            InvokePropertyChanged("ProgresIndeterminate");
+            ProgressIndeterminate = true;
+            InvokePropertyChanged("ProgressIndeterminate");
 
-            asyncWrapper.Call<IEnumerable<MangaRecord>>(
+            _requestQueue.Add(
                 () => {
-                    lock(_syncRoot)
-                        return scraper.GetAvailableMangas(searchString);
+                    return scraper.GetAvailableMangas(searchString);
                 },
                 (r, e) => {
+                    var records = r as IEnumerable<MangaRecord>;
                     if (e == null && r != null)
                     {
                         lock (_syncRoot)
                         {
                             // just replace collection -> this is easier than removing and than adding records
-                            Mangas = new AsyncObservableCollection<MangaRecord>(r);
+                            Mangas = new AsyncObservableCollection<MangaRecord>(records);
                             InvokePropertyChanged("Mangas");
                         }
 
-                        ProgresIndeterminate = false;
-                        InvokePropertyChanged("ProgresIndeterminate");
+                        ProgressIndeterminate = false;
+                        InvokePropertyChanged("ProgressIndeterminate");
                     }
                 }
             );
@@ -176,31 +180,30 @@ namespace Blacker.MangaScraper
             if (!(CurrentScraper is IImmediateSearchProvider) || filter == null)
                 return;
 
-            var asyncWrapper = new AsyncWrapper();
             var scraper = CurrentScraper as IImmediateSearchProvider;
             var searchString = SearchString ?? String.Empty;
 
-            ProgresIndeterminate = true;
-            InvokePropertyChanged("ProgresIndeterminate");
+            ProgressIndeterminate = true;
+            InvokePropertyChanged("ProgressIndeterminate");
 
-            asyncWrapper.Call<IEnumerable<MangaRecord>>(
+            _requestQueue.Add(
                 () =>
                 {
-                    lock(_syncRoot)
-                        return scraper.GetAvailableMangasImmediate(searchString);
+                    return scraper.GetAvailableMangasImmediate(searchString);
                 },
                 (r, e) =>
                 {
+                    var requests = r as IEnumerable<MangaRecord>;
                     if (e == null && r != null)
                     {
                         lock (_syncRoot)
                         {
-                            Mangas = new AsyncObservableCollection<MangaRecord>(r);
+                            Mangas = new AsyncObservableCollection<MangaRecord>(requests);
                             InvokePropertyChanged("Mangas");
                         }
 
-                        ProgresIndeterminate = false;
-                        InvokePropertyChanged("ProgresIndeterminate");
+                        ProgressIndeterminate = false;
+                        InvokePropertyChanged("ProgressIndeterminate");
                     }
                 }
             );
@@ -211,31 +214,30 @@ namespace Blacker.MangaScraper
             if (manga == null)
                 return;
 
-            var asyncWrapper = new AsyncWrapper();
             var scraper = CurrentScraper;
 
-            ProgresIndeterminate = true;
-            InvokePropertyChanged("ProgresIndeterminate");
+            ProgressIndeterminate = true;
+            InvokePropertyChanged("ProgressIndeterminate");
 
-            asyncWrapper.Call<IEnumerable<ChapterRecord>>(
+            _requestQueue.Add(
                 () =>
                 {
-                    lock (_syncRoot)
-                        return scraper.GetAvailableChapters(manga);
+                    return scraper.GetAvailableChapters(manga);
                 },
                 (r, e) =>
                 {
+                    var results = r as IEnumerable<ChapterRecord>;
                     if (e == null && r != null)
                     {
                         lock (_syncRoot)
                         {
                             // just replace collection -> this is easier than removing and than adding records
-                            Chapters = new AsyncObservableCollection<ChapterRecord>(r);
+                            Chapters = new AsyncObservableCollection<ChapterRecord>(results);
                             InvokePropertyChanged("Chapters");
                         }
 
-                        ProgresIndeterminate = false;
-                        InvokePropertyChanged("ProgresIndeterminate");
+                        ProgressIndeterminate = false;
+                        InvokePropertyChanged("ProgressIndeterminate");
                     }
                 }
             );
@@ -341,6 +343,15 @@ namespace Blacker.MangaScraper
             else
                 workerParams.Scraper.DownloadChapter(workerParams.Chapter, workerParams.Directory);
         }
+
+        #region ICleanup implementation
+
+        public void Cleanup()
+        {
+            _requestQueue.Stop();
+        }
+
+        #endregion
 
         private class WorkerParams
         {

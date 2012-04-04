@@ -73,8 +73,10 @@
     <Compile Include="Commands\BaseCommand.cs" />
     <Compile Include="Commands\BrowseCommand.cs" />
     <Compile Include="Commands\SearchCommand.cs" />
+    <Compile Include="Helpers\AsyncRequestQueue.cs" />
     <Compile Include="Helpers\AsyncWrapper.cs" />
     <Compile Include="Helpers\ReflectionHelper.cs" />
+    <Compile Include="ICleanup.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

@@ -6,7 +6,7 @@ using System.Runtime.Remoting.Messaging;
 
 namespace Blacker.MangaScraper.Helpers
 {
-    public class AsyncWrapper
+    class AsyncWrapper
     {
         public void Call<TResult>(Func<TResult> method, Action<TResult, Exception> callback)
         {
