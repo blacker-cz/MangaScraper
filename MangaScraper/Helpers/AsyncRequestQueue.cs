@@ -5,11 +5,14 @@ using System.Text;
 using System.Threading;
 using System.Runtime.Remoting.Messaging;
 using System.Collections.Concurrent;
+using log4net;
 
 namespace Blacker.MangaScraper.Helpers
 {
     class AsyncRequestQueue
     {
+        private static readonly ILog _log = LogManager.GetLogger(typeof(AsyncRequestQueue));
+
         private readonly AutoResetEvent _canProcess = new AutoResetEvent(false);
         private readonly AutoResetEvent _stopEvent = new AutoResetEvent(false);
         private readonly ConcurrentQueue<AsyncRequest> _requestQueue = new ConcurrentQueue<AsyncRequest>();
@@ -35,9 +38,9 @@ namespace Blacker.MangaScraper.Helpers
 	        {
 		        _thread.Start();
 	        }
-	        catch (Exception)
+	        catch (Exception ex)
 	        {
-                // todo: this should be logged
+                _log.Error("Unable to start async queue thread.", ex);
                 throw;
 	        }
 
@@ -57,6 +60,7 @@ namespace Blacker.MangaScraper.Helpers
 	        {
                 if(AutoResetEvent.WaitAny(new [] {_stopEvent, _canProcess}) == 0)
                 {
+                    _log.Debug("Recieved stop signal. Exiting thread.");
                     return;
                 }
                 else
@@ -71,13 +75,16 @@ namespace Blacker.MangaScraper.Helpers
 	                    }
 	                    catch (Exception ex)
 	                    {
+                            _log.Debug("Call to requested method failed with exception.", ex);
+
                             try 
-	                        {	        
+	                        {
+                                // todo: this should be probably also called in right context
 		                        request.Callback(null, ex);
 	                        }
-	                        catch (Exception)
+	                        catch (Exception innerEx)
 	                        {
-                                // todo: this should be logged
+                                _log.Error("Unable to invoke callback method.", innerEx);
 	                        }
                             continue;
 	                    }
@@ -99,9 +106,9 @@ namespace Blacker.MangaScraper.Helpers
                                 }), request);
                             }
 	                    }
-	                    catch (Exception)
+	                    catch (Exception ex)
 	                    {
-                            // todo: this should be logged
+                            _log.Error("Unable to invoke callback method.", ex);
 	                    }
 	                }
                 }

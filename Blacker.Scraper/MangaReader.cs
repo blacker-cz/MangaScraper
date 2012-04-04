@@ -8,11 +8,14 @@ using Blacker.Scraper.Exceptions;
 using Blacker.Scraper.Events;
 using Ionic.Zip;
 using Blacker.Scraper.Cache;
+using log4net;
 
 namespace Blacker.Scraper
 {
     public class MangaReader : BaseScraper, IScraper, IImmediateSearchProvider
     {
+        private static readonly ILog _log = LogManager.GetLogger(typeof(MangaReader));
+
         private const string DictionaryUrl = "http://mangareader.net/alphabetical";
         private const string MangaReaderUrl = "http://mangareader.net";
 
@@ -151,9 +154,9 @@ namespace Blacker.Scraper
                 {
                     WebHelper.DownloadImage(imgUrl, filePath);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // todo: this should be logged
+                    _log.Error("Unable to download image from url: '" + imgUrl + "' to '" + filePath + "'", ex);
                 }
 
                 done++;
