@@ -49,8 +49,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseScraper.cs" />
     <Compile Include="Cache\Cache.cs" />
     <Compile Include="Events\DownloadProgressEventArgs.cs" />
+    <Compile Include="IDownloadProgressReporter.cs" />
     <Compile Include="IImmediateSearchProvider.cs" />
     <Compile Include="IScraper.cs" />
     <Compile Include="MangaReader.cs" />

@@ -6,7 +6,7 @@ using Blacker.Scraper.Events;
 
 namespace Blacker.Scraper
 {
-    public interface IScraper
+    public interface IScraper : IDownloadProgressReporter
     {
         /// <summary>
         /// Get scraper name
@@ -14,22 +14,11 @@ namespace Blacker.Scraper
         string Name { get; }
 
         /// <summary>
-        /// Event signalling chapter download progress
-        /// </summary>
-        event EventHandler<DownloadProgressEventArgs> DownloadProgress;
-
-        /// <summary>
         /// Get available chapters for given manga.
         /// </summary>
         /// <param name="manga">Manga</param>
         /// <returns>List of available chapters</returns>
         IEnumerable<ChapterRecord> GetAvailableChapters(MangaRecord manga);
-
-        /// <summary>
-        /// Get list of available mangas
-        /// </summary>
-        /// <returns>List of available mangas</returns>
-        IEnumerable<MangaRecord> GetAvailableMangas();
 
         /// <summary>
         /// Get list of available mangas filtered by name (or its part)

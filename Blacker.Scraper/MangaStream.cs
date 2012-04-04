@@ -11,17 +11,10 @@ using Blacker.Scraper.Cache;
 
 namespace Blacker.Scraper
 {
-    public class MangaStream : IScraper, IImmediateSearchProvider
+    public class MangaStream : BaseScraper, IScraper, IImmediateSearchProvider
     {
         private const string DictionaryUrl = "http://mangastream.com/manga";
         private const string MangaStreamUrl = "http://mangastream.com";
-
-        public event EventHandler<DownloadProgressEventArgs> DownloadProgress;
-
-        private int _tasksCount = 0;
-        private int _tasksDone = 0;
-
-        private readonly Random _randomGenerator = new Random(Environment.TickCount);
 
         private Cache<string, object> _cache;
 
@@ -31,6 +24,11 @@ namespace Blacker.Scraper
         public MangaStream()
         {
             _cache = new Cache<string, object>();
+        }
+
+        protected override string BaseUrl
+        {
+            get { return MangaStreamUrl; }
         }
 
         #region IScraper implementation
@@ -92,11 +90,6 @@ namespace Blacker.Scraper
             return records;
         }
 
-        public IEnumerable<MangaRecord> GetAvailableMangas()
-        {
-            return GetAvailableMangas("");
-        }
-
         public IEnumerable<MangaRecord> GetAvailableMangas(string filter)
         {
             if (filter == null)
@@ -113,17 +106,12 @@ namespace Blacker.Scraper
                 throw new ArgumentNullException("file");
 
             // add task -> zip file
-            _tasksCount++;
+            AddTask();
 
             var directory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
             DownloadChapter(chapter, directory);
 
-            OnDownloadProgressChanged(new DownloadProgressEventArgs()
-            {
-                Done = _tasksDone,
-                From = _tasksCount,
-                Action = String.Format("Compressing chapter to output file")
-            });
+            ReportProgress("Compressing chapter to output file");
 
             try
             {
@@ -133,14 +121,8 @@ namespace Blacker.Scraper
                     zip.Save(file.FullName);
                 }
 
-                _tasksDone++;
-                OnDownloadProgressChanged(new DownloadProgressEventArgs()
-                {
-                    Done = _tasksDone,
-                    From = _tasksCount,
-                    Action = String.Format("Download completed")
-                });
-
+                TaskDone();
+                ReportProgress("Download completed");
             }
             finally
             {
@@ -165,37 +147,22 @@ namespace Blacker.Scraper
                 directory.Create();
             }
 
-            _tasksCount++;
-            OnDownloadProgressChanged(new DownloadProgressEventArgs()
-            {
-                Done = _tasksDone,
-                From = _tasksCount,
-                Action = String.Format("Resolving list of pages.")
-            });
+            AddTask();
+            ReportProgress("Resolving list of pages.");
 
             var pages = GetPages(chapter);
 
-            _tasksCount += pages.Count;
+            AddTask(pages.Count);
 
-            _tasksDone++;
-            OnDownloadProgressChanged(new DownloadProgressEventArgs()
-            {
-                Done = _tasksDone,
-                From = _tasksCount,
-                Action = String.Format("List of pages resolved, chapter has {0} pages.", pages.Count)
-            });
+            TaskDone();
+            ReportProgress("List of pages resolved, chapter has {0} pages.", pages.Count);
 
             int done = 0;
 
             foreach (var page in pages)
             {
 
-                OnDownloadProgressChanged(new DownloadProgressEventArgs()
-                {
-                    Done = _tasksDone,
-                    From = _tasksCount,
-                    Action = String.Format("Downloading page {0} from {1}", done, pages.Count)
-                });
+                ReportProgress("Downloading page {0} from {1}", done, pages.Count);
 
                 string imgUrl = GetPageImageUrl(page.Value);
                 string filePath = GetUniqueFileName(directory.FullName, page.Key, Path.GetExtension(imgUrl));
@@ -210,16 +177,10 @@ namespace Blacker.Scraper
                 }
 
                 done++;
-                _tasksDone++;
+                TaskDone();
             }
 
-            OnDownloadProgressChanged(new DownloadProgressEventArgs()
-            {
-                Done = _tasksDone,
-                From = _tasksCount,
-                Action = String.Format("All pages downloaded.")
-            });
-
+            ReportProgress("All pages downloaded.");
         }
 
         #endregion // IScraper implementation
@@ -302,7 +263,7 @@ namespace Blacker.Scraper
                 Int32.TryParse(pageLink.InnerText, out pageNumber);
 
                 if (pages.ContainsKey(pageNumber))  // if page is already in dictionary use random number instead
-                    pageNumber = _randomGenerator.Next(0, Int32.MaxValue);
+                    pageNumber = Random;
 
                 pages.Add(pageNumber, GetFullUrl(pageLink.Attributes.FirstOrDefault(a => a.Name == "href").Value));
             }
@@ -320,40 +281,6 @@ namespace Blacker.Scraper
             }
 
             return img.Attributes.FirstOrDefault(a => a.Name == "src").Value;
-        }
-
-        private string GetFullUrl(string url, string urlBase = MangaStreamUrl)
-        {
-            var baseUri = new Uri(urlBase);
-            Uri uri;
-
-            if (Uri.TryCreate(baseUri, url, out uri))
-            {
-                return uri.AbsoluteUri;
-            }
-            return url;
-        }
-
-        private string GetUniqueFileName(string directory, int page, string extension)
-        {
-            string filePath = Path.Combine(directory, page + extension);
-            int counter = 0;
-
-            while (File.Exists(filePath))
-            {
-                ++counter;
-                filePath = Path.Combine(directory, page + "[" + counter + "]" + extension);
-            }
-
-            return filePath;
-        }
-
-        private void OnDownloadProgressChanged(DownloadProgressEventArgs e)
-        {
-            if (DownloadProgress != null)
-            {
-                DownloadProgress(this, e);
-            }
         }
 
         #endregion // Private methods
