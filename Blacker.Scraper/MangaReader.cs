@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Blacker.Scraper.Models;
-using System.IO;
 using Blacker.Scraper.Helpers;
 using Blacker.Scraper.Exceptions;
-using Blacker.Scraper.Events;
-using Ionic.Zip;
 using Blacker.Scraper.Cache;
 using log4net;
 
@@ -33,6 +30,11 @@ namespace Blacker.Scraper
         protected override string BaseUrl
         {
             get { return MangaReaderUrl; }
+        }
+
+        protected override Scrapers Scraper
+        {
+            get { return Scrapers.MangaReader; }
         }
 
         #region IScraper implementation
@@ -79,91 +81,6 @@ namespace Blacker.Scraper
                 throw new ArgumentNullException("filter");
 
             return Mangas.Where(mr => mr.MangaName.IndexOf(filter, StringComparison.InvariantCultureIgnoreCase) != -1);
-        }
-
-        public void DownloadChapter(ChapterRecord chapter, FileInfo file)
-        {
-            if (chapter == null)
-                throw new ArgumentNullException("chapter");
-            if (file == null)
-                throw new ArgumentNullException("file");
-
-            // add task -> zip file
-            AddTask();
-
-            var directory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
-            DownloadChapter(chapter, directory);
-
-            ReportProgress("Compressing chapter to output file");
-
-            try
-            {
-                using (var zip = new ZipFile())
-                {
-                    zip.AddDirectory(directory.FullName, null);
-                    zip.Save(file.FullName);
-                }
-
-                TaskDone();
-                ReportProgress("Download completed");
-            }
-            finally
-            {
-                // remove temp dir
-                directory.Delete(true);
-            }
-        }
-
-        public void DownloadChapter(ChapterRecord chapter, DirectoryInfo directory, bool createDir = true)
-        {
-            if (chapter == null)
-                throw new ArgumentNullException("chapter");
-            if (directory == null)
-                throw new ArgumentNullException("directory");
-            if (chapter.Scraper != Scrapers.MangaReader)
-                throw new ArgumentException("Chapter record is not for MangaReader.", "chapter");
-            if (!createDir && !directory.Exists)
-                throw new ArgumentException("Specified directory does not exists.", "directory");
-
-            if (createDir && !directory.Exists)
-            {
-                directory.Create();
-            }
-
-            AddTask();
-            ReportProgress("Resolving list of pages.");
-
-            var pages = GetPages(chapter);
-
-            AddTask(pages.Count);
-
-            TaskDone();
-            ReportProgress("List of pages resolved, chapter has {0} pages.", pages.Count);
-
-            int done = 0;
-
-            foreach (var page in pages)
-            {
-
-                ReportProgress("Downloading page {0} from {1}", done, pages.Count);
-
-                string imgUrl = GetPageImageUrl(page.Value);
-                string filePath = GetUniqueFileName(directory.FullName, page.Key, Path.GetExtension(imgUrl));
-
-                try
-                {
-                    WebHelper.DownloadImage(imgUrl, filePath);
-                }
-                catch (Exception ex)
-                {
-                    _log.Error("Unable to download image from url: '" + imgUrl + "' to '" + filePath + "'", ex);
-                }
-
-                done++;
-                TaskDone();
-            }
-
-            ReportProgress("All pages downloaded.");
         }
 
         #endregion // IScraper implementation
@@ -224,7 +141,7 @@ namespace Blacker.Scraper
             return records;
         }
 
-        private IDictionary<int, string> GetPages(ChapterRecord chapter)
+        protected override IDictionary<int, string> GetPages(ChapterRecord chapter)
         {
             IDictionary<int, string> pages = new Dictionary<int, string>();
 
@@ -250,7 +167,7 @@ namespace Blacker.Scraper
             return pages;
         }
 
-        private string GetPageImageUrl(string pageUrl)
+        protected override string GetPageImageUrl(string pageUrl)
         {
             var document = WebHelper.GetHtmlDocument(pageUrl);
             var img = document.SelectSingleNode(@"//img[@id=""img""]");

@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace Blacker.Scraper
 {
     public interface IDownloadProgressReporter
