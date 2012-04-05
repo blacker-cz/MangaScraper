@@ -75,7 +75,7 @@ namespace Blacker.MangaScraper.Helpers
 	                    }
 	                    catch (Exception ex)
 	                    {
-                            _log.Debug("Call to requested method failed with exception.", ex);
+                            _log.Error("Call to requested method failed with exception.", ex);
 
                             try 
 	                        {

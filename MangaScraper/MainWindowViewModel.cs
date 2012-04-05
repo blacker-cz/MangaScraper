@@ -86,6 +86,12 @@ namespace Blacker.MangaScraper
                 // remember selected scraper
                 Properties.Settings.Default.SelectedScraper = _currentScraper.Name;
                 Properties.Settings.Default.Save();
+
+                // clear lists
+                if(Mangas != null)
+                    Mangas.Clear();
+                if(Chapters != null)
+                    Chapters.Clear();
             }
         }
 
@@ -167,10 +173,10 @@ namespace Blacker.MangaScraper
                             Mangas = new AsyncObservableCollection<MangaRecord>(records);
                             InvokePropertyChanged("Mangas");
                         }
-
-                        ProgressIndeterminate = false;
-                        InvokePropertyChanged("ProgressIndeterminate");
                     }
+
+                    ProgressIndeterminate = false;
+                    InvokePropertyChanged("ProgressIndeterminate");
                 }
             );
         }
@@ -201,10 +207,10 @@ namespace Blacker.MangaScraper
                             Mangas = new AsyncObservableCollection<MangaRecord>(requests);
                             InvokePropertyChanged("Mangas");
                         }
-
-                        ProgressIndeterminate = false;
-                        InvokePropertyChanged("ProgressIndeterminate");
                     }
+
+                    ProgressIndeterminate = false;
+                    InvokePropertyChanged("ProgressIndeterminate");
                 }
             );
         }
@@ -235,10 +241,10 @@ namespace Blacker.MangaScraper
                             Chapters = new AsyncObservableCollection<ChapterRecord>(results);
                             InvokePropertyChanged("Chapters");
                         }
-
-                        ProgressIndeterminate = false;
-                        InvokePropertyChanged("ProgressIndeterminate");
                     }
+
+                    ProgressIndeterminate = false;
+                    InvokePropertyChanged("ProgressIndeterminate");
                 }
             );
         }
