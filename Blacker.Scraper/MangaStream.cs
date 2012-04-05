@@ -42,6 +42,11 @@ namespace Blacker.Scraper
 
         public IEnumerable<ChapterRecord> GetAvailableChapters(MangaRecord manga)
         {
+            if (manga == null)
+                throw new ArgumentNullException("manga");
+            if (manga.Scraper != Scraper)
+                throw new ArgumentException("Manga record is not for " + Scraper.ToString(), "manga");
+
             var cacheKey = ChapterCacheKey + manga.MangaName + manga.Url;
 
             var cached = _cache[cacheKey] as IEnumerable<ChapterRecord>;
