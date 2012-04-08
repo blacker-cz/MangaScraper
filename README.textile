@@ -10,7 +10,7 @@ MangaScraper is simple application which allows you to download manga chapters f
 
 If you want support for any other site, let me know. If you feel like implemening it, let me know too ;-)
 
-Latest version can be downloaded "Here(https://github.com/downloads/blacker-cz/MangaScraper/MangaScraper-0.9.1.zip)":https://github.com/downloads/blacker-cz/MangaScraper/MangaScraper-0.9.1.zip
+Latest version can be downloaded "Here(https://github.com/downloads/blacker-cz/MangaScraper/MangaScraper-0.9.2.zip)":https://github.com/downloads/blacker-cz/MangaScraper/MangaScraper-0.9.2.zip
 
 h2. 3rd party software, libraries, etc.
 
