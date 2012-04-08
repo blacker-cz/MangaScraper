@@ -2,7 +2,12 @@ h1. MangaScraper
 
 h2. Description
 
-MangaScraper is simple application which allows you to download manga chapters from online manga readers. Currently only MangaStream.com and MangaReader.net are supported.
+MangaScraper is simple application which allows you to download manga chapters from online manga readers. Currently supported sites are:
+
+* MangaStream.com
+* MangaReader.net
+* Batoto.net
+
 If you want support for any other site, let me know. If you feel like implemening it, let me know too ;-)
 
 Latest version can be downloaded "Here(https://github.com/downloads/blacker-cz/MangaScraper/MangaScraper-0.9.1.zip)":https://github.com/downloads/blacker-cz/MangaScraper/MangaScraper-0.9.1.zip

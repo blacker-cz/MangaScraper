@@ -8,6 +8,7 @@ namespace Blacker.Scraper
     public enum Scrapers
 	{
 	    MangaStream,
-        MangaReader
+        MangaReader,
+        BatotoNet
 	}
 }
