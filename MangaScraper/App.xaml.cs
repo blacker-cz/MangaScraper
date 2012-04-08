@@ -31,6 +31,17 @@ namespace Blacker.MangaScraper
         {
             // define application exception handler
             Application.Current.DispatcherUnhandledException += new DispatcherUnhandledExceptionEventHandler(AppDispatcherUnhandledException);
+
+            System.Reflection.Assembly a = System.Reflection.Assembly.GetExecutingAssembly();
+            Version appVersion = a.GetName().Version;
+            string appVersionString = appVersion.ToString();
+
+            if (Blacker.MangaScraper.Properties.Settings.Default.ApplicationVersion != appVersion.ToString())
+            {
+                Blacker.MangaScraper.Properties.Settings.Default.Upgrade();
+                Blacker.MangaScraper.Properties.Settings.Default.ApplicationVersion = appVersionString;
+            }
+
         }
 
         void AppDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
