@@ -31,7 +31,7 @@ namespace Blacker.Scraper
             get { return MangaStreamUrl; }
         }
 
-        protected override Scrapers Scraper
+        protected Scrapers Scraper
         {
             get { return Scrapers.MangaStream; }
         }
@@ -108,6 +108,11 @@ namespace Blacker.Scraper
             return Mangas.Where(mr => mr.MangaName.IndexOf(filter, StringComparison.InvariantCultureIgnoreCase) != -1);
         }
 
+        public IDownloader GetDownloader()
+        {
+            return new Downloader(GetPages, @"//img[@id=""p""]");
+        }
+
         #endregion // IScraper implementation
 
         #region IImmediateSearchProvider implementation
@@ -165,7 +170,7 @@ namespace Blacker.Scraper
             return records;
         }
 
-        protected override IDictionary<int, string> GetPages(ChapterRecord chapter)
+        protected IDictionary<int, string> GetPages(ChapterRecord chapter)
         {
             IDictionary<int, string> pages = new Dictionary<int, string>();
 
@@ -194,18 +199,6 @@ namespace Blacker.Scraper
             }
 
             return pages;
-        }
-
-        protected override string GetPageImageUrl(string pageUrl)
-        {
-            var document = WebHelper.GetHtmlDocument(pageUrl);
-            var img = document.SelectSingleNode(@"//img[@id=""p""]");
-            if (img == null)
-            {
-                throw new ParserException("Could not find expected elements on website.", document.InnerHtml);
-            }
-
-            return img.Attributes.FirstOrDefault(a => a.Name == "src").Value;
         }
 
         #endregion // Private methods

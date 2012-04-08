@@ -3,7 +3,11 @@ using Blacker.Scraper.Models;
 
 namespace Blacker.Scraper
 {
-    public interface IScraper : IDownloadProvider, IDownloadProgressReporter
+    /// <summary>
+    /// IScraper interface.
+    /// Implementation of this interface must be thread safe
+    /// </summary>
+    public interface IScraper
     {
         /// <summary>
         /// Get scraper name
@@ -23,5 +27,11 @@ namespace Blacker.Scraper
         /// <param name="filter">Part of manga name (ignores case and diacritics)</param>
         /// <returns>List of available mangas</returns>
         IEnumerable<MangaRecord> GetAvailableMangas(string filter);
+
+        /// <summary>
+        /// Method to get downloader which is already setup for this scraper
+        /// </summary>
+        /// <returns>Returns new instance of IDownloader implementation</returns>
+        IDownloader GetDownloader();
     }
 }

@@ -14,7 +14,7 @@ namespace Blacker.Scraper
         /// </summary>
         /// <param name="chapter">Chapter info</param>
         /// <param name="file">Output file info</param>
-        void DownloadChapter(ChapterRecord chapter, FileInfo file);
+        void DownloadChapterAsync(ChapterRecord chapter, FileInfo file);
 
         /// <summary>
         /// Download chapter to directory
@@ -22,6 +22,16 @@ namespace Blacker.Scraper
         /// <param name="chapter">Chapter info</param>
         /// <param name="directory">Output directory info</param>
         /// <param name="createDir">Flag if directory should be created if it does not exist (optional, defaul true)</param>
-        void DownloadChapter(ChapterRecord chapter, DirectoryInfo directory, bool createDir = true);
+        void DownloadChapterAsync(ChapterRecord chapter, DirectoryInfo directory, bool createDir = true);
+
+        /// <summary>
+        /// Cancel the chapter download
+        /// </summary>
+        void Cancel();
+
+        /// <summary>
+        /// Event signalling download progress
+        /// </summary>
+        event EventHandler<Events.DownloadCompletedEventArgs> DownloadCompleted;
     }
 }

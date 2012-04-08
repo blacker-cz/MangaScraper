@@ -30,20 +30,19 @@ namespace Blacker.Scraper
             HtmlAgilityPack.HtmlNode.ElementsFlags.Remove("option");
         }
 
-        public string Name
-        {
-            get { return "Batoto.net"; }
-        }
-
         protected override string BaseUrl
         {
             get { return BatotoNetUrl; }
         }
 
-        protected override Scrapers Scraper
+        protected Scrapers Scraper
         {
             get { return Scrapers.BatotoNet; }
         }
+
+        #region IScraper implementation
+
+        public string Name { get { return "Batoto.net"; } }
 
         public IEnumerable<ChapterRecord> GetAvailableChapters(MangaRecord manga)
         {
@@ -115,11 +114,18 @@ namespace Blacker.Scraper
             return records;
         }
 
+        public IDownloader GetDownloader()
+        {
+            return new Downloader(GetPages, @"//img[@id=""comic_page""]");
+        }
+
+        #endregion // IScraper implementation
+
         #region Private methods
 
         #endregion // Private methods
 
-        protected override IDictionary<int, string> GetPages(ChapterRecord chapter)
+        protected IDictionary<int, string> GetPages(ChapterRecord chapter)
         {
             IDictionary<int, string> pages = new Dictionary<int, string>();
 
@@ -150,18 +156,6 @@ namespace Blacker.Scraper
             }
 
             return pages;
-        }
-
-        protected override string GetPageImageUrl(string pageUrl)
-        {
-            var document = WebHelper.GetHtmlDocument(pageUrl);
-            var img = document.SelectSingleNode(@"//img[@id=""comic_page""]");
-            if (img == null)
-            {
-                throw new ParserException("Could not find expected elements on website.", document.InnerHtml);
-            }
-
-            return img.Attributes.FirstOrDefault(a => a.Name == "src").Value;
         }
     }
 }

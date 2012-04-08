@@ -66,7 +66,7 @@
                 <TextBlock Text="{Binding Path=CurrentActionText}" />
             </StatusBarItem>
             <StatusBarItem Grid.Column="1">
-                <ProgressBar Name="progressBar" Value="{Binding Path=ProgressValue}" Maximum="{Binding Path=ProgressMax}" IsIndeterminate="{Binding Path=ProgressIndeterminate}" Width="150" Height="15" HorizontalAlignment="Right" />
+                <ProgressBar Name="progressBar" Value="{Binding Path=ProgressValue}" Maximum="100" IsIndeterminate="{Binding Path=ProgressIndeterminate}" Width="150" Height="15" HorizontalAlignment="Right" />
             </StatusBarItem>
         </StatusBar>
     </Grid>

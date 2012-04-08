@@ -30,13 +30,14 @@ namespace Blacker.MangaScraper
 
         private string _outputPath;
         private string _searchString = string.Empty;
-        private readonly BackgroundWorker _downloadWorker;
 
         private static readonly Regex _invalidPathCharsRegex = new Regex(string.Format("[{0}]",
                                     Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))),
                                RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private static readonly object _syncRoot = new object();
+
+        private readonly HashSet<IDownloader> _downloaders = new HashSet<IDownloader>();
 
         public MainWindowViewModel()
         {
@@ -55,15 +56,10 @@ namespace Blacker.MangaScraper
             // load output path from user settings
             _outputPath = Properties.Settings.Default.OutputPath;
 
-            _downloadWorker = new BackgroundWorker();
-            _downloadWorker.DoWork += new DoWorkEventHandler(_downloadWorker_DoWork);
-            _downloadWorker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(_downloadWorker_RunWorkerCompleted);
-
             Mangas = new AsyncObservableCollection<MangaRecord>();
             Chapters = new AsyncObservableCollection<ChapterRecord>();
 
             ZipFile = true;
-            ProgressMax = 1;
             ProgressValue = 0;
 
             _requestQueue = new AsyncRequestQueue(System.Threading.SynchronizationContext.Current);
@@ -77,11 +73,7 @@ namespace Blacker.MangaScraper
             get { return _currentScraper; }
             set
             {
-                if (_currentScraper != null)
-                    _currentScraper.DownloadProgress -= CurrentScraper_DownloadProgress;
-
                 _currentScraper = value;
-                _currentScraper.DownloadProgress += CurrentScraper_DownloadProgress;
 
                 // remember selected scraper
                 Properties.Settings.Default.SelectedScraper = _currentScraper.Name;
@@ -132,8 +124,6 @@ namespace Blacker.MangaScraper
         public string CurrentActionText { get; set; }
 
         public int ProgressValue { get; set; }
-
-        public int ProgressMax { get; set; }
 
         public bool ProgressIndeterminate { get; set; }
 
@@ -285,22 +275,19 @@ namespace Blacker.MangaScraper
                 return;
             }
 
-            var workerParams = new WorkerParams()
-            {
-                Scraper = CurrentScraper,
-                Chapter = SelectedChapter,
-                IsFile = ZipFile
-            };
+            var downloader = CurrentScraper.GetDownloader();
+            downloader.DownloadProgress += Downloader_DownloadProgress;
+            downloader.DownloadCompleted += Downloader_DownloadCompleted;
 
             if (ZipFile)
-                workerParams.File = new FileInfo(Path.Combine(OutputPath, GetNameForSave(SelectedChapter) + ".zip"));
+                downloader.DownloadChapterAsync(SelectedChapter, new FileInfo(Path.Combine(OutputPath, GetNameForSave(SelectedChapter) + ".zip")));
             else
-                workerParams.Directory = new DirectoryInfo(Path.Combine(OutputPath, GetNameForSave(SelectedChapter)));
+                downloader.DownloadChapterAsync(SelectedChapter, new DirectoryInfo(Path.Combine(OutputPath, GetNameForSave(SelectedChapter))));
+
+            _downloaders.Add(downloader);
 
             ((BaseCommand)SaveCommand).Disabled = true;
             InvokePropertyChanged("SaveCommand");
-
-            _downloadWorker.RunWorkerAsync(workerParams);
         }
 
         #endregion // Commands
@@ -312,42 +299,42 @@ namespace Blacker.MangaScraper
             return _invalidPathCharsRegex.Replace(fileName, "");
         }
 
-        void CurrentScraper_DownloadProgress(object sender, Scraper.Events.DownloadProgressEventArgs e)
+        void Downloader_DownloadProgress(object sender, Scraper.Events.DownloadProgressEventArgs e)
         {
-            ProgressValue = e.Done;
-            ProgressMax = e.From;
-            CurrentActionText = e.Action;
+            ProgressValue = e.PercentComplete;
+            CurrentActionText = e.Message;
 
             InvokePropertyChanged("ProgressValue");
-            InvokePropertyChanged("ProgressMax");
             InvokePropertyChanged("CurrentActionText");
         }
 
-        void _downloadWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        void Downloader_DownloadCompleted(object sender, Scraper.Events.DownloadCompletedEventArgs e)
         {
             ProgressValue = 0;
-            ProgressMax = 0;
 
             ((BaseCommand)SaveCommand).Disabled = false;
 
             InvokePropertyChanged("ProgressValue");
-            InvokePropertyChanged("ProgressMax");
             InvokePropertyChanged("SaveCommand");
 
-            if (e.Error != null)
+            if (e.Cancelled)
+            {
+                CurrentActionText = "Download was cancelled.";
+
+                InvokePropertyChanged("CurrentActionText");
+            }
+            else if (e.Error != null)
             {
                 MessageBox.Show("Unable to download/save requested chaper, error reason is:\n\n\"" + e.Error.Message + "\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
 
-        void _downloadWorker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            var workerParams = e.Argument as WorkerParams;
+            var downloader = sender as IDownloader;
 
-            if (workerParams.IsFile)
-                workerParams.Scraper.DownloadChapter(workerParams.Chapter, workerParams.File);
-            else
-                workerParams.Scraper.DownloadChapter(workerParams.Chapter, workerParams.Directory);
+            downloader.DownloadProgress -= Downloader_DownloadProgress;
+            downloader.DownloadCompleted -= Downloader_DownloadCompleted;
+
+            _downloaders.Remove(downloader);
+
         }
 
         #region ICleanup implementation
@@ -358,14 +345,5 @@ namespace Blacker.MangaScraper
         }
 
         #endregion
-
-        private class WorkerParams
-        {
-            public IScraper Scraper { get; set; }
-            public ChapterRecord Chapter { get; set; }
-            public bool IsFile { get; set; }
-            public FileInfo File { get; set; }
-            public DirectoryInfo Directory { get; set; }
-        }
     }
 }
