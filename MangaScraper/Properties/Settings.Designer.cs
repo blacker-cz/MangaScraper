@@ -58,5 +58,17 @@ namespace Blacker.MangaScraper.Properties {
                 this["ApplicationVersion"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        public string LeftPanelWidth {
+            get {
+                return ((string)(this["LeftPanelWidth"]));
+            }
+            set {
+                this["LeftPanelWidth"] = value;
+            }
+        }
     }
 }

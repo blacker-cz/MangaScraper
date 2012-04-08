@@ -61,6 +61,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helpers\ListBoxExtension.cs" />
+    <Compile Include="View\Download.xaml.cs">
+      <DependentUpon>Download.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -69,24 +73,35 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AsyncObservableCollection.cs" />
-    <Compile Include="BaseViewModel.cs" />
+    <Compile Include="Helpers\AsyncObservableCollection.cs" />
+    <Compile Include="ViewModel\BaseViewModel.cs" />
+    <Compile Include="Commands\CancelDownloadCommand.cs" />
+    <Compile Include="Commands\RemoveDownloadCommand.cs" />
     <Compile Include="Commands\SaveCommand.cs" />
     <Compile Include="Converters\BooleanConverter.cs" />
     <Compile Include="Commands\BaseCommand.cs" />
     <Compile Include="Commands\BrowseCommand.cs" />
     <Compile Include="Commands\SearchCommand.cs" />
+    <Compile Include="ViewModel\DownloadViewModel.cs" />
     <Compile Include="Helpers\AsyncRequestQueue.cs" />
     <Compile Include="Helpers\AsyncWrapper.cs" />
     <Compile Include="Helpers\ReflectionHelper.cs" />
-    <Compile Include="ICleanup.cs" />
+    <Compile Include="ViewModel\ICleanup.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="MainWindowResourceDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Download.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainWindowViewModel.cs" />
+    <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

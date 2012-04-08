@@ -12,7 +12,7 @@ using System.ComponentModel;
 using System.Text.RegularExpressions;
 using Blacker.MangaScraper.Helpers;
 
-namespace Blacker.MangaScraper
+namespace Blacker.MangaScraper.ViewModel
 {
     class MainWindowViewModel : BaseViewModel, ICleanup
     {
@@ -37,8 +37,6 @@ namespace Blacker.MangaScraper
 
         private static readonly object _syncRoot = new object();
 
-        private readonly HashSet<IDownloader> _downloaders = new HashSet<IDownloader>();
-
         public MainWindowViewModel()
         {
             _searchCommand = new SearchCommand(this);
@@ -58,6 +56,8 @@ namespace Blacker.MangaScraper
 
             Mangas = new AsyncObservableCollection<MangaRecord>();
             Chapters = new AsyncObservableCollection<ChapterRecord>();
+            Downloads = new AsyncObservableCollection<DownloadViewModel>();
+            SelectedChapters = new AsyncObservableCollection<ChapterRecord>();
 
             ZipFile = true;
             ProgressValue = 0;
@@ -107,6 +107,10 @@ namespace Blacker.MangaScraper
 
         public ObservableCollection<ChapterRecord> Chapters { get; private set; }
 
+        public ObservableCollection<DownloadViewModel> Downloads { get; private set; }
+
+        public ObservableCollection<ChapterRecord> SelectedChapters { get; private set; }
+
         public string OutputPath
         {
             get { return _outputPath; }
@@ -136,8 +140,6 @@ namespace Blacker.MangaScraper
                 LoadChapters(_selectedManga);
             }
         }
-
-        public ChapterRecord SelectedChapter { get; set; }
 
         #region Commands
 
@@ -269,25 +271,23 @@ namespace Blacker.MangaScraper
                 return;
             }
 
-            if (SelectedChapter == null)
+            if (SelectedChapters.Count == 0)
             {
                 MessageBox.Show("Chapter must be selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            var downloader = CurrentScraper.GetDownloader();
-            downloader.DownloadProgress += Downloader_DownloadProgress;
-            downloader.DownloadCompleted += Downloader_DownloadCompleted;
+            foreach (var selectedChapter in SelectedChapters)
+            {
+                var downloadViewModel = new DownloadViewModel(CurrentScraper.GetDownloader(), selectedChapter);
+                downloadViewModel.RemoveFromCollection += DownloadViewModel_RemoveFromCollection;
+                Downloads.Add(downloadViewModel);
 
-            if (ZipFile)
-                downloader.DownloadChapterAsync(SelectedChapter, new FileInfo(Path.Combine(OutputPath, GetNameForSave(SelectedChapter) + ".zip")));
-            else
-                downloader.DownloadChapterAsync(SelectedChapter, new DirectoryInfo(Path.Combine(OutputPath, GetNameForSave(SelectedChapter))));
-
-            _downloaders.Add(downloader);
-
-            ((BaseCommand)SaveCommand).Disabled = true;
-            InvokePropertyChanged("SaveCommand");
+                if (ZipFile)
+                    downloadViewModel.Downloader.DownloadChapterAsync(selectedChapter, new FileInfo(Path.Combine(OutputPath, GetNameForSave(selectedChapter) + ".zip")));
+                else
+                    downloadViewModel.Downloader.DownloadChapterAsync(selectedChapter, new DirectoryInfo(Path.Combine(OutputPath, GetNameForSave(selectedChapter))));
+            }
         }
 
         #endregion // Commands
@@ -299,42 +299,13 @@ namespace Blacker.MangaScraper
             return _invalidPathCharsRegex.Replace(fileName, "");
         }
 
-        void Downloader_DownloadProgress(object sender, Scraper.Events.DownloadProgressEventArgs e)
+        void DownloadViewModel_RemoveFromCollection(object sender, EventArgs e)
         {
-            ProgressValue = e.PercentComplete;
-            CurrentActionText = e.Message;
+            var downloadViewModel = sender as DownloadViewModel;
 
-            InvokePropertyChanged("ProgressValue");
-            InvokePropertyChanged("CurrentActionText");
-        }
+            downloadViewModel.RemoveFromCollection -= DownloadViewModel_RemoveFromCollection;
 
-        void Downloader_DownloadCompleted(object sender, Scraper.Events.DownloadCompletedEventArgs e)
-        {
-            ProgressValue = 0;
-
-            ((BaseCommand)SaveCommand).Disabled = false;
-
-            InvokePropertyChanged("ProgressValue");
-            InvokePropertyChanged("SaveCommand");
-
-            if (e.Cancelled)
-            {
-                CurrentActionText = "Download was cancelled.";
-
-                InvokePropertyChanged("CurrentActionText");
-            }
-            else if (e.Error != null)
-            {
-                MessageBox.Show("Unable to download/save requested chaper, error reason is:\n\n\"" + e.Error.Message + "\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-
-            var downloader = sender as IDownloader;
-
-            downloader.DownloadProgress -= Downloader_DownloadProgress;
-            downloader.DownloadCompleted -= Downloader_DownloadCompleted;
-
-            _downloaders.Remove(downloader);
-
+            Downloads.Remove(downloadViewModel);
         }
 
         #region ICleanup implementation
@@ -342,6 +313,18 @@ namespace Blacker.MangaScraper
         public void Cleanup()
         {
             _requestQueue.Stop();
+
+            try
+            {
+                foreach (var download in Downloads)
+                {
+                    download.Cancel();
+                }
+            }
+            catch (Exception ex)
+            {
+                // todo: log this
+            }
         }
 
         #endregion

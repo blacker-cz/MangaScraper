@@ -23,7 +23,7 @@ namespace Blacker.MangaScraper
         {
             InitializeComponent();
 
-            this.DataContext = new MainWindowViewModel();
+            this.DataContext = new Blacker.MangaScraper.ViewModel.MainWindowViewModel();
             this.Closed += MainWindow_Closed;
         }
 
@@ -32,6 +32,8 @@ namespace Blacker.MangaScraper
             var cleanup = this.DataContext as ICleanup;
             if (cleanup != null)
                 cleanup.Cleanup();
+
+            Properties.Settings.Default.Save();
         }
     }
 }

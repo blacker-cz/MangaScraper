@@ -11,5 +11,8 @@
     <Setting Name="ApplicationVersion" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="LeftPanelWidth" Type="System.String" Scope="User">
+      <Value Profile="(Default)">500</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

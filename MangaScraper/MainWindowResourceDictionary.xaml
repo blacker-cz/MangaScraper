@@ -1,0 +1,13 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:Blacker.MangaScraper.ViewModel"
+                    xmlns:vw="clr-namespace:Blacker.MangaScraper.View"
+                    xmlns:cv="clr-namespace:Blacker.MangaScraper.Converters">
+
+    <cv:BooleanConverter x:Key="booleanConverter" />
+
+    <DataTemplate DataType="{x:Type vm:DownloadViewModel}">
+        <vw:Download />
+    </DataTemplate>
+
+</ResourceDictionary>

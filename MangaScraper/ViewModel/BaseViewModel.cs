@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Blacker.MangaScraper
+namespace Blacker.MangaScraper.ViewModel
 {
 
     /// <summary>

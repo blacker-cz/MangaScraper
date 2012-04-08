@@ -6,15 +6,15 @@ using Blacker.MangaScraper.ViewModel;
 
 namespace Blacker.MangaScraper.Commands
 {
-    class SearchCommand : BaseCommand
+    class CancelDownloadCommand : BaseCommand
     {
-        public SearchCommand(BaseViewModel model, bool disabled = false)
+        public CancelDownloadCommand(BaseViewModel model, bool disabled = false)
             : base(model, disabled)
         { }
 
         public override void Execute(object parameter)
         {
-            ((MainWindowViewModel)_viewModel).SearchManga();
+            ((DownloadViewModel)_viewModel).Cancel();
         }
     }
 }
