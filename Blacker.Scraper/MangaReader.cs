@@ -9,7 +9,7 @@ using log4net;
 
 namespace Blacker.Scraper
 {
-    public class MangaReader : BaseScraper, IScraper, IImmediateSearchProvider
+    public sealed class MangaReader : BaseScraper, IScraper, IImmediateSearchProvider
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(MangaReader));
 
@@ -32,7 +32,7 @@ namespace Blacker.Scraper
             get { return MangaReaderUrl; }
         }
 
-        protected Scrapers Scraper
+        private Scrapers Scraper
         {
             get { return Scrapers.MangaReader; }
         }
@@ -151,7 +151,7 @@ namespace Blacker.Scraper
             return records;
         }
 
-        protected IDictionary<int, string> GetPages(ChapterRecord chapter)
+        private IDictionary<int, string> GetPages(ChapterRecord chapter)
         {
             IDictionary<int, string> pages = new Dictionary<int, string>();
 

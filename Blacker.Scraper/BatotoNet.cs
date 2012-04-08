@@ -13,7 +13,7 @@ using Blacker.Scraper.Cache;
 
 namespace Blacker.Scraper
 {
-    public class BatotoNet : BaseScraper, IScraper
+    public sealed class BatotoNet : BaseScraper, IScraper
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(BatotoNet));
 
@@ -35,7 +35,7 @@ namespace Blacker.Scraper
             get { return BatotoNetUrl; }
         }
 
-        protected Scrapers Scraper
+        private Scrapers Scraper
         {
             get { return Scrapers.BatotoNet; }
         }
@@ -125,7 +125,7 @@ namespace Blacker.Scraper
 
         #endregion // Private methods
 
-        protected IDictionary<int, string> GetPages(ChapterRecord chapter)
+        private IDictionary<int, string> GetPages(ChapterRecord chapter)
         {
             IDictionary<int, string> pages = new Dictionary<int, string>();
 
