@@ -3,15 +3,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Properties="clr-namespace:Blacker.MangaScraper.Properties"
         xmlns:helpers="clr-namespace:Blacker.MangaScraper.Helpers"
-        Title="Manga Scraper" Height="421" Width="770">
+        Title="Manga Scraper"
+        Height="{Binding WindowHeight, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}"
+        Width="{Binding WindowWidth, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}"
+        WindowState="{Binding WindowState, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}">
     <Window.Resources>
         <ResourceDictionary Source="MainWindowResourceDictionary.xaml" />
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="38" />
-            <RowDefinition Height="104*" />
-            <RowDefinition Height="146*" />
+            <RowDefinition Height="{Binding MangaListHeight, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="{Binding ChapterListHeight, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}" />
             <RowDefinition Height="71" />
             <RowDefinition Height="23" />
         </Grid.RowDefinitions>
@@ -35,7 +39,7 @@
         <Button Height="23" HorizontalAlignment="Right" Margin="0,12,3,0" Name="searchButton" VerticalAlignment="Top" Width="23" Command="{Binding Path=SearchCommand}" ToolTip="Search">
             <Image Source="/MangaScraper;component/Images/zoom.png" Width="16" Height="16" />
         </Button>
-        <ListBox Margin="12,3,3,0" Name="mangaList" ItemsSource="{Binding Path=Mangas}" SelectedItem="{Binding Path=SelectedManga}" Grid.Row="1">
+        <ListBox Margin="12,3,3,3" Name="mangaList" ItemsSource="{Binding Path=Mangas}" SelectedItem="{Binding Path=SelectedManga}" Grid.Row="1">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Margin="2,2,0,8" HorizontalAlignment="Stretch">
@@ -44,7 +48,8 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <ListBox Margin="12,6,3,4" Name="chapterList" ItemsSource="{Binding Path=Chapters}" SelectionMode="Multiple" helpers:ListBoxExtension.SelectedItemsSource="{Binding SelectedChapters}" Grid.Row="2">
+        <GridSplitter Grid.Row="2" ResizeDirection="Rows" HorizontalAlignment="Stretch" />
+        <ListBox Margin="12,3,3,4" Name="chapterList" ItemsSource="{Binding Path=Chapters}" SelectionMode="Multiple" helpers:ListBoxExtension.SelectedItemsSource="{Binding SelectedChapters}" Grid.Row="3">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Margin="2,2,0,8" HorizontalAlignment="Stretch">
@@ -53,12 +58,12 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <TextBox Height="23" Margin="12,2,84,0" Name="outputPathBox" Text="{Binding Path=OutputPath}" VerticalAlignment="Top" Grid.Row="3" />
-        <Button Content="Browse" Height="23" HorizontalAlignment="Right" Margin="0,2,3,0" Name="browsePathButton" Command="{Binding Path=BrowseCommand}"  VerticalAlignment="Top" Width="75" Grid.Row="3" />
-        <RadioButton Content="Folder" HorizontalAlignment="Left" Margin="12,38,0,0" Name="radioButton1" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=false, Mode=TwoWay}" Grid.Row="3" Height="16" VerticalAlignment="Top" />
-        <RadioButton Content="Compressed file" HorizontalAlignment="Left" Margin="111,38,0,0" Name="radioButton2" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=true, Mode=TwoWay}" Grid.Row="3" Height="16" VerticalAlignment="Top" />
-        <Button Content="Save" Margin="0,31,3,0" Name="button3" Command="{Binding Path=SaveCommand}" HorizontalAlignment="Right" Width="75" Grid.Row="3" Height="23" VerticalAlignment="Top" />
-        <StatusBar Name="statusBar" Height="23" VerticalAlignment="Bottom" Grid.Row="4" Grid.ColumnSpan="3">
+        <TextBox Height="23" Margin="12,2,84,0" Name="outputPathBox" Text="{Binding Path=OutputPath}" VerticalAlignment="Top" Grid.Row="4" />
+        <Button Content="Browse" Height="23" HorizontalAlignment="Right" Margin="0,2,3,0" Name="browsePathButton" Command="{Binding Path=BrowseCommand}"  VerticalAlignment="Top" Width="75" Grid.Row="4" />
+        <RadioButton Content="Folder" HorizontalAlignment="Left" Margin="12,38,0,0" Name="radioButton1" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=false, Mode=TwoWay}" Grid.Row="4" Height="16" VerticalAlignment="Top" />
+        <RadioButton Content="Compressed file" HorizontalAlignment="Left" Margin="111,38,0,0" Name="radioButton2" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=true, Mode=TwoWay}" Grid.Row="4" Height="16" VerticalAlignment="Top" />
+        <Button Content="Save" Margin="0,31,3,0" Name="button3" Command="{Binding Path=SaveCommand}" HorizontalAlignment="Right" Width="75" Grid.Row="4" Height="23" VerticalAlignment="Top" />
+        <StatusBar Name="statusBar" Height="23" VerticalAlignment="Bottom" Grid.Row="5" Grid.ColumnSpan="3">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid>
@@ -76,7 +81,9 @@
                 <ProgressBar Name="progressBar" Value="{Binding Path=ProgressValue}" Maximum="100" IsIndeterminate="{Binding Path=ProgressIndeterminate}" Width="150" Height="15" HorizontalAlignment="Right" />
             </StatusBarItem>
         </StatusBar>
-        <GridSplitter Grid.Column="1" Grid.RowSpan="4" HorizontalAlignment="Stretch" ResizeDirection="Columns" />
-        <ListBox Grid.Column="2" Margin="3,12,3,17" Grid.RowSpan="4" ItemsSource="{Binding Path=Downloads}" HorizontalContentAlignment="Stretch" />
+        <GridSplitter Grid.Column="1" Grid.RowSpan="5" HorizontalAlignment="Stretch" ResizeDirection="Columns" />
+        <ScrollViewer Grid.Column="2" Grid.RowSpan="5" Margin="3,12,3,17" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Path=Downloads}" HorizontalContentAlignment="Stretch" />
+        </ScrollViewer>
     </Grid>
 </Window>

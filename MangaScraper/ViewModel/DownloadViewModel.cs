@@ -19,6 +19,9 @@ namespace Blacker.MangaScraper.ViewModel
 
         private DownloadState _downloadState;
 
+        private const string ButtonCancelText = @"Cancel";
+        private const string ButtonCancellingText = @"Canceling";
+
         public DownloadViewModel(IDownloader downloader, ChapterRecord chapter)
             : base()
         {
@@ -39,6 +42,7 @@ namespace Blacker.MangaScraper.ViewModel
 
             State = DownloadState.Ok;
             Completed = false;
+            CancelText = ButtonCancelText;
         }
 
         public event EventHandler DownloadCompleted;
@@ -46,6 +50,8 @@ namespace Blacker.MangaScraper.ViewModel
 
         public ICommand CancelDownloadCommand { get { return _cancelDownloadCommand; } }
         public ICommand RemoveDownloadCommand { get { return _removeDownloadCommand; } }
+
+        public string CancelText { get; set; }
 
         public int ProgressValue { get; set; }
 
@@ -88,6 +94,9 @@ namespace Blacker.MangaScraper.ViewModel
         public void Cancel()
         {
             _downloader.Cancel();
+            
+            CancelText = ButtonCancellingText;
+            InvokePropertyChanged("CancelText");
         }
 
         public void Remove()
@@ -121,10 +130,11 @@ namespace Blacker.MangaScraper.ViewModel
                 State = DownloadState.Error;
             }
 
+            Completed = true;
+
             InvokePropertyChanged("ProgressValue");
             InvokePropertyChanged("CurrentActionText");
-
-            Completed = true;
+            InvokePropertyChanged("Completed");
 
             OnDownloadCompleted();
         }
