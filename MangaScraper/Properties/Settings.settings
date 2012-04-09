@@ -29,5 +29,8 @@
     <Setting Name="ChapterListHeight" Type="System.String" Scope="User">
       <Value Profile="(Default)">*</Value>
     </Setting>
+    <Setting Name="ReaderPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

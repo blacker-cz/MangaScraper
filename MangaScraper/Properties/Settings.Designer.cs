@@ -130,5 +130,17 @@ namespace Blacker.MangaScraper.Properties {
                 this["ChapterListHeight"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ReaderPath {
+            get {
+                return ((string)(this["ReaderPath"]));
+            }
+            set {
+                this["ReaderPath"] = value;
+            }
+        }
     }
 }

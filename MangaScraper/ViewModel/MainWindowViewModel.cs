@@ -31,10 +31,6 @@ namespace Blacker.MangaScraper.ViewModel
         private string _outputPath;
         private string _searchString = string.Empty;
 
-        private static readonly Regex _invalidPathCharsRegex = new Regex(string.Format("[{0}]",
-                                    Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))),
-                               RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
         private static readonly object _syncRoot = new object();
 
         public MainWindowViewModel()
@@ -283,21 +279,11 @@ namespace Blacker.MangaScraper.ViewModel
                 downloadViewModel.RemoveFromCollection += DownloadViewModel_RemoveFromCollection;
                 Downloads.Add(downloadViewModel);
 
-                if (ZipFile)
-                    downloadViewModel.Downloader.DownloadChapterAsync(selectedChapter, new FileInfo(Path.Combine(OutputPath, GetNameForSave(selectedChapter) + ".zip")));
-                else
-                    downloadViewModel.Downloader.DownloadChapterAsync(selectedChapter, new DirectoryInfo(Path.Combine(OutputPath, GetNameForSave(selectedChapter))));
+                downloadViewModel.DownloadChapter(OutputPath, ZipFile);
             }
         }
 
         #endregion // Commands
-
-        private string GetNameForSave(ChapterRecord chapter)
-        {
-            string fileName = String.Format("{0} - {1}", chapter.MangaName, chapter.ChapterName).Replace(" ", "_");
-            
-            return _invalidPathCharsRegex.Replace(fileName, "");
-        }
 
         void DownloadViewModel_RemoveFromCollection(object sender, EventArgs e)
         {

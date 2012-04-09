@@ -6,18 +6,31 @@ using Blacker.Scraper;
 using System.Windows.Input;
 using Blacker.MangaScraper.Commands;
 using Blacker.Scraper.Models;
+using System.IO;
+using System.Text.RegularExpressions;
+using log4net;
 
 namespace Blacker.MangaScraper.ViewModel
 {
     class DownloadViewModel : BaseViewModel
     {
+        private static readonly ILog _log = LogManager.GetLogger(typeof(DownloadViewModel));
+
         private readonly IDownloader _downloader;
         private readonly ChapterRecord _chapter;
 
         private readonly ICommand _cancelDownloadCommand;
         private readonly ICommand _removeDownloadCommand;
+        private readonly ICommand _openDownloadCommand;
 
         private DownloadState _downloadState;
+
+        private bool _isZipped;
+        private string _outputFullPath;
+
+        private static readonly Regex _invalidPathCharsRegex = new Regex(string.Format("[{0}]",
+                                    Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))),
+                               RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private const string ButtonCancelText = @"Cancel";
         private const string ButtonCancellingText = @"Canceling";
@@ -39,6 +52,7 @@ namespace Blacker.MangaScraper.ViewModel
 
             _cancelDownloadCommand = new CancelDownloadCommand(this);
             _removeDownloadCommand = new RemoveDownloadCommand(this);
+            _openDownloadCommand = new OpenDownloadCommand(this);
 
             State = DownloadState.Ok;
             Completed = false;
@@ -50,6 +64,7 @@ namespace Blacker.MangaScraper.ViewModel
 
         public ICommand CancelDownloadCommand { get { return _cancelDownloadCommand; } }
         public ICommand RemoveDownloadCommand { get { return _removeDownloadCommand; } }
+        public ICommand OpenDownloadCommand { get { return _openDownloadCommand; } }
 
         public string CancelText { get; set; }
 
@@ -62,6 +77,8 @@ namespace Blacker.MangaScraper.ViewModel
         public string CurrentActionText { get; set; }
 
         public bool Completed { get; private set; }
+
+        public bool CanOpen { get { return Completed && State == DownloadState.Ok; } }
 
         private DownloadState State 
         {
@@ -88,6 +105,52 @@ namespace Blacker.MangaScraper.ViewModel
                     default:
                         return "LightSalmon";
                 }
+            }
+        }
+
+        public void DownloadChapter(string outputPath, bool isZipped)
+        {
+            if (string.IsNullOrEmpty(outputPath))
+                throw new ArgumentException("Invalid output path", "outputPath");
+
+            _isZipped = isZipped;
+
+            if (isZipped)
+            {
+                var fileInfo = new FileInfo(Path.Combine(outputPath, GetNameForSave(Chapter) + ".zip"));
+                _outputFullPath = fileInfo.FullName;
+                Downloader.DownloadChapterAsync(Chapter, fileInfo);
+            }
+            else
+            {
+                var directoryInfo = new DirectoryInfo(Path.Combine(outputPath, GetNameForSave(Chapter)));
+                _outputFullPath = directoryInfo.FullName;
+                Downloader.DownloadChapterAsync(Chapter, directoryInfo);
+            }
+        }
+
+        public void Open()
+        {
+            if (!Completed && State != DownloadState.Ok)
+                throw new InvalidOperationException();
+
+            try
+            {
+                if (_isZipped)
+                {
+                    if (!string.IsNullOrEmpty(Properties.Settings.Default.ReaderPath))
+                        System.Diagnostics.Process.Start(Properties.Settings.Default.ReaderPath, _outputFullPath);
+                    else
+                        System.Diagnostics.Process.Start(_outputFullPath);
+                }
+                else
+                {
+                    System.Diagnostics.Process.Start(_outputFullPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Unable to open downloaded chapter.", ex);
             }
         }
 
@@ -135,6 +198,7 @@ namespace Blacker.MangaScraper.ViewModel
             InvokePropertyChanged("ProgressValue");
             InvokePropertyChanged("CurrentActionText");
             InvokePropertyChanged("Completed");
+            InvokePropertyChanged("CanOpen");
 
             OnDownloadCompleted();
         }
@@ -161,5 +225,13 @@ namespace Blacker.MangaScraper.ViewModel
             Warning,
             Error
         }
+
+        private string GetNameForSave(ChapterRecord chapter)
+        {
+            string fileName = String.Format("{0} - {1}", chapter.MangaName, chapter.ChapterName).Replace(" ", "_");
+
+            return _invalidPathCharsRegex.Replace(fileName, "");
+        }
+
     }
 }

@@ -29,6 +29,7 @@
             <c:InverseBooleanConverter/>
             <BooleanToVisibilityConverter/>
         </c:ValueConverterGroup>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
     </UserControl.Resources>
     <Grid HorizontalAlignment="Stretch" Background="{Binding Path=StateColor}" Margin="0,2,0,2">
         <Border BorderThickness="1" BorderBrush="LightGray" Padding="3,3,3,3">
@@ -44,6 +45,7 @@
             <StackPanel Orientation="Horizontal">
                     <ProgressBar Value="{Binding Path=ProgressValue}" Maximum="100" IsIndeterminate="False" Width="150" Height="15" HorizontalAlignment="Right"  />
                     <Button Margin="10,3,3,3" Content="{Binding Path=CancelText}" Visibility="{Binding Path=Completed,Converter={StaticResource InvertAndVisibilitate}}" ToolTip="Cancel download" Command="{Binding Path=CancelDownloadCommand}" Style="{StaticResource LinkButton}" />
+                    <Button Margin="10,3,3,3" Content="Open" ToolTip="Open downloaded chapter" Visibility="{Binding Path=CanOpen, Converter={StaticResource BoolToVisConverter}}" Command="{Binding Path=OpenDownloadCommand}" Style="{StaticResource LinkButton}" />
                     <Button Margin="10,3,3,3" Content="Remove" ToolTip="Remove download from this list" Command="{Binding Path=RemoveDownloadCommand}" Style="{StaticResource LinkButton}" />
             </StackPanel>
             <TextBlock Text="{Binding Path=CurrentActionText}" FontStyle="Italic" Foreground="Gray" />
