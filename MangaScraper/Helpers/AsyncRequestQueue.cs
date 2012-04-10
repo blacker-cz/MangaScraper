@@ -69,6 +69,8 @@ namespace Blacker.MangaScraper.Helpers
 
                     while (_requestQueue.TryDequeue(out request))
 	                {
+                        request.Error = null;
+
 	                    try 
 	                    {	        
 		                    request.Result = request.Method();
@@ -76,17 +78,9 @@ namespace Blacker.MangaScraper.Helpers
 	                    catch (Exception ex)
 	                    {
                             _log.Error("Call to requested method failed with exception.", ex);
-
-                            try 
-	                        {
-                                // todo: this should be probably also called in right context
-		                        request.Callback(null, ex);
-	                        }
-	                        catch (Exception innerEx)
-	                        {
-                                _log.Error("Unable to invoke callback method.", innerEx);
-	                        }
-                            continue;
+                            request.Result = null;
+                            request.Error = ex;
+                            // do nothing here we will send error info when invoking callback
 	                    }
 
                         try 
@@ -94,7 +88,7 @@ namespace Blacker.MangaScraper.Helpers
                             if (_synchronizationContext == SynchronizationContext.Current)
                             {
                                 // Execute callback on the current thread
-                                request.Callback(request.Result, null);
+                                request.Callback(request.Result, request.Error);
                             }
                             else
                             {
@@ -102,7 +96,7 @@ namespace Blacker.MangaScraper.Helpers
                                 _synchronizationContext.Post(new SendOrPostCallback(delegate(object state)
                                 {
                                     var r = state as AsyncRequest;
-                                    r.Callback(r.Result, null);
+                                    r.Callback(r.Result, r.Error);
                                 }), request);
                             }
 	                    }
@@ -133,6 +127,7 @@ namespace Blacker.MangaScraper.Helpers
             public Func<object> Method { get; set; }
             public Action<object, Exception> Callback { get; set; }
             public object Result;
+            public Exception Error { get; set; }
         }
     }
 }
