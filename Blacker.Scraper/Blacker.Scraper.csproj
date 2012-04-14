@@ -63,6 +63,7 @@
     <Compile Include="IImmediateSearchProvider.cs" />
     <Compile Include="IPreload.cs" />
     <Compile Include="IScraper.cs" />
+    <Compile Include="MangaFox.cs" />
     <Compile Include="MangaReader.cs" />
     <Compile Include="Models\MangaRecord.cs" />
     <Compile Include="Exceptions\HttpException.cs" />
