@@ -5,18 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:c="clr-namespace:Blacker.MangaScraper.Converters">
     <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../StylesDictionary.xaml" />
-                <ResourceDictionary>
-                    <c:ValueConverterGroup x:Key="InvertAndVisibilitate">
-                        <c:InverseBooleanConverter/>
-                        <BooleanToVisibilityConverter/>
-                    </c:ValueConverterGroup>
-                    <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
-                </ResourceDictionary>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+        <c:ValueConverterGroup x:Key="InvertAndVisibilitate">
+            <c:InverseBooleanConverter/>
+            <BooleanToVisibilityConverter/>
+        </c:ValueConverterGroup>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
     </UserControl.Resources>
     <Grid HorizontalAlignment="Stretch" Background="{Binding Path=StateColor}" Margin="0,2,0,2">
         <Border BorderThickness="1" BorderBrush="LightGray" Padding="3,3,3,3">

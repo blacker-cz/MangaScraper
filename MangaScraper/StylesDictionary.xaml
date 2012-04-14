@@ -21,5 +21,49 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-
+    
+    <Style TargetType="{x:Type ToolTip}">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToolTip}">
+                    <Border BorderBrush="#111111" BorderThickness="1" SnapsToDevicePixels="True">
+                        <Border Width="Auto" Height="Auto" Name="windowFrame" BorderBrush="#999999"
+                               BorderThickness="1"
+                               SnapsToDevicePixels="True"
+                               CornerRadius="0" 
+                               Background="#525252"  TextBlock.Foreground="White"
+                               TextBlock.FontFamily="Verdana" TextBlock.FontSize="11"
+                               Margin="0" Padding="3">
+                            <ContentPresenter />
+                        </Border>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style x:Key="WaterMarkTextBoxStyle" BasedOn="{StaticResource {x:Type TextBox}}" TargetType="{x:Type TextBox}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TextBox}">
+                    <Border BorderBrush="#FF7F9DB9" BorderThickness="1">
+                        <Grid>
+                            <ScrollViewer x:Name="PART_ContentHost" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            <TextBlock x:Name="textBlock" Padding="10,2,2,2" Opacity="0.345" Text="Search" TextWrapping="Wrap" Visibility="Hidden" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsFocused" Value="False" />
+                                <Condition Property="Text" Value="" />
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Visibility" TargetName="textBlock" Value="Visible" />
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
