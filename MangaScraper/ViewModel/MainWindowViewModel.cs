@@ -25,6 +25,7 @@ namespace Blacker.MangaScraper.ViewModel
         private IScraper _currentScraper;
 
         private AsyncRequestQueue _requestQueue;
+        private AsyncRequestQueue _preloadQueue;
 
         private readonly ICommand _searchCommand;
         private readonly ICommand _browseCommand;
@@ -72,6 +73,10 @@ namespace Blacker.MangaScraper.ViewModel
 
             if (Properties.Settings.Default.EnablePreload)
             {
+                _preloadQueue = new AsyncRequestQueue(System.Threading.SynchronizationContext.Current);
+                _preloadQueue.TasksCompleted += _requestQueue_TasksCompleted;   // todo: is this really good idea?
+                _preloadQueue.Initialize();
+
                 PreloadMangas();
             }
         }
@@ -311,7 +316,7 @@ namespace Blacker.MangaScraper.ViewModel
                         InvokePropertyChanged("CurrentActionText");
                     }
 
-                    _requestQueue.AddLowPriority(
+                    _preloadQueue.Add(
                         () =>
                         {
                             preloadable.PreloadDirectory();
@@ -346,7 +351,11 @@ namespace Blacker.MangaScraper.ViewModel
 
         public void Cleanup()
         {
-            _requestQueue.Stop();
+            if (_requestQueue != null)
+                _requestQueue.Stop();
+
+            if (_preloadQueue != null)
+                _preloadQueue.Stop();
 
             try
             {

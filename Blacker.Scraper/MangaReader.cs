@@ -21,6 +21,8 @@ namespace Blacker.Scraper
         private const string MangasCacheKey = "Mangas";
         private const string ChapterCacheKey = "Chapters";
 
+        private readonly object _syncRoot = new object();
+
         public MangaReader()
         {
             _cache = new Cache<string, object>();
@@ -111,7 +113,13 @@ namespace Blacker.Scraper
 
         public void PreloadDirectory()
         {
-            Mangas.FirstOrDefault();    // this will load mangas to cache if they are not already loaded
+            lock (_syncRoot)
+            {
+                // load mangas to cache
+                var mangas = _cache[MangasCacheKey] as IEnumerable<MangaRecord>;
+                if (mangas == null)
+                    _cache[MangasCacheKey] = LoadAllMangas();
+            }
         }
 
         #endregion // IPreload implementation
@@ -122,11 +130,14 @@ namespace Blacker.Scraper
         {
             get
             {
-                var mangas = _cache[MangasCacheKey] as IEnumerable<MangaRecord>;
-                if (mangas == null)
-                    _cache[MangasCacheKey] = LoadAllMangas();
+                lock (_syncRoot)
+                {
+                    var mangas = _cache[MangasCacheKey] as IEnumerable<MangaRecord>;
+                    if (mangas == null)
+                        _cache[MangasCacheKey] = LoadAllMangas();
 
-                return _cache[MangasCacheKey] as IEnumerable<MangaRecord>;
+                    return _cache[MangasCacheKey] as IEnumerable<MangaRecord>;
+                }
             }
         }
 
