@@ -43,7 +43,7 @@ namespace Blacker.Scraper.Cache
         {
             lock (_syncRoot)
             {
-                var invalidRecords = _dict.Keys.Where(k => !_dict[k].IsValid);
+                var invalidRecords = new List<TKey>(_dict.Keys.Where(k => !_dict[k].IsValid));
                 foreach (var key in invalidRecords)
                 {
                     _dict.Remove(key);
