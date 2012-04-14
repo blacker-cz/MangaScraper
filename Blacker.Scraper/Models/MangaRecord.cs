@@ -7,7 +7,7 @@ namespace Blacker.Scraper.Models
 {
     public class MangaRecord
     {
-        public MangaRecord(Scrapers scraper)
+        public MangaRecord(Guid scraper)
         {
             Scraper = scraper;
         }
@@ -16,6 +16,6 @@ namespace Blacker.Scraper.Models
 
         public string Url { get; set; }
 
-        public Scrapers Scraper { get; private set; }
+        public Guid Scraper { get; private set; }
     }
 }

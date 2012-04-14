@@ -9,7 +9,7 @@ using log4net;
 
 namespace Blacker.Scraper
 {
-    public sealed class MangaReader : BaseScraper, IScraper, IImmediateSearchProvider
+    public sealed class MangaReader : BaseScraper, IScraper, IImmediateSearchProvider, IPreload
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(MangaReader));
 
@@ -32,9 +32,9 @@ namespace Blacker.Scraper
             get { return MangaReaderUrl; }
         }
 
-        private Scrapers Scraper
+        private Guid Scraper
         {
-            get { return Scrapers.MangaReader; }
+            get { return Guid.Parse("fd228173-12cb-4677-89ca-8867e5c622e0"); }
         }
 
         #region IScraper implementation
@@ -46,7 +46,7 @@ namespace Blacker.Scraper
             if (manga == null)
                 throw new ArgumentNullException("manga");
             if (manga.Scraper != Scraper)
-                throw new ArgumentException("Manga record is not for " + Scraper.ToString(), "manga");
+                throw new ArgumentException("Manga record is not for " + Name, "manga");
 
             var cacheKey = ChapterCacheKey + manga.MangaName + manga.Url;
 
@@ -65,10 +65,10 @@ namespace Blacker.Scraper
 
             foreach (var chapter in chapters)
             {
-                records.Add(new ChapterRecord(Scrapers.MangaReader)
+                records.Add(new ChapterRecord(Scraper)
                 {
                     MangaName = manga.MangaName,
-                    ChapterName = chapter.InnerText.Replace(Environment.NewLine, "").Trim(),
+                    ChapterName = CleanupText(chapter.InnerText),
                     Url = GetFullUrl(chapter.ChildNodes.FirstOrDefault(n => n.Name == "a").Attributes["href"].Value),
                     MangaRecord = manga
                 });
@@ -107,6 +107,15 @@ namespace Blacker.Scraper
 
         #endregion // IImediateSearchProvider implementation
 
+        #region IPreload implementation
+
+        public void PreloadDirectory()
+        {
+            Mangas.FirstOrDefault();    // this will load mangas to cache if they are not already loaded
+        }
+
+        #endregion // IPreload implementation
+
         #region Private properties
 
         private IEnumerable<MangaRecord> Mangas
@@ -141,7 +150,7 @@ namespace Blacker.Scraper
                 if (string.IsNullOrEmpty(manga.InnerText))
                     continue;
 
-                records.Add(new MangaRecord(Scrapers.MangaReader)
+                records.Add(new MangaRecord(Scraper)
                 {
                     MangaName = manga.InnerText.Trim(),
                     Url = GetFullUrl(manga.Attributes["href"].Value)

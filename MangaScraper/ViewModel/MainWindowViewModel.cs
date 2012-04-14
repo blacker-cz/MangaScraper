@@ -11,11 +11,15 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
 using Blacker.MangaScraper.Helpers;
+using log4net;
+using Blacker.Scraper.Utils;
 
 namespace Blacker.MangaScraper.ViewModel
 {
     class MainWindowViewModel : BaseViewModel, ICleanup
     {
+        private static readonly ILog _log = LogManager.GetLogger(typeof(MainWindowViewModel));
+
         private readonly IList<IScraper> _scrapers;
 
         private IScraper _currentScraper;
@@ -32,6 +36,8 @@ namespace Blacker.MangaScraper.ViewModel
         private string _searchString = string.Empty;
 
         private static readonly object _syncRoot = new object();
+
+        private readonly ISemaphore _downloadsSemaphore;
 
         public MainWindowViewModel()
         {
@@ -59,7 +65,15 @@ namespace Blacker.MangaScraper.ViewModel
             ProgressValue = 0;
 
             _requestQueue = new AsyncRequestQueue(System.Threading.SynchronizationContext.Current);
+            _requestQueue.TasksCompleted += _requestQueue_TasksCompleted;
             _requestQueue.Initialize();
+
+            _downloadsSemaphore = new FifoSemaphore(Properties.Settings.Default.MaxParallelDownloads);
+
+            if (Properties.Settings.Default.EnablePreload)
+            {
+                PreloadMangas();
+            }
         }
 
         public IList<IScraper> Scrapers { get { return _scrapers; } }
@@ -146,6 +160,8 @@ namespace Blacker.MangaScraper.ViewModel
 
             ProgressIndeterminate = true;
             InvokePropertyChanged("ProgressIndeterminate");
+            CurrentActionText = "Searching ...";
+            InvokePropertyChanged("CurrentActionText");
 
             _requestQueue.Add(
                 () => {
@@ -162,9 +178,6 @@ namespace Blacker.MangaScraper.ViewModel
                             InvokePropertyChanged("Mangas");
                         }
                     }
-
-                    ProgressIndeterminate = false;
-                    InvokePropertyChanged("ProgressIndeterminate");
                 }
             );
         }
@@ -179,6 +192,8 @@ namespace Blacker.MangaScraper.ViewModel
 
             ProgressIndeterminate = true;
             InvokePropertyChanged("ProgressIndeterminate");
+            CurrentActionText = "Searching ...";
+            InvokePropertyChanged("CurrentActionText");
 
             _requestQueue.Add(
                 () =>
@@ -196,9 +211,6 @@ namespace Blacker.MangaScraper.ViewModel
                             InvokePropertyChanged("Mangas");
                         }
                     }
-
-                    ProgressIndeterminate = false;
-                    InvokePropertyChanged("ProgressIndeterminate");
                 }
             );
         }
@@ -212,6 +224,8 @@ namespace Blacker.MangaScraper.ViewModel
 
             ProgressIndeterminate = true;
             InvokePropertyChanged("ProgressIndeterminate");
+            CurrentActionText = "Loading chapters ...";
+            InvokePropertyChanged("CurrentActionText");
 
             _requestQueue.Add(
                 () =>
@@ -230,9 +244,6 @@ namespace Blacker.MangaScraper.ViewModel
                             InvokePropertyChanged("Chapters");
                         }
                     }
-
-                    ProgressIndeterminate = false;
-                    InvokePropertyChanged("ProgressIndeterminate");
                 }
             );
         }
@@ -279,11 +290,48 @@ namespace Blacker.MangaScraper.ViewModel
                 downloadViewModel.RemoveFromCollection += DownloadViewModel_RemoveFromCollection;
                 Downloads.Add(downloadViewModel);
 
-                downloadViewModel.DownloadChapter(OutputPath, ZipFile);
+                downloadViewModel.DownloadChapter(OutputPath, ZipFile, _downloadsSemaphore);
             }
         }
 
         #endregion // Commands
+
+        private void PreloadMangas()
+        {
+            foreach (var scraper in _scrapers)
+            {
+                var preloadable = scraper as IPreload;
+                if (preloadable != null)
+                {
+                    if (!ProgressIndeterminate)
+                    {
+                        CurrentActionText = "Preloading manga directories ...";
+                        ProgressIndeterminate = true;
+                        InvokePropertyChanged("ProgressIndeterminate");
+                        InvokePropertyChanged("CurrentActionText");
+                    }
+
+                    _requestQueue.AddLowPriority(
+                        () =>
+                        {
+                            preloadable.PreloadDirectory();
+                            return null;
+                        },
+                        (x, y) =>
+                        {
+                            // we don't care about result or error
+                        });
+                }
+            }
+        }
+
+        void _requestQueue_TasksCompleted(object sender, EventArgs e)
+        {
+            ProgressIndeterminate = false;
+            InvokePropertyChanged("ProgressIndeterminate");
+            CurrentActionText = "";
+            InvokePropertyChanged("CurrentActionText");
+        }
 
         void DownloadViewModel_RemoveFromCollection(object sender, EventArgs e)
         {
@@ -309,7 +357,7 @@ namespace Blacker.MangaScraper.ViewModel
             }
             catch (Exception ex)
             {
-                // todo: log this
+                _log.Error("Unable to cancel download during cleanup.", ex);
             }
         }
 

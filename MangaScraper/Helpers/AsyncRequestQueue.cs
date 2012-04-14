@@ -16,10 +16,18 @@ namespace Blacker.MangaScraper.Helpers
         private readonly AutoResetEvent _canProcess = new AutoResetEvent(false);
         private readonly AutoResetEvent _stopEvent = new AutoResetEvent(false);
         private readonly ConcurrentQueue<AsyncRequest> _requestQueue = new ConcurrentQueue<AsyncRequest>();
+        private readonly ConcurrentQueue<AsyncRequest> _lowPriorityRequestQueue = new ConcurrentQueue<AsyncRequest>();
         private readonly SynchronizationContext _synchronizationContext;
         private readonly Thread _thread;
 
         private bool _initialized;
+
+        public event EventHandler TasksCompleted;
+
+        public AsyncRequestQueue() 
+            : this(SynchronizationContext.Current)
+        {
+        }
 
         public AsyncRequestQueue(SynchronizationContext synchronizationContext)
 	    {
@@ -54,6 +62,8 @@ namespace Blacker.MangaScraper.Helpers
             _initialized = false;
         }
 
+        #region Thread
+
         private void ThreadProc()
         {
             while (true)
@@ -69,45 +79,88 @@ namespace Blacker.MangaScraper.Helpers
 
                     while (_requestQueue.TryDequeue(out request))
 	                {
-                        request.Error = null;
-
-	                    try 
-	                    {	        
-		                    request.Result = request.Method();
-	                    }
-	                    catch (Exception ex)
-	                    {
-                            _log.Error("Call to requested method failed with exception.", ex);
-                            request.Result = null;
-                            request.Error = ex;
-                            // do nothing here we will send error info when invoking callback
-	                    }
-
-                        try 
-	                    {
-                            if (_synchronizationContext == SynchronizationContext.Current)
-                            {
-                                // Execute callback on the current thread
-                                request.Callback(request.Result, request.Error);
-                            }
-                            else
-                            {
-                                // Post the callback on the creator thread
-                                _synchronizationContext.Post(new SendOrPostCallback(delegate(object state)
-                                {
-                                    var r = state as AsyncRequest;
-                                    r.Callback(r.Result, r.Error);
-                                }), request);
-                            }
-	                    }
-	                    catch (Exception ex)
-	                    {
-                            _log.Error("Unable to invoke callback method.", ex);
-	                    }
+                        ProcessAsyncRequest(request);
 	                }
+
+                    while (_requestQueue.Count == 0 && _lowPriorityRequestQueue.TryDequeue(out request))
+                    {
+                        ProcessAsyncRequest(request);
+                    }
+
+                    if (_requestQueue.Count == 0)
+                    {
+                        OnTasksCompleted();
+                    }
                 }
             }
         }
+
+        private void ProcessAsyncRequest(AsyncRequest request)
+        {
+            request.Error = null;
+
+            try
+            {
+                request.Result = request.Method();
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Call to requested method failed with exception.", ex);
+                request.Result = null;
+                request.Error = ex;
+                // do nothing here we will send error info when invoking callback
+            }
+
+            try
+            {
+                if (_synchronizationContext == SynchronizationContext.Current)
+                {
+                    // Execute callback on the current thread
+                    request.Callback(request.Result, request.Error);
+                }
+                else
+                {
+                    // Post the callback on the creator thread
+                    _synchronizationContext.Post(new SendOrPostCallback(delegate(object state)
+                    {
+                        var r = state as AsyncRequest;
+                        r.Callback(r.Result, r.Error);
+                    }), request);
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Unable to invoke callback method.", ex);
+            }
+        }
+
+        private void OnTasksCompleted()
+        {
+            if (_synchronizationContext == SynchronizationContext.Current)
+            {
+                var tasksCompleted = TasksCompleted;
+                if (tasksCompleted != null)
+                {
+                    // Execute event on the current thread
+                    tasksCompleted(this, null);
+                }
+            }
+            else
+            {
+                // Post the event on the creator thread
+                _synchronizationContext.Post(new SendOrPostCallback(delegate(object state)
+                {
+                    var tasksCompleted = TasksCompleted;
+                    if (tasksCompleted != null)
+                    {
+
+                        tasksCompleted(this, null);
+                    }
+                }), null);
+            }
+        }
+
+        #endregion // Thread
 
         public void Add(Func<object> method, Action<object, Exception> callback)
         {
@@ -119,6 +172,19 @@ namespace Blacker.MangaScraper.Helpers
                 throw new InvalidOperationException("Not initialized!");
 
             _requestQueue.Enqueue(new AsyncRequest() { Method = method, Callback = callback });
+            _canProcess.Set();
+        }
+
+        public void AddLowPriority(Func<object> method, Action<object, Exception> callback)
+        {
+            if (method == null)
+                throw new ArgumentNullException("method");
+            if (callback == null)
+                throw new ArgumentNullException("callback");
+            if (!_initialized)
+                throw new InvalidOperationException("Not initialized!");
+
+            _lowPriorityRequestQueue.Enqueue(new AsyncRequest() { Method = method, Callback = callback });
             _canProcess.Set();
         }
 

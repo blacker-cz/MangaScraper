@@ -9,6 +9,7 @@ using Blacker.Scraper.Models;
 using System.IO;
 using System.Text.RegularExpressions;
 using log4net;
+using Blacker.Scraper.Utils;
 
 namespace Blacker.MangaScraper.ViewModel
 {
@@ -108,7 +109,7 @@ namespace Blacker.MangaScraper.ViewModel
             }
         }
 
-        public void DownloadChapter(string outputPath, bool isZipped)
+        public void DownloadChapter(string outputPath, bool isZipped, ISemaphore semaphore)
         {
             if (string.IsNullOrEmpty(outputPath))
                 throw new ArgumentException("Invalid output path", "outputPath");
@@ -119,13 +120,13 @@ namespace Blacker.MangaScraper.ViewModel
             {
                 var fileInfo = new FileInfo(Path.Combine(outputPath, GetNameForSave(Chapter) + ".zip"));
                 _outputFullPath = fileInfo.FullName;
-                Downloader.DownloadChapterAsync(Chapter, fileInfo);
+                Downloader.DownloadChapterAsync(semaphore, Chapter, fileInfo);
             }
             else
             {
                 var directoryInfo = new DirectoryInfo(Path.Combine(outputPath, GetNameForSave(Chapter)));
                 _outputFullPath = directoryInfo.FullName;
-                Downloader.DownloadChapterAsync(Chapter, directoryInfo);
+                Downloader.DownloadChapterAsync(semaphore, Chapter, directoryInfo);
             }
         }
 
@@ -191,6 +192,7 @@ namespace Blacker.MangaScraper.ViewModel
             {
                 CurrentActionText = "Unable to download/save requested chaper";
                 State = DownloadState.Error;
+                _log.Error("Unable to download/save requested chapter.", e.Error);
             }
 
             Completed = true;

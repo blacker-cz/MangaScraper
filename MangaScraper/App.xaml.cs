@@ -50,6 +50,8 @@ namespace Blacker.MangaScraper
 #if !DEBUG
             MessageBox.Show("Application encountered following unrecoverable error and will now shut down:\n\n\"" + e.Exception.Message + "\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
+            _log.Error("Unexpected error.", e.Exception);
+
             e.Handled = true;
             
             // kill application

@@ -10,6 +10,7 @@ using Ionic.Zip;
 using Blacker.Scraper.Events;
 using log4net;
 using System.ComponentModel;
+using Blacker.Scraper.Utils;
 
 namespace Blacker.Scraper
 {
@@ -146,11 +147,13 @@ namespace Blacker.Scraper
 
         #region IDownloadProvider implementation
 
-        public virtual void DownloadChapterAsync(ChapterRecord chapter, FileInfo file)
+        public virtual void DownloadChapterAsync(ISemaphore semaphore, ChapterRecord chapter, FileInfo file)
         {
             if (_backgroundWorker.IsBusy)
                 throw new InvalidOperationException("Download is currently in progress.");
 
+            if (semaphore == null)
+                throw new ArgumentNullException("semaphore");
             if (chapter == null)
                 throw new ArgumentNullException("chapter");
             if (file == null)
@@ -160,17 +163,20 @@ namespace Blacker.Scraper
                     {
                         Chapter = chapter,
                         IsFile = true,
-                        File = file
+                        File = file,
+                        Semaphore = semaphore
                     };
 
             _backgroundWorker.RunWorkerAsync(workerParams);
         }
 
-        public virtual void DownloadChapterAsync(ChapterRecord chapter, DirectoryInfo directory, bool createDir = true)
+        public virtual void DownloadChapterAsync(ISemaphore semaphore, ChapterRecord chapter, DirectoryInfo directory, bool createDir = true)
         {
             if (_backgroundWorker.IsBusy)
                 throw new InvalidOperationException("Download is currently in progress.");
 
+            if (semaphore == null)
+                throw new ArgumentNullException("semaphore");
             if (chapter == null)
                 throw new ArgumentNullException("chapter");
             if (directory == null)
@@ -183,7 +189,8 @@ namespace Blacker.Scraper
                         Chapter = chapter,
                         IsFile = false,
                         Directory = directory,
-                        CreateDirectory = createDir
+                        CreateDirectory = createDir,
+                        Semaphore = semaphore
                     };
 
             _backgroundWorker.RunWorkerAsync(workerParams);
@@ -205,10 +212,22 @@ namespace Blacker.Scraper
             var workerParams = e.Argument as WorkerParams;
             var backgroundWorker = sender as BackgroundWorker;
 
-            if (workerParams.IsFile)
-                DownloadChapter(backgroundWorker, e, workerParams.Chapter, workerParams.File);
-            else
-                DownloadChapter(backgroundWorker, e, workerParams.Chapter, workerParams.Directory, workerParams.CreateDirectory);
+            backgroundWorker.ReportProgress(0, "Waiting");
+
+            bool obtained = workerParams.Semaphore.Wait();  // we don't really care if we obtained entry pass or not
+
+            try
+            {
+                if (workerParams.IsFile)
+                    DownloadChapter(backgroundWorker, e, workerParams.Chapter, workerParams.File);
+                else
+                    DownloadChapter(backgroundWorker, e, workerParams.Chapter, workerParams.Directory, workerParams.CreateDirectory);
+            }
+            finally
+            {
+                if(obtained)
+                    workerParams.Semaphore.Release();
+            }
         }
 
         void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -357,6 +376,7 @@ namespace Blacker.Scraper
             public FileInfo File { get; set; }
             public DirectoryInfo Directory { get; set; }
             public bool CreateDirectory { get; set; }
+            public ISemaphore Semaphore { get; set; }
         }
     }
 }

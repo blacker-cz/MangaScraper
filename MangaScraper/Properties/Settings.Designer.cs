@@ -142,5 +142,29 @@ namespace Blacker.MangaScraper.Properties {
                 this["ReaderPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public ushort MaxParallelDownloads {
+            get {
+                return ((ushort)(this["MaxParallelDownloads"]));
+            }
+            set {
+                this["MaxParallelDownloads"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool EnablePreload {
+            get {
+                return ((bool)(this["EnablePreload"]));
+            }
+            set {
+                this["EnablePreload"] = value;
+            }
+        }
     }
 }

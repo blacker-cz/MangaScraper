@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Blacker.Scraper.Models;
 using log4net;
+using System.Text.RegularExpressions;
 
 namespace Blacker.Scraper
 {
@@ -34,6 +35,12 @@ namespace Blacker.Scraper
                 return uri.AbsoluteUri;
             }
             return url;
+        }
+
+        protected string CleanupText(string text)
+        {
+            Regex rgx = new Regex(@"\s+");
+            return System.Net.WebUtility.HtmlDecode(rgx.Replace(text, " ").Trim());
         }
     }
 }

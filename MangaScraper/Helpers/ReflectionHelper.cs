@@ -7,13 +7,13 @@ namespace Blacker.MangaScraper.Helpers
 {
     class ReflectionHelper
     {
-        public static IEnumerable<Type> TypesImplementingInterface<T>()
+        public static IEnumerable<Type> TypesImplementingInterface<T>(IEnumerable<Type> except)
         {
             return AppDomain
                 .CurrentDomain
                 .GetAssemblies()
                 .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => typeof(T).IsAssignableFrom(type) && IsRealClass(type));
+                .Where(type => typeof(T).IsAssignableFrom(type) && IsRealClass(type) && !except.Any(t => t.IsAssignableFrom(type)));
 
         }
         
@@ -26,7 +26,12 @@ namespace Blacker.MangaScraper.Helpers
 
         public static IEnumerable<T> GetInstances<T>()
         {
-            return TypesImplementingInterface<T>().Select(x => CreateInstance<T>(x));
+            return GetInstances<T>(Enumerable.Empty<Type>());
+        }
+
+        public static IEnumerable<T> GetInstances<T>(IEnumerable<Type> except)
+        {
+            return TypesImplementingInterface<T>(except).Select(x => CreateInstance<T>(x));
         }
 
         public static T CreateInstance<T>(Type type)
