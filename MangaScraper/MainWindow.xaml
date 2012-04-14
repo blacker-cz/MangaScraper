@@ -8,7 +8,12 @@
         Width="{Binding WindowWidth, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}"
         WindowState="{Binding WindowState, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}">
     <Window.Resources>
-        <ResourceDictionary Source="MainWindowResourceDictionary.xaml" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="StylesDictionary.xaml" />
+                <ResourceDictionary Source="MainWindowResourceDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
