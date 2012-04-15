@@ -16,7 +16,7 @@ using Blacker.Scraper.Utils;
 
 namespace Blacker.MangaScraper.ViewModel
 {
-    class MainWindowViewModel : BaseViewModel, ICleanup
+    class MainWindowViewModel : BaseViewModel, ICleanup, IBrowseCommand, ISaveCommand
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(MainWindowViewModel));
 
@@ -30,6 +30,7 @@ namespace Blacker.MangaScraper.ViewModel
         private readonly ICommand _searchCommand;
         private readonly ICommand _browseCommand;
         private readonly ICommand _saveCommand;
+        private readonly ICommand _settingsCommand;
 
         private MangaRecord _selectedManga;
 
@@ -40,11 +41,17 @@ namespace Blacker.MangaScraper.ViewModel
 
         private readonly ISemaphore _downloadsSemaphore;
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(Window owner)
         {
+            if (owner == null)
+                throw new ArgumentNullException("owner");
+
+            Owner = owner;
+
             _searchCommand = new SearchCommand(this);
             _browseCommand = new BrowseCommand(this);
             _saveCommand = new SaveCommand(this);
+            _settingsCommand = new SettingsCommand(this);
 
             _scrapers = new List<IScraper>(ReflectionHelper.GetInstances<IScraper>());
 
@@ -117,6 +124,8 @@ namespace Blacker.MangaScraper.ViewModel
         public ICommand BrowseCommand { get { return _browseCommand; } }
 
         public ICommand SaveCommand { get { return _saveCommand; } }
+
+        public ICommand SettingsCommand { get { return _settingsCommand; } }
 
         public ObservableCollection<MangaRecord> Mangas { get; private set; }
 
@@ -256,7 +265,7 @@ namespace Blacker.MangaScraper.ViewModel
         /// <summary>
         /// Browse for output folder
         /// </summary>
-        public void BrowseClicked()
+        public void BrowseClicked(object parameter)
         {
             // WPF doesn't have folder browser dialog, so we have to use the one from Windows.Forms
             using (var dlg = new System.Windows.Forms.FolderBrowserDialog())
@@ -275,7 +284,7 @@ namespace Blacker.MangaScraper.ViewModel
             }
         }
 
-        public void SaveChapter()
+        public void SaveClicked(object parameter)
         {
             if (string.IsNullOrEmpty(OutputPath))
             {

@@ -23,7 +23,7 @@ namespace Blacker.MangaScraper
         {
             InitializeComponent();
 
-            this.DataContext = new Blacker.MangaScraper.ViewModel.MainWindowViewModel();
+            this.DataContext = new Blacker.MangaScraper.ViewModel.MainWindowViewModel(this);
             this.Closed += MainWindow_Closed;
         }
 

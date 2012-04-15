@@ -24,5 +24,7 @@ namespace Blacker.MangaScraper.ViewModel
         }
 
         #endregion  // Implementation of INotifyPropertyChanged
+
+        public System.Windows.Window Owner { get; protected set; }
     }
 }

@@ -73,7 +73,7 @@ namespace Blacker.MangaScraper.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("752")]
+        [global::System.Configuration.DefaultSettingValueAttribute("800")]
         public double WindowWidth {
             get {
                 return ((double)(this["WindowWidth"]));
@@ -157,7 +157,7 @@ namespace Blacker.MangaScraper.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool EnablePreload {
             get {
                 return ((bool)(this["EnablePreload"]));

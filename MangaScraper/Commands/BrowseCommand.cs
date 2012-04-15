@@ -14,7 +14,7 @@ namespace Blacker.MangaScraper.Commands
 
         public override void Execute(object parameter)
         {
-            ((MainWindowViewModel)_viewModel).BrowseClicked();
+            ((IBrowseCommand)_viewModel).BrowseClicked(parameter);
         }
     }
 }

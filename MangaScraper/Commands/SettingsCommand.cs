@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Blacker.MangaScraper.ViewModel;
+using Blacker.MangaScraper.View;
 
 namespace Blacker.MangaScraper.Commands
 {
-    class SaveCommand : BaseCommand
+    class SettingsCommand : BaseCommand
     {
-        public SaveCommand(BaseViewModel model, bool disabled = false)
+        public SettingsCommand(BaseViewModel model, bool disabled = false)
             : base(model, disabled)
         { }
 
         public override void Execute(object parameter)
         {
-            ((ISaveCommand)_viewModel).SaveClicked(parameter);
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.Owner = _viewModel.Owner;
+            settingsWindow.ShowDialog();
         }
     }
 }

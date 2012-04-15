@@ -27,7 +27,7 @@ MangaScraper is also using some of the icons from Silk icon set 1.3 (http://www.
 License
 
 MangaScraper
-Copyright (c) 2012, Lukáš Èerný
+Copyright (c) 2012, LukÃ¡Å¡ ÄŒernÃ½
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:

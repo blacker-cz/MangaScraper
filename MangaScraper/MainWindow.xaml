@@ -16,7 +16,7 @@
             <RowDefinition Height="{Binding MangaListHeight, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}" />
             <RowDefinition Height="5" />
             <RowDefinition Height="{Binding ChapterListHeight, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}" />
-            <RowDefinition Height="71" />
+            <RowDefinition Height="61" />
             <RowDefinition Height="23" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -58,10 +58,11 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <TextBox Height="23" Margin="12,2,84,0" Name="outputPathBox" Text="{Binding Path=OutputPath}" VerticalAlignment="Top" Grid.Row="4" />
+        <TextBox Height="23" Margin="12,2,84,0" Name="outputPathBox" Text="{Binding Path=OutputPath}" VerticalAlignment="Top" Grid.Row="4" ToolTip="Output path" />
         <Button Content="Browse" Height="23" HorizontalAlignment="Right" Margin="0,2,3,0" Name="browsePathButton" Command="{Binding Path=BrowseCommand}"  VerticalAlignment="Top" Width="75" Grid.Row="4" />
-        <RadioButton Content="Folder" HorizontalAlignment="Left" Margin="12,38,0,0" Name="radioButton1" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=false, Mode=TwoWay}" Grid.Row="4" Height="16" VerticalAlignment="Top" />
-        <RadioButton Content="Compressed file" HorizontalAlignment="Left" Margin="111,38,0,0" Name="radioButton2" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=true, Mode=TwoWay}" Grid.Row="4" Height="16" VerticalAlignment="Top" />
+        <RadioButton Content="Folder" HorizontalAlignment="Left" Margin="12,35,0,0" Name="radioButton1" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=false, Mode=TwoWay}" Grid.Row="4" Height="16" VerticalAlignment="Top" />
+        <RadioButton Content="Compressed file" HorizontalAlignment="Left" Margin="112,35,0,0" Name="radioButton2" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=true, Mode=TwoWay}" Grid.Row="4" Height="16" VerticalAlignment="Top" />
+        <Button Grid.Row="4" Content="Settings" Style="{StaticResource LinkButton}" Command="{Binding Path=SettingsCommand}" Margin="0,35,84,0" VerticalAlignment="Top" HorizontalAlignment="Right" />
         <Button Content="Save" Margin="0,31,3,0" Name="button3" Command="{Binding Path=SaveCommand}" HorizontalAlignment="Right" Width="75" Grid.Row="4" Height="23" VerticalAlignment="Top" />
         <StatusBar Name="statusBar" Height="23" VerticalAlignment="Bottom" Grid.Row="5" Grid.ColumnSpan="3">
             <StatusBar.ItemsPanel>
@@ -82,7 +83,7 @@
             </StatusBarItem>
         </StatusBar>
         <GridSplitter Grid.Column="1" Grid.RowSpan="5" HorizontalAlignment="Stretch" ResizeDirection="Columns" />
-        <ScrollViewer Grid.Column="2" Grid.RowSpan="5" Margin="3,12,3,17" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Column="2" Grid.RowSpan="5" Margin="3,12,3,7" HorizontalContentAlignment="Stretch" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding Path=Downloads}" HorizontalContentAlignment="Stretch" />
         </ScrollViewer>
     </Grid>

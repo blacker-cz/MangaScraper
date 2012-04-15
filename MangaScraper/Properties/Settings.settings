@@ -15,7 +15,7 @@
       <Value Profile="(Default)">500</Value>
     </Setting>
     <Setting Name="WindowWidth" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">752</Value>
+      <Value Profile="(Default)">800</Value>
     </Setting>
     <Setting Name="WindowHeight" Type="System.Double" Scope="User">
       <Value Profile="(Default)">450</Value>
@@ -36,7 +36,7 @@
       <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="EnablePreload" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>
