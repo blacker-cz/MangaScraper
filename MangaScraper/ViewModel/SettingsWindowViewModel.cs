@@ -9,12 +9,13 @@ using log4net;
 
 namespace Blacker.MangaScraper.ViewModel
 {
-    class SettingsWindowViewModel : BaseViewModel, IDataErrorInfo, IBrowseCommand, ISaveCommand
+    class SettingsWindowViewModel : BaseViewModel, IDataErrorInfo, IBrowseCommand, ISaveCommand, IClearCommand
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(SettingsWindowViewModel));
 
         private readonly ICommand _saveSettingsCommand;
         private readonly ICommand _browseCommand;
+        private readonly ICommand _clearCommand;
 
         public SettingsWindowViewModel(System.Windows.Window owner)
         {
@@ -25,10 +26,12 @@ namespace Blacker.MangaScraper.ViewModel
 
             _saveSettingsCommand = new SaveCommand(this);
             _browseCommand = new BrowseCommand(this);
+            _clearCommand = new ClearCommand(this, false, true, "Do you really want to clear recent folder history?");
 
             MaxParallelDownloads = Properties.Settings.Default.MaxParallelDownloads;
             ReaderPath = Properties.Settings.Default.ReaderPath;
             EnablePreload = Properties.Settings.Default.EnablePreload;
+            MaxRecentFolders = Properties.Settings.Default.RecentFolders.MaxItems;
 
             try
             {
@@ -47,6 +50,8 @@ namespace Blacker.MangaScraper.ViewModel
 
         public ICommand BrowseCommand { get { return _browseCommand; } }
 
+        public ICommand ClearCommand { get { return _clearCommand; } }
+
         public string AboutText { get; set; }
 
         public ushort MaxParallelDownloads { get; set; }
@@ -54,6 +59,8 @@ namespace Blacker.MangaScraper.ViewModel
         public string ReaderPath { get; set; }
 
         public bool EnablePreload { get; set; }
+
+        public uint MaxRecentFolders { get; set; }
 
         #region Commands
 
@@ -64,6 +71,8 @@ namespace Blacker.MangaScraper.ViewModel
                 Properties.Settings.Default.MaxParallelDownloads = MaxParallelDownloads;
                 Properties.Settings.Default.ReaderPath = ReaderPath;
                 Properties.Settings.Default.EnablePreload = EnablePreload;
+
+                Properties.Settings.Default.RecentFolders.MaxItems = MaxRecentFolders;
 
                 Properties.Settings.Default.Save();
 
@@ -91,6 +100,11 @@ namespace Blacker.MangaScraper.ViewModel
             }
         }
 
+        public void ClearClicked(object parameter)
+        {
+            Properties.Settings.Default.RecentFolders.Clear();
+        }
+
         #endregion // Commands
 
         #region IDataErrorInfo implementation
@@ -109,7 +123,14 @@ namespace Blacker.MangaScraper.ViewModel
                 {
                     if (MaxParallelDownloads == 0 || MaxParallelDownloads > 50)
                     {
-                        return "Maximal number of parallel downloads must be number from 1 to 50.";
+                        return "Maximum number of parallel downloads must be number from 1 to 50.";
+                    }
+                }
+                if (columnName == string.Empty || columnName == "MaxRecentFolders")
+                {
+                    if (MaxRecentFolders == 0 || MaxRecentFolders > 50)
+                    {
+                        return "Maximum number of recent output folders must be number lower or equal to 50.";
                     }
                 }
                 if (columnName == string.Empty || columnName == "ReaderPath")

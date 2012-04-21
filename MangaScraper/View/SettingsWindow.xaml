@@ -36,8 +36,11 @@
                             <TextBlock VerticalAlignment="Top" HorizontalAlignment="Left" Margin="9,60,0,0" ToolTip="Application restart is required for this change to take effect.">
                                 Maximum number of parallel downloads:
                             </TextBlock>
-                            <TextBox VerticalAlignment="Top" HorizontalAlignment="Left" Height="23" Width="75" Text="{Binding Path=MaxParallelDownloads, ValidatesOnDataErrors=True}" Margin="249,57,0,0" />
-                            <CheckBox VerticalAlignment="Top" HorizontalAlignment="Left" Height="23" IsChecked="{Binding Path=EnablePreload}" Content="Enable preloading of manga directories when application starts" ToolTip="Enabling preload can considerably speed up initial search on some sites." Margin="9,86,0,0" />
+                            <TextBox VerticalAlignment="Top" HorizontalAlignment="Left" Height="23" Width="75" Text="{Binding Path=MaxParallelDownloads, ValidatesOnDataErrors=True}" Margin="285,57,0,0" />
+                            <TextBlock HorizontalAlignment="Left" Margin="9,89,0,0" VerticalAlignment="Top">Maximum number of recent output folders:</TextBlock>
+                            <TextBox Height="23" HorizontalAlignment="Left" Margin="285,86,0,0" Text="{Binding Path=MaxRecentFolders, ValidatesOnDataErrors=True}" VerticalAlignment="Top" Width="75" />
+                            <Button Content="Clear recent folders" Style="{StaticResource LinkButton}" Command="{Binding Path=ClearCommand}" Margin="366,89,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="103" ToolTip="This will clear your recent output folders history."  />
+                            <CheckBox VerticalAlignment="Top" HorizontalAlignment="Left" Height="23" IsChecked="{Binding Path=EnablePreload}" Content="Enable preloading of manga directories when application starts" ToolTip="Enabling preload can considerably speed up initial search on some sites." Margin="9,115,0,0" />
                         </Grid>
                     </ScrollViewer>
                 </Grid>

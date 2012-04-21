@@ -166,5 +166,17 @@ namespace Blacker.MangaScraper.Properties {
                 this["EnablePreload"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<RecentList />")]
+        public global::Blacker.MangaScraper.Models.RecentList RecentFolders {
+            get {
+                return ((global::Blacker.MangaScraper.Models.RecentList)(this["RecentFolders"]));
+            }
+            set {
+                this["RecentFolders"] = value;
+            }
+        }
     }
 }

@@ -119,6 +119,8 @@ namespace Blacker.MangaScraper.ViewModel
             }
         }
 
+        public IEnumerable<Models.RecentItem> RecentFolders { get { return Properties.Settings.Default.RecentFolders; } }
+
         public ICommand SearchCommand { get { return _searchCommand; } }
 
         public ICommand BrowseCommand { get { return _browseCommand; } }
@@ -297,6 +299,10 @@ namespace Blacker.MangaScraper.ViewModel
                 MessageBox.Show("Chapter must be selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
+            // save output path to recent list
+            Properties.Settings.Default.RecentFolders.Add(OutputPath);
+            InvokePropertyChanged("RecentFolders");
 
             foreach (var selectedChapter in SelectedChapters)
             {

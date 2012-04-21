@@ -61,6 +61,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Commands\ClearCommand.cs" />
+    <Compile Include="Commands\IClearCommand.cs" />
     <Compile Include="Commands\ISaveCommand.cs" />
     <Compile Include="Commands\OpenDownloadCommand.cs" />
     <Compile Include="Commands\SettingsCommand.cs" />
@@ -68,6 +70,8 @@
     <Compile Include="Converters\ValueConverterGroup.cs" />
     <Compile Include="Helpers\ListBoxExtension.cs" />
     <Compile Include="Commands\IBrowseCommand.cs" />
+    <Compile Include="Models\RecentItem.cs" />
+    <Compile Include="Models\RecentList.cs" />
     <Compile Include="ViewModel\SettingsWindowViewModel.cs" />
     <Compile Include="View\Download.xaml.cs">
       <DependentUpon>Download.xaml</DependentUpon>
