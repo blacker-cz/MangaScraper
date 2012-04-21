@@ -25,7 +25,6 @@ namespace Blacker.MangaScraper.ViewModel
         private IScraper _currentScraper;
 
         private AsyncRequestQueue _requestQueue;
-        private AsyncRequestQueue _preloadQueue;
 
         private readonly ICommand _searchCommand;
         private readonly ICommand _browseCommand;
@@ -80,10 +79,6 @@ namespace Blacker.MangaScraper.ViewModel
 
             if (Properties.Settings.Default.EnablePreload)
             {
-                _preloadQueue = new AsyncRequestQueue(System.Threading.SynchronizationContext.Current);
-                _preloadQueue.TasksCompleted += _requestQueue_TasksCompleted;   // todo: is this really good idea?
-                _preloadQueue.Initialize();
-
                 PreloadMangas();
             }
         }
@@ -318,31 +313,35 @@ namespace Blacker.MangaScraper.ViewModel
 
         private void PreloadMangas()
         {
-            foreach (var scraper in _scrapers)
-            {
-                var preloadable = scraper as IPreload;
-                if (preloadable != null)
-                {
-                    if (!ProgressIndeterminate)
-                    {
-                        CurrentActionText = "Preloading manga directories ...";
-                        ProgressIndeterminate = true;
-                        InvokePropertyChanged("ProgressIndeterminate");
-                        InvokePropertyChanged("CurrentActionText");
-                    }
+            var preloadables = _scrapers.Where(s => s is IPreload).Select(s => s as IPreload);
 
-                    _preloadQueue.Add(
-                        () =>
-                        {
-                            preloadable.PreloadDirectory();
-                            return null;
-                        },
-                        (x, y) =>
-                        {
-                            // we don't care about result or error
-                        });
-                }
+            // if there are no preloadables skip the execution
+            if (!preloadables.Any())
+                return;
+
+            if (!ProgressIndeterminate)
+            {
+                CurrentActionText = "Preloading manga directories ...";
+                ProgressIndeterminate = true;
+                InvokePropertyChanged("ProgressIndeterminate");
+                InvokePropertyChanged("CurrentActionText");
             }
+
+            var async = new AsyncWrapper();
+            async.Call<object>(() =>
+                                {
+                                    System.Threading.Tasks.Parallel.ForEach(preloadables, (x) => { x.PreloadDirectory(); });
+                                    return null;
+                                },
+                                (x, y) =>
+                                {
+                                    // don't care about errors...
+                                    ProgressIndeterminate = false;
+                                    InvokePropertyChanged("ProgressIndeterminate");
+                                    CurrentActionText = "";
+                                    InvokePropertyChanged("CurrentActionText");
+                                }
+                        );
         }
 
         void _requestQueue_TasksCompleted(object sender, EventArgs e)
@@ -368,9 +367,6 @@ namespace Blacker.MangaScraper.ViewModel
         {
             if (_requestQueue != null)
                 _requestQueue.Stop();
-
-            if (_preloadQueue != null)
-                _preloadQueue.Stop();
 
             try
             {

@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Remoting.Messaging;
+using log4net;
 
 namespace Blacker.MangaScraper.Helpers
 {
     class AsyncWrapper
     {
+        private static readonly ILog _log = LogManager.GetLogger(typeof(AsyncWrapper));
+
         public void Call<TResult>(Func<TResult> method, Action<TResult, Exception> callback)
         {
             if (method == null)
@@ -32,12 +35,18 @@ namespace Blacker.MangaScraper.Helpers
                 }
                 catch (Exception ex)
                 {
+                    _log.Error("There was en error during the asynchronous operation.", ex);
                     callback(default(TResult), ex);
                 }
             }
             else if (callback != null)
             {
+                _log.Error("Invalid delegate.");
                 callback(default(TResult), new InvalidOperationException());
+            }
+            else
+            {
+                _log.Error("Invalid callback method");
             }
         }
     }
