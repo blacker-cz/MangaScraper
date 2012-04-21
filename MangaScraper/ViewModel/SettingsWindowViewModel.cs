@@ -128,7 +128,7 @@ namespace Blacker.MangaScraper.ViewModel
                 }
                 if (columnName == string.Empty || columnName == "MaxRecentFolders")
                 {
-                    if (MaxRecentFolders == 0 || MaxRecentFolders > 50)
+                    if (MaxRecentFolders > 50)
                     {
                         return "Maximum number of recent output folders must be number lower or equal to 50.";
                     }
