@@ -250,12 +250,12 @@ namespace Blacker.Scraper
             AddTask();
 
             var directory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
-            DownloadChapter(backgroundWorker, e, chapter, directory);
-
-            backgroundWorker.ReportProgress(GetPercentComplete(), "Compressing chapter to output file");
-
             try
             {
+                DownloadChapter(backgroundWorker, e, chapter, directory);
+
+                backgroundWorker.ReportProgress(GetPercentComplete(), "Compressing chapter to output file");
+
                 if (backgroundWorker.CancellationPending)
                 {
                     e.Cancel = true;
