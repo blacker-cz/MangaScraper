@@ -163,7 +163,7 @@ namespace Blacker.Scraper
 
                 records.Add(new MangaRecord(Scraper)
                 {
-                    MangaName = manga.InnerText.Trim(),
+                    MangaName = CleanupText(manga.InnerText),
                     Url = GetFullUrl(manga.Attributes["href"].Value)
                 });
             }

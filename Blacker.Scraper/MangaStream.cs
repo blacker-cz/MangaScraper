@@ -183,7 +183,7 @@ namespace Blacker.Scraper
 
                 records.Add(new MangaRecord(Scraper)
                 {
-                    MangaName = column.InnerText.Trim()
+                    MangaName = CleanupText(column.InnerText)
                 });
             }
 
