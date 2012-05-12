@@ -10,6 +10,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using log4net;
 using Blacker.Scraper.Utils;
+using Blacker.MangaScraper.Helpers;
 
 namespace Blacker.MangaScraper.ViewModel
 {
@@ -140,7 +141,7 @@ namespace Blacker.MangaScraper.ViewModel
                 if (_isZipped)
                 {
                     if (!string.IsNullOrEmpty(Properties.Settings.Default.ReaderPath))
-                        System.Diagnostics.Process.Start(Properties.Settings.Default.ReaderPath, _outputFullPath);
+                        System.Diagnostics.Process.Start(Properties.Settings.Default.ReaderPath, ProcessHelper.EscapeArguments(_outputFullPath));
                     else
                         System.Diagnostics.Process.Start(_outputFullPath);
                 }
