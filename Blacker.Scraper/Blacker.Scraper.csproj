@@ -56,6 +56,7 @@
     <Compile Include="BatotoNet.cs" />
     <Compile Include="Cache\Cache.cs" />
     <Compile Include="Downloader.cs" />
+    <Compile Include="EatManga.cs" />
     <Compile Include="Events\DownloadCompletedEventArgs.cs" />
     <Compile Include="Events\DownloadProgressEventArgs.cs" />
     <Compile Include="IDownloadProgressReporter.cs" />
