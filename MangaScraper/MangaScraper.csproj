@@ -71,6 +71,7 @@
     <Compile Include="Helpers\ListBoxExtension.cs" />
     <Compile Include="Commands\IBrowseCommand.cs" />
     <Compile Include="Helpers\ProcessHelper.cs" />
+    <Compile Include="Models\GuidCollection.cs" />
     <Compile Include="Models\RecentItem.cs" />
     <Compile Include="Models\RecentList.cs" />
     <Compile Include="ViewModel\SettingsWindowViewModel.cs" />

@@ -33,6 +33,10 @@ namespace Blacker.MangaScraper.ViewModel
             EnablePreload = Properties.Settings.Default.EnablePreload;
             MaxRecentFolders = Properties.Settings.Default.RecentFolders.MaxItems;
 
+            Scrapers = Helpers.ReflectionHelper.GetInstances<Blacker.Scraper.IScraper>()
+                .Select(s =>
+                    new ScraperInfo(s, !Properties.Settings.Default.DisabledScrapers.Contains(s.ScraperGuid))).ToList();
+
             try
             {
                 System.IO.StreamReader reader = new System.IO.StreamReader(System.Windows.Application.GetResourceStream(new System.Uri("/readme.txt", UriKind.Relative)).Stream, Encoding.UTF8);
@@ -62,6 +66,8 @@ namespace Blacker.MangaScraper.ViewModel
 
         public uint MaxRecentFolders { get; set; }
 
+        public IEnumerable<ScraperInfo> Scrapers { get; private set; }
+
         #region Commands
 
         public void SaveClicked(object parameter)
@@ -73,6 +79,13 @@ namespace Blacker.MangaScraper.ViewModel
                 Properties.Settings.Default.EnablePreload = EnablePreload;
 
                 Properties.Settings.Default.RecentFolders.MaxItems = MaxRecentFolders;
+
+                Properties.Settings.Default.DisabledScrapers.Clear();
+                foreach (var scraper in Scrapers)
+                {
+                    if (!scraper.Enabled)
+                        Properties.Settings.Default.DisabledScrapers.Add(scraper.ScraperGuid);
+                }
 
                 Properties.Settings.Default.Save();
 
@@ -146,5 +159,29 @@ namespace Blacker.MangaScraper.ViewModel
         }
 
         #endregion // IDataErrorInfo implementation
+
+        #region Scraper wrapper class
+
+        public class ScraperInfo
+        {
+            private Blacker.Scraper.IScraper _scraper;
+
+            public ScraperInfo(Blacker.Scraper.IScraper scraper, bool enabled)
+            {
+                if (scraper == null)
+                    throw new ArgumentNullException("scraper");
+
+                _scraper = scraper;
+                Enabled = enabled;//!Properties.Settings.Default.DisabledScrapers.Contains(scraper.ScraperGuid);
+            }
+
+            public string Name { get { return _scraper.Name; } }
+
+            public Guid ScraperGuid { get { return _scraper.ScraperGuid; } }
+
+            public bool Enabled { get; set; }
+        }
+
+        #endregion
     }
 }

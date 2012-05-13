@@ -24,7 +24,7 @@
             Manga Scraper © 2012 Lukáš Černý
         </TextBlock>
         <TabControl Background="{x:Null}" BorderBrush="{x:Null}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Margin="0,0,0,41">
-            <TabItem Style="{StaticResource ResourceKey=CustomTabItem}"  Header="Settings" BorderBrush="{x:Null}">
+            <TabItem Style="{StaticResource ResourceKey=CustomTabItem}" Header="Settings" BorderBrush="{x:Null}">
                 <Grid>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                         <Grid>
@@ -43,6 +43,21 @@
                             <CheckBox VerticalAlignment="Top" HorizontalAlignment="Left" Height="23" IsChecked="{Binding Path=EnablePreload}" Content="Enable preloading of manga directories when application starts" ToolTip="Enabling preload can considerably speed up initial search on some sites." Margin="9,115,0,0" />
                         </Grid>
                     </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Style="{StaticResource ResourceKey=CustomTabItem}" Header="Scrapers" BorderBrush="{x:Null}">
+                <Grid>
+                    <ListBox Margin="6,28,6,6" ItemsSource="{Binding Path=Scrapers, Mode=OneWay}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <CheckBox IsChecked="{Binding Path=Enabled, Mode=TwoWay}" ToolTip="Enabled?&#10;Application restart is required for this change to take effect." Padding="5,5,5,5" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Path=Name, Mode=OneWay}" Padding="5,5,5,5" FontSize="12" FontWeight="DemiBold" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBlock HorizontalAlignment="Left" Margin="7,6,0,0" Text="List of available scrapers:" VerticalAlignment="Top" />
                 </Grid>
             </TabItem>
             <TabItem Style="{StaticResource ResourceKey=CustomTabItem}" Header="About" BorderBrush="{x:Null}">

@@ -40,7 +40,11 @@
     </Setting>
     <Setting Name="RecentFolders" Type="Blacker.MangaScraper.Models.RecentList" Scope="User">
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
-&lt;RecentList /&gt;</Value>
+&lt;RecentList maxItems="10" /&gt;</Value>
+    </Setting>
+    <Setting Name="DisabledScrapers" Type="Blacker.MangaScraper.Models.GuidCollection" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;GuidCollection /&gt;</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -20,7 +20,7 @@ namespace Blacker.MangaScraper.ViewModel
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(MainWindowViewModel));
 
-        private readonly IList<IScraper> _scrapers;
+        private readonly IEnumerable<IScraper> _scrapers;
 
         private IScraper _currentScraper;
 
@@ -52,7 +52,9 @@ namespace Blacker.MangaScraper.ViewModel
             _saveCommand = new SaveCommand(this);
             _settingsCommand = new SettingsCommand(this);
 
-            _scrapers = new List<IScraper>(ReflectionHelper.GetInstances<IScraper>());
+            // load all enabled scrapers
+            _scrapers = ReflectionHelper.GetInstances<IScraper>()
+                .Where(s => !Properties.Settings.Default.DisabledScrapers.Contains(s.ScraperGuid)).ToList();
 
             if (!string.IsNullOrEmpty(Properties.Settings.Default.SelectedScraper))
                 CurrentScraper = _scrapers.FirstOrDefault(s => s.Name == Properties.Settings.Default.SelectedScraper);
@@ -83,7 +85,7 @@ namespace Blacker.MangaScraper.ViewModel
             }
         }
 
-        public IList<IScraper> Scrapers { get { return _scrapers; } }
+        public IEnumerable<IScraper> Scrapers { get { return _scrapers; } }
 
         public IScraper CurrentScraper
         {
