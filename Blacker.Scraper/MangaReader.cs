@@ -34,20 +34,20 @@ namespace Blacker.Scraper
             get { return MangaReaderUrl; }
         }
 
-        private Guid Scraper
-        {
-            get { return Guid.Parse("fd228173-12cb-4677-89ca-8867e5c622e0"); }
-        }
-
         #region IScraper implementation
 
         public string Name { get { return "MangaReader.net"; } }
+
+        public Guid ScraperGuid
+        {
+            get { return Guid.Parse("fd228173-12cb-4677-89ca-8867e5c622e0"); }
+        }
 
         public IEnumerable<ChapterRecord> GetAvailableChapters(MangaRecord manga)
         {
             if (manga == null)
                 throw new ArgumentNullException("manga");
-            if (manga.Scraper != Scraper)
+            if (manga.Scraper != ScraperGuid)
                 throw new ArgumentException("Manga record is not for " + Name, "manga");
 
             var cacheKey = ChapterCacheKey + manga.MangaName + manga.Url;
@@ -67,7 +67,7 @@ namespace Blacker.Scraper
 
             foreach (var chapter in chapters)
             {
-                records.Add(new ChapterRecord(Scraper)
+                records.Add(new ChapterRecord(ScraperGuid)
                 {
                     MangaName = manga.MangaName,
                     ChapterName = CleanupText(chapter.InnerText),
@@ -161,7 +161,7 @@ namespace Blacker.Scraper
                 if (string.IsNullOrEmpty(manga.InnerText))
                     continue;
 
-                records.Add(new MangaRecord(Scraper)
+                records.Add(new MangaRecord(ScraperGuid)
                 {
                     MangaName = CleanupText(manga.InnerText),
                     Url = GetFullUrl(manga.Attributes["href"].Value)

@@ -33,20 +33,20 @@ namespace Blacker.Scraper
             get { return MangaStreamUrl; }
         }
 
-        private Guid Scraper
-        {
-            get { return Guid.Parse("9a2e1bcb-923f-45d1-849a-2e341427a58b"); }
-        }
-
         #region IScraper implementation
 
         public string Name { get { return "MangaStream"; } }
+
+        public Guid ScraperGuid
+        {
+            get { return Guid.Parse("9a2e1bcb-923f-45d1-849a-2e341427a58b"); }
+        }
 
         public IEnumerable<ChapterRecord> GetAvailableChapters(MangaRecord manga)
         {
             if (manga == null)
                 throw new ArgumentNullException("manga");
-            if (manga.Scraper != Scraper)
+            if (manga.Scraper != ScraperGuid)
                 throw new ArgumentException("Manga record is not for " + Name, "manga");
 
             var cacheKey = ChapterCacheKey + manga.MangaName + manga.Url;
@@ -81,7 +81,7 @@ namespace Blacker.Scraper
                         case "a":
                             if (mangaName == manga.MangaName)
                             {
-                                records.Add(new ChapterRecord(Scraper)
+                                records.Add(new ChapterRecord(ScraperGuid)
                                 {
                                     MangaName = mangaName,
                                     ChapterName = CleanupText(item.InnerText),
@@ -181,7 +181,7 @@ namespace Blacker.Scraper
                 if (string.IsNullOrEmpty(column.InnerText))
                     continue;
 
-                records.Add(new MangaRecord(Scraper)
+                records.Add(new MangaRecord(ScraperGuid)
                 {
                     MangaName = CleanupText(column.InnerText)
                 });

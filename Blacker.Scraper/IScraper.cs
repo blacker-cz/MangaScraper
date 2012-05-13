@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Blacker.Scraper.Models;
+using System;
 
 namespace Blacker.Scraper
 {
@@ -13,6 +14,11 @@ namespace Blacker.Scraper
         /// Get scraper name
         /// </summary>
         string Name { get; }
+
+        /// <summary>
+        /// Scraper unique guid
+        /// </summary>
+        Guid ScraperGuid { get; }
 
         /// <summary>
         /// Get available chapters for given manga.
