@@ -190,5 +190,14 @@ namespace Blacker.MangaScraper.Properties {
                 this["DisabledScrapers"] = value;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Multiple")]
+        public string ChaptersSelectionMode {
+            get {
+                return ((string)(this["ChaptersSelectionMode"]));
+            }
+        }
     }
 }

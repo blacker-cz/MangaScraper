@@ -46,5 +46,8 @@
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;GuidCollection /&gt;</Value>
     </Setting>
+    <Setting Name="ChaptersSelectionMode" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Multiple</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

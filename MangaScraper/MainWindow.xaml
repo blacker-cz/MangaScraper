@@ -49,7 +49,7 @@
             </ListBox.ItemTemplate>
         </ListBox>
         <GridSplitter Grid.Row="2" ResizeDirection="Rows" HorizontalAlignment="Stretch" />
-        <ListBox Margin="12,3,3,4" Name="chapterList" ItemsSource="{Binding Path=Chapters}" SelectionMode="Multiple" helpers:ListBoxExtension.SelectedItemsSource="{Binding SelectedChapters}" Grid.Row="3">
+        <ListBox Margin="12,3,3,4" Name="chapterList" ItemsSource="{Binding Path=Chapters}" SelectionMode="{Binding ChaptersSelectionMode, Source={x:Static Properties:Settings.Default}, Mode=OneWay}" helpers:ListBoxExtension.SelectedItemsSource="{Binding SelectedChapters}" Grid.Row="3">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Margin="2,2,0,8" HorizontalAlignment="Stretch">
