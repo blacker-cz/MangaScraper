@@ -47,7 +47,7 @@
             </TabItem>
             <TabItem Style="{StaticResource ResourceKey=CustomTabItem}" Header="Scrapers" BorderBrush="{x:Null}">
                 <Grid>
-                    <ListBox Margin="6,28,6,6" ItemsSource="{Binding Path=Scrapers, Mode=OneWay}">
+                    <ListBox Margin="6,28,6,6" ItemsSource="{Binding Path=Scrapers, Mode=OneWay}" ItemContainerStyle="{StaticResource ResourceKey=CheckboxListBoxItem}"  SelectionMode="Multiple">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
