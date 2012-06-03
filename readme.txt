@@ -9,6 +9,7 @@ MangaScraper is simple application which allows you to download manga chapters f
 * Batoto.net
 * MangaFox.me
 * EatManga.com
+* EGScans.com
 
 If you want support for any other site, let me know. If you feel like implemening it, let me know too ;-)
 
