@@ -287,7 +287,7 @@ namespace Blacker.MangaScraper.ViewModel
         {
             if (string.IsNullOrEmpty(OutputPath))
             {
-                MessageBox.Show("Output path must be selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Output folder must be selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -295,6 +295,29 @@ namespace Blacker.MangaScraper.ViewModel
             {
                 MessageBox.Show("Chapter must be selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
+            }
+
+            if (!Directory.Exists(OutputPath))
+            {
+                if (MessageBox.Show("The output folder doesn't exist. Would you like to create it?", "Output folder",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(OutputPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.Error("Unable to create output folder.", ex);
+                        MessageBox.Show("Unable to create output folder", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    // if user don't want us to create the output folder, we will simply don't start the download
+                    return;
+                }
             }
 
             // save output path to recent list
