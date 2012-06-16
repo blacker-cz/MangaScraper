@@ -161,10 +161,10 @@
     <Resource Include="Images\zoom.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\readme.txt">
+    <Resource Include="..\readme.txt">
       <Link>readme.txt</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Resource>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\exclamation.png" />
