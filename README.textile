@@ -27,6 +27,10 @@ these libraries are automatically loaded to the solution using "NuGet(http://nug
 
 MangaScraper is also using some of the icons from "Silk icon set 1.3(http://www.famfamfam.com/lab/icons/silk/)":http://www.famfamfam.com/lab/icons/silk/
 
+h2. Notes
+
+This tool is intended for archiving of manga chapters from online readers, so you can read them even offline. However, most of these websites are up and running only thanks to advertisement and donations. And without these websites, this tool would be useless. So visit them or donate them some cash, just don't let them die. Because if they die, we will all lose our sources of manga scanlations.
+
 h2. License
 
 MangaScraper

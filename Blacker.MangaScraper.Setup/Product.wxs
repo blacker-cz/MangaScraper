@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?include ..\common\CommonVariables.wxi ?>
+
+  <Product Id="*" Name="$(var.ProductName)" Language="1033" Codepage="1250" Version="$(var.ProductVersion)" Manufacturer="$(var.ManufacturerName)" UpgradeCode="d76d97d6-5e53-489d-86d4-15f741452d74">
+    <Package InstallerVersion="301" Compressed="yes" Platform="x86" InstallPrivileges="elevated" InstallScope="perMachine" ReadOnly="yes" Description="$(var.ProductDescription)" Manufacturer="$(var.ManufacturerName)" Keywords="Installer"
+                 Comments="$(var.CopyrightInfo)" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of $(var.ProductName) is already installed." />
+
+    <Media Id="1" Cabinet="MangaScraper.cab" EmbedCab="yes" CompressionLevel="mszip" />
+
+    <Feature Id="ProductFeature" Title="Blacker.MangaScraper.Setup" Level="1">
+			<ComponentGroupRef Id="ProductFiles" />
+		</Feature>
+
+    <Property Id='ARPCOMMENTS'>$(var.ProductDescription)</Property>
+    <Property Id='ARPCONTACT'>$(var.ManufacturerName)</Property>
+    <Property Id='ARPURLINFOABOUT'>$(var.ManufacturerWebUrl)</Property>
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <UIRef Id="WixUI_InstallDir" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+
+    <WixVariable Id="WixUILicenseRtf" Value="..\license.rtf" />
+  </Product>
+
+  <Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="$(var.DefaultInstallDir)">
+          
+          <Component Id="MangaScraper.exe" Guid="*">
+            <File Id="MangaScraper.exe" Source="$(var.BuildDir)MangaScraper.exe"/>
+          </Component>
+          <Component Id="MangaScraper.exe.config" Guid="*">
+            <File Id="MangaScraper.exe.config" Source="$(var.BuildDir)MangaScraper.exe.config" DefaultVersion="65535.0.0.0"/>
+          </Component>
+          <Component Id="Blacker.Scraper.dll" Guid="*">
+            <File Id="Blacker.Scraper.dll" Source="$(var.BuildDir)Blacker.Scraper.dll"/>
+          </Component>
+          <Component Id="readme.txt" Guid="*">
+            <File Id="readme.txt" Source="..\readme.txt" DefaultVersion="65535.0.0.0" />
+          </Component>
+
+          <Component Id="HtmlAgilityPack.dll" Guid="*">
+            <File Id="HtmlAgilityPack.dll" Source="$(var.BuildDir)HtmlAgilityPack.dll"/>
+          </Component>
+          <Component Id="Ionic.Zip.dll" Guid="*">
+            <File Id="Ionic.Zip.dll" Source="$(var.BuildDir)Ionic.Zip.dll"/>
+          </Component>
+          <Component Id="log4net.dll" Guid="*">
+            <File Id="log4net.dll" Source="$(var.BuildDir)log4net.dll"/>
+          </Component>
+
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="$(var.ProductName)">
+          <Component Id="ApplicationShortcuts" Guid="6e618011-8885-4dd7-9565-ac2281e36186">
+            <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+            <Shortcut Id="ApplicationStartMenuShortcut" Directory="ApplicationProgramsFolder" Name="MangaScraper" Description="MangaScraper" Target="[INSTALLFOLDER]MangaScraper.exe" WorkingDirectory="INSTALLFOLDER" IconIndex="0"/>
+            <Shortcut Id="UninstallShortcut" Name="Uninstall MangaScraper" Description="Uninstall MangaScraper" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" />
+            <RegistryValue Root="HKCU" Key="Software\[Manufacturer]\[ProductName]" Type="string" Value="" KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductFiles" Directory="INSTALLFOLDER">
+      <ComponentRef Id="MangaScraper.exe" />
+      <ComponentRef Id="MangaScraper.exe.config" />
+      <ComponentRef Id="Blacker.Scraper.dll" />
+      <ComponentRef Id="readme.txt" />
+
+      <ComponentRef Id="HtmlAgilityPack.dll" />
+      <ComponentRef Id="Ionic.Zip.dll" />
+      <ComponentRef Id="log4net.dll" />
+
+      <ComponentRef Id="ApplicationShortcuts" />
+    </ComponentGroup>
+	</Fragment>
+</Wix>

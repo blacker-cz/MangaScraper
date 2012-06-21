@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?include ..\common\CommonVariables.wxi ?>
+  
+  <Bundle Name="$(var.ProductName)" Version="$(var.ProductVersion)" Manufacturer="$(var.ManufacturerName)" HelpUrl="$(var.ManufacturerWebUrl)"
+          Copyright="$(var.CopyrightInfo)" AboutUrl="$(var.ManufacturerWebUrl)" UpgradeCode="d76d97d6-5e53-489d-86d4-15f741452d74">
+		<BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
+
+    <WixVariable Id="WixStdbaLicenseRtf" Value="..\license.rtf" />
+    <Variable Name="InstallFolder" Type="string" Value="[ProgramFilesFolder]$(var.DefaultInstallDir)" />
+
+    <Chain>
+      <PackageGroupRef Id='NetFx40Web' />
+
+      <RollbackBoundary />
+
+      <MsiPackage Id="Setup" SourceFile="$(var.Blacker.MangaScraper.Setup.TargetPath)">
+        <MsiProperty Name="INSTALLLOCATION" Value="[InstallFolder]" />
+      </MsiPackage>
+		</Chain>
+	</Bundle>
+</Wix>
