@@ -10,6 +10,8 @@ MangaScraper is simple application which allows you to download manga chapters f
 * MangaFox.me
 * EatManga.com
 * EGScans.com
+* Vortex-Scans Reader
+* Red Hawk Scans Reader
 
 If you want support for any other site, let me know. If you feel like implemening it, let me know too ;-)
 

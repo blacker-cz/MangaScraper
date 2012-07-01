@@ -63,11 +63,15 @@
     <Compile Include="EGScans.cs" />
     <Compile Include="Events\DownloadCompletedEventArgs.cs" />
     <Compile Include="Events\DownloadProgressEventArgs.cs" />
+    <Compile Include="FoOlSlide.cs" />
+    <Compile Include="FoOlSlideFactory.cs" />
     <Compile Include="IDownloadProgressReporter.cs" />
     <Compile Include="IDownloadProvider.cs" />
     <Compile Include="IImmediateSearchProvider.cs" />
     <Compile Include="IPreload.cs" />
     <Compile Include="IScraper.cs" />
+    <Compile Include="IScraperFactory.cs" />
+    <Compile Include="IScraperIgnore.cs" />
     <Compile Include="MangaFox.cs" />
     <Compile Include="MangaReader.cs" />
     <Compile Include="Models\MangaRecord.cs" />

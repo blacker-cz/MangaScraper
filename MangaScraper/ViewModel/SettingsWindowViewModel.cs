@@ -33,7 +33,7 @@ namespace Blacker.MangaScraper.ViewModel
             EnablePreload = Properties.Settings.Default.EnablePreload;
             MaxRecentFolders = Properties.Settings.Default.RecentFolders.MaxItems;
 
-            Scrapers = Helpers.ReflectionHelper.GetInstances<Blacker.Scraper.IScraper>()
+            Scrapers = ScraperLoader.Instance.AllScrapers
                 .Select(s =>
                     new ScraperInfo(s, !Properties.Settings.Default.DisabledScrapers.Contains(s.ScraperGuid))).ToList();
 
