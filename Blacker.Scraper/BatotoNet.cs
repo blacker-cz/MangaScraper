@@ -140,15 +140,9 @@ namespace Blacker.Scraper
             {
                 int pageNumber = 0;
 
-                try
-                {
-                    Int32.TryParse(Regex.Match(pageLink.InnerText, @"\d+").Value, out pageNumber);
-                }
-                catch (Exception ex)
-                {
-                    _log.Error("Unable to parse page number '" + pageLink.InnerText + "'", ex);
-                }
-
+                if(!Int32.TryParse(Regex.Match(pageLink.InnerText, @"\d+").Value, out pageNumber))
+                    _log.Error("Unable to parse page number '" + pageLink.InnerText + "'");
+    
                 if (pages.ContainsKey(pageNumber))  // if page is already in dictionary use random number instead
                     pageNumber = Random;
 
