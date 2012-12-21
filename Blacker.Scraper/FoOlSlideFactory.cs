@@ -12,8 +12,8 @@ namespace Blacker.Scraper
                                                     {
                                                         new FoOlSlide.FoOlSlideConfig()
                                                             {
-                                                                BaseUrl = "http://reader.vortex-scans.co.cc",
-                                                                DirectoryUrl = "http://reader.vortex-scans.co.cc/reader/list",
+                                                                BaseUrl = "http://reader.vortex-scans.com/",
+                                                                DirectoryUrl = "http://reader.vortex-scans.com/reader/list",
                                                                 Name = "Vortex-Scans",
                                                                 ScraperGuid = Guid.Parse("05345360-6ee0-4b74-8378-a69d38700ede")
                                                             },
