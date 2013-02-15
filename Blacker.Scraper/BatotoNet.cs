@@ -70,7 +70,6 @@ namespace Blacker.Scraper
             {
                 records.Add(new ChapterRecord(ScraperGuid)
                 {
-                    MangaName = manga.MangaName,
                     ChapterName = CleanupText(chapter.InnerText),
                     Url = GetFullUrl(chapter.Attributes["href"].Value),
                     MangaRecord = manga

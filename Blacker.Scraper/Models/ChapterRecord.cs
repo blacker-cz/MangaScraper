@@ -12,7 +12,10 @@ namespace Blacker.Scraper.Models
             Scraper = scraper;
         }
 
-        public string MangaName { get; set; }
+        public string MangaName 
+        {
+            get { return MangaRecord != null ? MangaRecord.MangaName : "n/a"; }
+        }
 
         public string ChapterName { get; set; }
 
