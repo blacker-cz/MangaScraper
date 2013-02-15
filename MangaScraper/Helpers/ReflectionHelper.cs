@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
+using log4net;
 
 namespace Blacker.MangaScraper.Helpers
 {
     static class ReflectionHelper
     {
-        public static IEnumerable<Type> TypesImplementingInterface<T>()
+        private static readonly ILog _log = LogManager.GetLogger(typeof(ReflectionHelper));
+
+        public static IEnumerable<Type> TypesImplementingInterface<T>() where T : class
         {
             return TypesImplementingInterface<T>(Enumerable.Empty<Type>());
         }
 
-        public static IEnumerable<Type> TypesImplementingInterface<T>(IEnumerable<Type> except)
+        public static IEnumerable<Type> TypesImplementingInterface<T>(IEnumerable<Type> except) where T : class
         {
             if (except == null)
                 throw new ArgumentNullException("except");
@@ -24,7 +26,7 @@ namespace Blacker.MangaScraper.Helpers
                 .SelectMany(assembly => TypesImplementingInterface<T>(assembly, except));
         }
 
-        public static IEnumerable<Type> TypesImplementingInterface<T>(Assembly assembly, IEnumerable<Type> except)
+        public static IEnumerable<Type> TypesImplementingInterface<T>(Assembly assembly, IEnumerable<Type> except) where T : class
         {
             if(assembly == null)
                 throw new ArgumentNullException("assembly");
@@ -34,7 +36,7 @@ namespace Blacker.MangaScraper.Helpers
 
             return assembly
                 .GetTypes()
-                .Where(type => typeof(T).IsAssignableFrom(type) && IsRealClass(type) && !except.Any(t => t.IsAssignableFrom(type))).ToList();
+                .Where(type => typeof (T).IsAssignableFrom(type) && IsRealClass(type) && !except.Any(t => t.IsAssignableFrom(type))).ToList();
         }
         
         public static bool IsRealClass(Type testType)
@@ -47,20 +49,20 @@ namespace Blacker.MangaScraper.Helpers
                 && testType.IsInterface == false;
         }
 
-        public static IEnumerable<T> GetInstances<T>()
+        public static IEnumerable<T> GetInstances<T>() where T : class
         {
             return GetInstances<T>(Enumerable.Empty<Type>());
         }
 
-        public static IEnumerable<T> GetInstances<T>(IEnumerable<Type> except)
+        public static IEnumerable<T> GetInstances<T>(IEnumerable<Type> except) where T : class
         {
             if (except == null)
                 throw new ArgumentNullException("except");
 
-            return TypesImplementingInterface<T>(except).Select(x => CreateInstance<T>(x)).ToList();
+            return TypesImplementingInterface<T>(except).Select(CreateInstance<T>).Where(i => i != null).ToList();
         }
 
-        public static IEnumerable<T> GetInstances<T>(Assembly assembly, IEnumerable<Type> except)
+        public static IEnumerable<T> GetInstances<T>(Assembly assembly, IEnumerable<Type> except) where T : class
         {
             if (assembly == null)
                 throw new ArgumentNullException("assembly");
@@ -68,13 +70,27 @@ namespace Blacker.MangaScraper.Helpers
             if (except == null)
                 throw new ArgumentNullException("except");
 
-            return TypesImplementingInterface<T>(assembly, except).Select(x => CreateInstance<T>(x)).ToList();
+            return TypesImplementingInterface<T>(assembly, except).Select(CreateInstance<T>).Where(i => i != null).ToList();
         }
 
-        public static T CreateInstance<T>(Type type)
+        public static T CreateInstance<T>(Type type) where T : class
         {
+            if (type == null)
+                throw new ArgumentNullException("type");
+
             var constructor = type.GetConstructor(Type.EmptyTypes);
-            return (T)constructor.Invoke(null);
+
+            try
+            {
+                if (constructor != null) 
+                    return constructor.Invoke(null) as T;
+            }
+            catch (Exception ex)
+            {
+                _log.Error("Unable to create instance of the specified type.", ex);
+            }
+
+            return null;
         }
     }
 }
