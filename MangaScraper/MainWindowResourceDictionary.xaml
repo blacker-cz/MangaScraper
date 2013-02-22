@@ -10,4 +10,8 @@
         <vw:Download />
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type vm:DownloadManagerViewModel}">
+        <vw:DownloadManager />
+    </DataTemplate>
+    
 </ResourceDictionary>

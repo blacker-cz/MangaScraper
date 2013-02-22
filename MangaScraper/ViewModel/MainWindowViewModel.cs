@@ -29,7 +29,6 @@ namespace Blacker.MangaScraper.ViewModel
         private readonly ICommand _searchCommand;
         private readonly ICommand _browseCommand;
         private readonly ICommand _saveCommand;
-        private readonly ICommand _settingsCommand;
 
         private MangaRecord _selectedManga;
 
@@ -38,7 +37,7 @@ namespace Blacker.MangaScraper.ViewModel
 
         private static readonly object _syncRoot = new object();
 
-        private readonly ISemaphore _downloadsSemaphore;
+        private readonly DownloadManagerViewModel _downloadManager;
 
         public MainWindowViewModel(Window owner)
         {
@@ -50,7 +49,6 @@ namespace Blacker.MangaScraper.ViewModel
             _searchCommand = new SearchCommand(this);
             _browseCommand = new BrowseCommand(this);
             _saveCommand = new SaveCommand(this);
-            _settingsCommand = new SettingsCommand(this);
 
             // load all enabled scrapers
             _scrapers = ScraperLoader.Instance.EnabledScrapers;
@@ -66,17 +64,15 @@ namespace Blacker.MangaScraper.ViewModel
 
             Mangas = new AsyncObservableCollection<MangaRecord>();
             Chapters = new AsyncObservableCollection<ChapterRecord>();
-            Downloads = new AsyncObservableCollection<DownloadViewModel>();
             SelectedChapters = new AsyncObservableCollection<ChapterRecord>();
 
             ZipFile = true;
-            ProgressValue = 0;
 
             _requestQueue = new AsyncRequestQueue(System.Threading.SynchronizationContext.Current);
             _requestQueue.TasksCompleted += _requestQueue_TasksCompleted;
             _requestQueue.Initialize();
 
-            _downloadsSemaphore = new FifoSemaphore(Properties.Settings.Default.MaxParallelDownloads);
+            _downloadManager = new DownloadManagerViewModel();
 
             if (Properties.Settings.Default.EnablePreload)
             {
@@ -123,13 +119,9 @@ namespace Blacker.MangaScraper.ViewModel
 
         public ICommand SaveCommand { get { return _saveCommand; } }
 
-        public ICommand SettingsCommand { get { return _settingsCommand; } }
-
         public ObservableCollection<MangaRecord> Mangas { get; private set; }
 
         public ObservableCollection<ChapterRecord> Chapters { get; private set; }
-
-        public ObservableCollection<DownloadViewModel> Downloads { get; private set; }
 
         public ObservableCollection<ChapterRecord> SelectedChapters { get; private set; }
 
@@ -149,9 +141,7 @@ namespace Blacker.MangaScraper.ViewModel
 
         public string CurrentActionText { get; set; }
 
-        public int ProgressValue { get; set; }
-
-        public bool ProgressIndeterminate { get; set; }
+        public bool OperationInProgress { get; set; }
 
         public MangaRecord SelectedManga
         {
@@ -163,6 +153,8 @@ namespace Blacker.MangaScraper.ViewModel
             }
         }
 
+        public DownloadManagerViewModel DownloadManager { get { return _downloadManager; } }
+
         #region Commands
 
         public void SearchManga()
@@ -170,8 +162,8 @@ namespace Blacker.MangaScraper.ViewModel
             var scraper = CurrentScraper;
             var searchString = SearchString ?? String.Empty;
 
-            ProgressIndeterminate = true;
-            InvokePropertyChanged("ProgressIndeterminate");
+            OperationInProgress = true;
+            InvokePropertyChanged("OperationInProgress");
             CurrentActionText = "Searching ...";
             InvokePropertyChanged("CurrentActionText");
 
@@ -202,8 +194,8 @@ namespace Blacker.MangaScraper.ViewModel
             var scraper = CurrentScraper as IImmediateSearchProvider;
             var searchString = SearchString ?? String.Empty;
 
-            ProgressIndeterminate = true;
-            InvokePropertyChanged("ProgressIndeterminate");
+            OperationInProgress = true;
+            InvokePropertyChanged("OperationInProgress");
             CurrentActionText = "Searching ...";
             InvokePropertyChanged("CurrentActionText");
 
@@ -234,8 +226,8 @@ namespace Blacker.MangaScraper.ViewModel
 
             var scraper = CurrentScraper;
 
-            ProgressIndeterminate = true;
-            InvokePropertyChanged("ProgressIndeterminate");
+            OperationInProgress = true;
+            InvokePropertyChanged("OperationInProgress");
             CurrentActionText = "Loading chapters ...";
             InvokePropertyChanged("CurrentActionText");
 
@@ -325,11 +317,7 @@ namespace Blacker.MangaScraper.ViewModel
 
             foreach (var selectedChapter in SelectedChapters)
             {
-                var downloadViewModel = new DownloadViewModel(CurrentScraper.GetDownloader(), selectedChapter);
-                downloadViewModel.RemoveFromCollection += DownloadViewModel_RemoveFromCollection;
-                Downloads.Add(downloadViewModel);
-
-                downloadViewModel.DownloadChapter(OutputPath, ZipFile, _downloadsSemaphore);
+                _downloadManager.Download(CurrentScraper.GetDownloader(), selectedChapter, OutputPath, ZipFile);
             }
         }
 
@@ -343,11 +331,11 @@ namespace Blacker.MangaScraper.ViewModel
             if (!preloadables.Any())
                 return;
 
-            if (!ProgressIndeterminate)
+            if (!OperationInProgress)
             {
                 CurrentActionText = "Preloading manga directories ...";
-                ProgressIndeterminate = true;
-                InvokePropertyChanged("ProgressIndeterminate");
+                OperationInProgress = true;
+                InvokePropertyChanged("OperationInProgress");
                 InvokePropertyChanged("CurrentActionText");
             }
 
@@ -360,8 +348,8 @@ namespace Blacker.MangaScraper.ViewModel
                                 (x, y) =>
                                 {
                                     // don't care about errors...
-                                    ProgressIndeterminate = false;
-                                    InvokePropertyChanged("ProgressIndeterminate");
+                                    OperationInProgress = false;
+                                    InvokePropertyChanged("OperationInProgress");
                                     CurrentActionText = "";
                                     InvokePropertyChanged("CurrentActionText");
                                 }
@@ -370,19 +358,10 @@ namespace Blacker.MangaScraper.ViewModel
 
         void _requestQueue_TasksCompleted(object sender, EventArgs e)
         {
-            ProgressIndeterminate = false;
-            InvokePropertyChanged("ProgressIndeterminate");
+            OperationInProgress = false;
+            InvokePropertyChanged("OperationInProgress");
             CurrentActionText = "";
             InvokePropertyChanged("CurrentActionText");
-        }
-
-        void DownloadViewModel_RemoveFromCollection(object sender, EventArgs e)
-        {
-            var downloadViewModel = sender as DownloadViewModel;
-
-            downloadViewModel.RemoveFromCollection -= DownloadViewModel_RemoveFromCollection;
-
-            Downloads.Remove(downloadViewModel);
         }
 
         #region ICleanup implementation
@@ -394,10 +373,7 @@ namespace Blacker.MangaScraper.ViewModel
 
             try
             {
-                foreach (var download in Downloads)
-                {
-                    download.Cancel();
-                }
+                _downloadManager.CancelRunningDownloads();
             }
             catch (Exception ex)
             {

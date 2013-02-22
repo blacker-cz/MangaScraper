@@ -17,13 +17,8 @@ namespace Blacker.MangaScraper.ViewModel
         private readonly ICommand _browseCommand;
         private readonly ICommand _clearCommand;
 
-        public SettingsWindowViewModel(System.Windows.Window owner)
+        public SettingsWindowViewModel()
         {
-            if (owner == null)
-                throw new ArgumentNullException("owner");
-
-            Owner = owner;
-
             _saveSettingsCommand = new SaveCommand(this);
             _browseCommand = new BrowseCommand(this);
             _clearCommand = new ClearCommand(this, false, true, "Do you really want to clear recent folder history?");
@@ -39,7 +34,7 @@ namespace Blacker.MangaScraper.ViewModel
 
             try
             {
-                System.IO.StreamReader reader = new System.IO.StreamReader(System.Windows.Application.GetResourceStream(new System.Uri("/readme.txt", UriKind.Relative)).Stream, Encoding.UTF8);
+                var reader = new System.IO.StreamReader(System.Windows.Application.GetResourceStream(new System.Uri("/readme.txt", UriKind.Relative)).Stream, Encoding.UTF8);
                 AboutText = reader.ReadToEnd();
             }
             catch (System.IO.IOException ex)
@@ -89,7 +84,7 @@ namespace Blacker.MangaScraper.ViewModel
 
                 Properties.Settings.Default.Save();
 
-                Owner.Close();
+                // todo: somehow signalize that settings were saved
             }
         }
 
@@ -164,15 +159,15 @@ namespace Blacker.MangaScraper.ViewModel
 
         public class ScraperInfo
         {
-            private Blacker.Scraper.IScraper _scraper;
+            private readonly Scraper.IScraper _scraper;
 
-            public ScraperInfo(Blacker.Scraper.IScraper scraper, bool enabled)
+            public ScraperInfo(Scraper.IScraper scraper, bool enabled)
             {
                 if (scraper == null)
                     throw new ArgumentNullException("scraper");
 
                 _scraper = scraper;
-                Enabled = enabled;//!Properties.Settings.Default.DisabledScrapers.Contains(scraper.ScraperGuid);
+                Enabled = enabled;
             }
 
             public string Name { get { return _scraper.Name; } }

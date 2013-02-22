@@ -9,20 +9,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace Blacker.MangaScraper.View
 {
     /// <summary>
-    /// Interaction logic for SettingsWindow.xaml
+    /// Interaction logic for DownloadManager.xaml
     /// </summary>
-    public partial class SettingsWindow : UserControl
+    public partial class DownloadManager : UserControl
     {
-        public SettingsWindow()
+        public DownloadManager()
         {
             InitializeComponent();
-
-            DataContext = new Blacker.MangaScraper.ViewModel.SettingsWindowViewModel();
         }
     }
 }

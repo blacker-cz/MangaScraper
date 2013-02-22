@@ -53,6 +53,12 @@
           <Component Id="log4net.dll" Guid="*">
             <File Id="log4net.dll" Source="$(var.BuildDir)log4net.dll"/>
           </Component>
+          <Component Id="System.Windows.Interactivity.dll" Guid="*">
+            <File Id="System.Windows.Interactivity.dll" Source="$(var.BuildDir)System.Windows.Interactivity.dll"/>
+          </Component>
+          <Component Id="MahApps.Metro.dll" Guid="*">
+            <File Id="MahApps.Metro.dll" Source="$(var.BuildDir)MahApps.Metro.dll"/>
+          </Component>
 
         </Directory>
       </Directory>
@@ -79,6 +85,8 @@
       <ComponentRef Id="HtmlAgilityPack.dll" />
       <ComponentRef Id="Ionic.Zip.dll" />
       <ComponentRef Id="log4net.dll" />
+      <ComponentRef Id="System.Windows.Interactivity.dll" />
+      <ComponentRef Id="MahApps.Metro.dll" />
 
       <ComponentRef Id="ApplicationShortcuts" />
     </ComponentGroup>

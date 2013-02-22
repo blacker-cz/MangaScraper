@@ -16,8 +16,6 @@ namespace Blacker.MangaScraper.Commands
         public override void Execute(object parameter)
         {
             var settingsWindow = new SettingsWindow();
-            settingsWindow.Owner = _viewModel.Owner;
-            settingsWindow.ShowDialog();
         }
     }
 }
