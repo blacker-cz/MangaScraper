@@ -20,6 +20,7 @@ obj/
 *.exe.manifest
 *.suo
 *.csproj.user
+*.sln.*.user
 
 # Packages #
 ############
