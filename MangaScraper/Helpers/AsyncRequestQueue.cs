@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Runtime.Remoting.Messaging;
 using System.Collections.Concurrent;
 using log4net;
 
@@ -16,7 +12,6 @@ namespace Blacker.MangaScraper.Helpers
         private readonly AutoResetEvent _canProcess = new AutoResetEvent(false);
         private readonly AutoResetEvent _stopEvent = new AutoResetEvent(false);
         private readonly ConcurrentQueue<AsyncRequest> _requestQueue = new ConcurrentQueue<AsyncRequest>();
-        private readonly ConcurrentQueue<AsyncRequest> _lowPriorityRequestQueue = new ConcurrentQueue<AsyncRequest>();
         private readonly SynchronizationContext _synchronizationContext;
         private readonly Thread _thread;
 
@@ -81,11 +76,6 @@ namespace Blacker.MangaScraper.Helpers
 	                {
                         ProcessAsyncRequest(request);
 	                }
-
-                    while (_requestQueue.Count == 0 && _lowPriorityRequestQueue.TryDequeue(out request))
-                    {
-                        ProcessAsyncRequest(request);
-                    }
 
                     if (_requestQueue.Count == 0)
                     {
@@ -172,19 +162,6 @@ namespace Blacker.MangaScraper.Helpers
                 throw new InvalidOperationException("Not initialized!");
 
             _requestQueue.Enqueue(new AsyncRequest() { Method = method, Callback = callback });
-            _canProcess.Set();
-        }
-
-        public void AddLowPriority(Func<object> method, Action<object, Exception> callback)
-        {
-            if (method == null)
-                throw new ArgumentNullException("method");
-            if (callback == null)
-                throw new ArgumentNullException("callback");
-            if (!_initialized)
-                throw new InvalidOperationException("Not initialized!");
-
-            _lowPriorityRequestQueue.Enqueue(new AsyncRequest() { Method = method, Callback = callback });
             _canProcess.Set();
         }
 
