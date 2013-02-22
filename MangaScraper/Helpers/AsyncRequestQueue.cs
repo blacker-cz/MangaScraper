@@ -27,7 +27,10 @@ namespace Blacker.MangaScraper.Helpers
         public AsyncRequestQueue(SynchronizationContext synchronizationContext)
 	    {
             _synchronizationContext = synchronizationContext;
-            _thread = new Thread(ThreadProc);
+            _thread = new Thread(ThreadProc)
+                          {
+                              IsBackground = true
+                          };
 
             _initialized = false;
 	    }
