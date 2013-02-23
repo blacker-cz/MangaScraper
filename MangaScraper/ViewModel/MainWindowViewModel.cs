@@ -339,10 +339,9 @@ namespace Blacker.MangaScraper.ViewModel
                 InvokePropertyChanged("CurrentActionText");
             }
 
-            var async = new AsyncWrapper();
-            async.Call<object>(() =>
+            AsyncWrapper.Call<object>(() =>
                                 {
-                                    System.Threading.Tasks.Parallel.ForEach(preloadables, (x) => { x.PreloadDirectory(); });
+                                    System.Threading.Tasks.Parallel.ForEach(preloadables, (x) => x.PreloadDirectory());
                                     return null;
                                 },
                                 (x, y) =>

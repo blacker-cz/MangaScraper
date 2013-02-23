@@ -7,11 +7,11 @@ using log4net;
 
 namespace Blacker.MangaScraper.Helpers
 {
-    class AsyncWrapper
+    static class AsyncWrapper
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(AsyncWrapper));
 
-        public void Call<TResult>(Func<TResult> method, Action<TResult, Exception> callback)
+        public static void Call<TResult>(Func<TResult> method, Action<TResult, Exception> callback)
         {
             if (method == null)
                 throw new ArgumentNullException("method");
@@ -21,7 +21,7 @@ namespace Blacker.MangaScraper.Helpers
             method.BeginInvoke(new AsyncCallback(FuncCallAsyncCallback<TResult>), callback);
         }
 
-        private void FuncCallAsyncCallback<TResult>(IAsyncResult result)
+        private static void FuncCallAsyncCallback<TResult>(IAsyncResult result)
         {
             var callback = result.AsyncState as Action<TResult, Exception>;
             var deleg = (result as AsyncResult).AsyncDelegate as Func<TResult>;
