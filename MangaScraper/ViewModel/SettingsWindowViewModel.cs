@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows.Input;
 using Blacker.MangaScraper.Commands;
 using System.ComponentModel;
+using Blacker.MangaScraper.Common;
 using log4net;
 
 namespace Blacker.MangaScraper.ViewModel
@@ -159,9 +160,9 @@ namespace Blacker.MangaScraper.ViewModel
 
         public class ScraperInfo
         {
-            private readonly Scraper.IScraper _scraper;
+            private readonly IScraper _scraper;
 
-            public ScraperInfo(Scraper.IScraper scraper, bool enabled)
+            public ScraperInfo(IScraper scraper, bool enabled)
             {
                 if (scraper == null)
                     throw new ArgumentNullException("scraper");

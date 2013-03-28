@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Blacker.Scraper.Events;
 using System.IO;
+using Blacker.MangaScraper.Common;
+using Blacker.MangaScraper.Common.Models;
 using Blacker.Scraper.Models;
 using Blacker.Scraper.Helpers;
 using Blacker.Scraper.Exceptions;
@@ -20,7 +21,7 @@ namespace Blacker.Scraper
         private const string BatotoNetUrl = "http://www.batoto.net";
         private const string SearchUrlFormat = "http://www.batoto.net/search?name={0}&name_cond=c";
 
-        private Cache<string, object> _cache;
+        private readonly Cache<string, object> _cache;
 
         private const string ChapterCacheKey = "Chapters";
 
@@ -44,7 +45,7 @@ namespace Blacker.Scraper
             get { return Guid.Parse("41675e50-649c-4fbb-b0b9-769ebd8a93b8"); }
         }
 
-        public IEnumerable<ChapterRecord> GetAvailableChapters(MangaRecord manga)
+        public IEnumerable<IChapterRecord> GetAvailableChapters(IMangaRecord manga)
         {
             if (manga == null)
                 throw new ArgumentNullException("manga");
@@ -82,7 +83,7 @@ namespace Blacker.Scraper
             return records;
         }
 
-        public IEnumerable<MangaRecord> GetAvailableMangas(string filter)
+        public IEnumerable<IMangaRecord> GetAvailableMangas(string filter)
         {
             if (filter == null)
                 throw new ArgumentNullException("filter");
@@ -124,7 +125,7 @@ namespace Blacker.Scraper
 
         #endregion // Private methods
 
-        private IDictionary<int, string> GetPages(ChapterRecord chapter)
+        private IDictionary<int, string> GetPages(IChapterRecord chapter)
         {
             IDictionary<int, string> pages = new Dictionary<int, string>();
 

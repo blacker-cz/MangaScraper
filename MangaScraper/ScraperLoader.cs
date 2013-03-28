@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Blacker.Scraper;
+using Blacker.MangaScraper.Common;
 using Blacker.MangaScraper.Helpers;
 using log4net;
 
@@ -40,6 +40,9 @@ namespace Blacker.MangaScraper
         {
             try
             {
+                // todo: this doesn't work if assemblies are not all loaded in AppDomain
+                AppDomain.CurrentDomain.Load("Blacker.Scraper");
+
                 var factories = ReflectionHelper.GetInstances<IScraperFactory>();
 
                 _scrapers = ReflectionHelper

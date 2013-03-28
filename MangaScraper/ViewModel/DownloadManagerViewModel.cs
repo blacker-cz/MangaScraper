@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Blacker.Scraper;
-using Blacker.Scraper.Models;
-using Blacker.Scraper.Utils;
+using Blacker.MangaScraper.Common;
+using Blacker.MangaScraper.Common.Models;
+using Blacker.MangaScraper.Common.Utils;
 using System.Collections.ObjectModel;
 using log4net;
 
@@ -24,7 +22,7 @@ namespace Blacker.MangaScraper.ViewModel
 
         public ObservableCollection<DownloadViewModel> Downloads { get; private set; }
 
-        public void Download(IDownloader downloader, ChapterRecord chapter, string outputPath, bool zipFile)
+        public void Download(IDownloader downloader, IChapterRecord chapter, string outputPath, bool zipFile)
         {
             var downloadViewModel = new DownloadViewModel(downloader, chapter);
             downloadViewModel.RemoveFromCollection += DownloadViewModel_RemoveFromCollection;

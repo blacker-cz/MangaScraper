@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Blacker.Scraper;
+using Blacker.MangaScraper.Common;
+using Blacker.MangaScraper.Common.Models;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using Blacker.MangaScraper.Commands;
-using Blacker.Scraper.Models;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Text.RegularExpressions;
 using Blacker.MangaScraper.Helpers;
 using log4net;
-using Blacker.Scraper.Utils;
 
 namespace Blacker.MangaScraper.ViewModel
 {
@@ -24,13 +21,13 @@ namespace Blacker.MangaScraper.ViewModel
 
         private IScraper _currentScraper;
 
-        private AsyncRequestQueue _requestQueue;
+        private readonly AsyncRequestQueue _requestQueue;
 
         private readonly ICommand _searchCommand;
         private readonly ICommand _browseCommand;
         private readonly ICommand _saveCommand;
 
-        private MangaRecord _selectedManga;
+        private IMangaRecord _selectedManga;
 
         private string _outputPath;
         private string _searchString = string.Empty;
@@ -38,6 +35,8 @@ namespace Blacker.MangaScraper.ViewModel
         private static readonly object _syncRoot = new object();
 
         private readonly DownloadManagerViewModel _downloadManager;
+        private bool _operationInProgress;
+        private string _currentActionText;
 
         public MainWindowViewModel(Window owner)
         {
@@ -62,13 +61,13 @@ namespace Blacker.MangaScraper.ViewModel
             // load output path from user settings
             _outputPath = Properties.Settings.Default.OutputPath;
 
-            Mangas = new AsyncObservableCollection<MangaRecord>();
-            Chapters = new AsyncObservableCollection<ChapterRecord>();
-            SelectedChapters = new AsyncObservableCollection<ChapterRecord>();
+            Mangas = new AsyncObservableCollection<IMangaRecord>();
+            Chapters = new AsyncObservableCollection<IChapterRecord>();
+            SelectedChapters = new AsyncObservableCollection<IChapterRecord>();
 
             ZipFile = true;
 
-            _requestQueue = new AsyncRequestQueue(System.Threading.SynchronizationContext.Current);
+            _requestQueue = new AsyncRequestQueue();
             _requestQueue.TasksCompleted += _requestQueue_TasksCompleted;
             _requestQueue.Initialize();
 
@@ -119,11 +118,11 @@ namespace Blacker.MangaScraper.ViewModel
 
         public ICommand SaveCommand { get { return _saveCommand; } }
 
-        public ObservableCollection<MangaRecord> Mangas { get; private set; }
+        public ObservableCollection<IMangaRecord> Mangas { get; private set; }
 
-        public ObservableCollection<ChapterRecord> Chapters { get; private set; }
+        public ObservableCollection<IChapterRecord> Chapters { get; private set; }
 
-        public ObservableCollection<ChapterRecord> SelectedChapters { get; private set; }
+        public ObservableCollection<IChapterRecord> SelectedChapters { get; private set; }
 
         public string OutputPath
         {
@@ -139,11 +138,27 @@ namespace Blacker.MangaScraper.ViewModel
 
         public bool ZipFile { get; set; }
 
-        public string CurrentActionText { get; set; }
+        public string CurrentActionText
+        {
+            get { return _currentActionText; }
+            set
+            {
+                _currentActionText = value;
+                InvokePropertyChanged("CurrentActionText");
+            }
+        }
 
-        public bool OperationInProgress { get; set; }
+        public bool OperationInProgress
+        {
+            get { return _operationInProgress; }
+            set
+            {
+                _operationInProgress = value;
+                InvokePropertyChanged("OperationInProgress");
+            }
+        }
 
-        public MangaRecord SelectedManga
+        public IMangaRecord SelectedManga
         {
             get { return _selectedManga; }
             set
@@ -163,22 +178,18 @@ namespace Blacker.MangaScraper.ViewModel
             var searchString = SearchString ?? String.Empty;
 
             OperationInProgress = true;
-            InvokePropertyChanged("OperationInProgress");
             CurrentActionText = "Searching ...";
-            InvokePropertyChanged("CurrentActionText");
 
             _requestQueue.Add(
-                () => {
-                    return scraper.GetAvailableMangas(searchString);
-                },
+                () => scraper.GetAvailableMangas(searchString),
                 (r, e) => {
-                    var records = r as IEnumerable<MangaRecord>;
+                    var records = r as IEnumerable<IMangaRecord>;
                     if (e == null && r != null)
                     {
                         lock (_syncRoot)
                         {
                             // just replace collection -> this is easier than removing and than adding records
-                            Mangas = new AsyncObservableCollection<MangaRecord>(records);
+                            Mangas = new AsyncObservableCollection<IMangaRecord>(records);
                             InvokePropertyChanged("Mangas");
                         }
                     }
@@ -195,23 +206,18 @@ namespace Blacker.MangaScraper.ViewModel
             var searchString = SearchString ?? String.Empty;
 
             OperationInProgress = true;
-            InvokePropertyChanged("OperationInProgress");
             CurrentActionText = "Searching ...";
-            InvokePropertyChanged("CurrentActionText");
 
             _requestQueue.Add(
-                () =>
-                {
-                    return scraper.GetAvailableMangasImmediate(searchString);
-                },
+                () => scraper.GetAvailableMangasImmediate(searchString),
                 (r, e) =>
                 {
-                    var requests = r as IEnumerable<MangaRecord>;
+                    var requests = r as IEnumerable<IMangaRecord>;
                     if (e == null && r != null)
                     {
                         lock (_syncRoot)
                         {
-                            Mangas = new AsyncObservableCollection<MangaRecord>(requests);
+                            Mangas = new AsyncObservableCollection<IMangaRecord>(requests);
                             InvokePropertyChanged("Mangas");
                         }
                     }
@@ -219,7 +225,7 @@ namespace Blacker.MangaScraper.ViewModel
             );
         }
 
-        private void LoadChapters(MangaRecord manga)
+        private void LoadChapters(IMangaRecord manga)
         {
             if (manga == null)
                 return;
@@ -227,24 +233,19 @@ namespace Blacker.MangaScraper.ViewModel
             var scraper = CurrentScraper;
 
             OperationInProgress = true;
-            InvokePropertyChanged("OperationInProgress");
             CurrentActionText = "Loading chapters ...";
-            InvokePropertyChanged("CurrentActionText");
 
             _requestQueue.Add(
-                () =>
-                {
-                    return scraper.GetAvailableChapters(manga);
-                },
+                () => scraper.GetAvailableChapters(manga),
                 (r, e) =>
                 {
-                    var results = r as IEnumerable<ChapterRecord>;
+                    var results = r as IEnumerable<IChapterRecord>;
                     if (e == null && r != null)
                     {
                         lock (_syncRoot)
                         {
                             // just replace collection -> this is easier than removing and than adding records
-                            Chapters = new AsyncObservableCollection<ChapterRecord>(results);
+                            Chapters = new AsyncObservableCollection<IChapterRecord>(results);
                             InvokePropertyChanged("Chapters");
                         }
                     }
@@ -325,7 +326,7 @@ namespace Blacker.MangaScraper.ViewModel
 
         private void PreloadMangas()
         {
-            var preloadables = _scrapers.Where(s => s is IPreload).Select(s => s as IPreload);
+            var preloadables = _scrapers.OfType<IPreload>();
 
             // if there are no preloadables skip the execution
             if (!preloadables.Any())
@@ -335,8 +336,6 @@ namespace Blacker.MangaScraper.ViewModel
             {
                 CurrentActionText = "Preloading manga directories ...";
                 OperationInProgress = true;
-                InvokePropertyChanged("OperationInProgress");
-                InvokePropertyChanged("CurrentActionText");
             }
 
             AsyncWrapper.Call<object>(() =>
@@ -348,9 +347,7 @@ namespace Blacker.MangaScraper.ViewModel
                                 {
                                     // don't care about errors...
                                     OperationInProgress = false;
-                                    InvokePropertyChanged("OperationInProgress");
                                     CurrentActionText = "";
-                                    InvokePropertyChanged("CurrentActionText");
                                 }
                         );
         }
@@ -358,9 +355,7 @@ namespace Blacker.MangaScraper.ViewModel
         void _requestQueue_TasksCompleted(object sender, EventArgs e)
         {
             OperationInProgress = false;
-            InvokePropertyChanged("OperationInProgress");
             CurrentActionText = "";
-            InvokePropertyChanged("CurrentActionText");
         }
 
         #region ICleanup implementation

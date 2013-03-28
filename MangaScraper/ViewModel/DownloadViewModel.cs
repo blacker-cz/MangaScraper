@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Blacker.Scraper;
+using Blacker.MangaScraper.Common;
+using Blacker.MangaScraper.Common.Events;
+using Blacker.MangaScraper.Common.Models;
+using Blacker.MangaScraper.Common.Utils;
 using System.Windows.Input;
 using Blacker.MangaScraper.Commands;
-using Blacker.Scraper.Models;
 using System.IO;
 using System.Text.RegularExpressions;
 using log4net;
-using Blacker.Scraper.Utils;
 using Blacker.MangaScraper.Helpers;
 
 namespace Blacker.MangaScraper.ViewModel
@@ -19,7 +17,7 @@ namespace Blacker.MangaScraper.ViewModel
         private static readonly ILog _log = LogManager.GetLogger(typeof(DownloadViewModel));
 
         private readonly IDownloader _downloader;
-        private readonly ChapterRecord _chapter;
+        private readonly IChapterRecord _chapter;
 
         private readonly ICommand _cancelDownloadCommand;
         private readonly ICommand _removeDownloadCommand;
@@ -37,7 +35,7 @@ namespace Blacker.MangaScraper.ViewModel
         private const string ButtonCancelText = @"Cancel";
         private const string ButtonCancellingText = @"Canceling";
 
-        public DownloadViewModel(IDownloader downloader, ChapterRecord chapter)
+        public DownloadViewModel(IDownloader downloader, IChapterRecord chapter)
             : base()
         {
             if (downloader == null)
@@ -72,7 +70,7 @@ namespace Blacker.MangaScraper.ViewModel
 
         public int ProgressValue { get; set; }
 
-        public ChapterRecord Chapter { get { return _chapter; } }
+        public IChapterRecord Chapter { get { return _chapter; } }
 
         public IDownloader Downloader { get { return _downloader; } }
 
@@ -171,7 +169,7 @@ namespace Blacker.MangaScraper.ViewModel
             OnRemoveFromCollection();
         }
 
-        void _downloader_DownloadProgress(object sender, Scraper.Events.DownloadProgressEventArgs e)
+        void _downloader_DownloadProgress(object sender, DownloadProgressEventArgs e)
         {
             ProgressValue = e.PercentComplete;
             CurrentActionText = e.Message;
@@ -180,7 +178,7 @@ namespace Blacker.MangaScraper.ViewModel
             InvokePropertyChanged("CurrentActionText");
         }
 
-        void _downloader_DownloadCompleted(object sender, Scraper.Events.DownloadCompletedEventArgs e)
+        void _downloader_DownloadCompleted(object sender, DownloadCompletedEventArgs e)
         {
             State = DownloadState.Ok;
 
@@ -229,7 +227,7 @@ namespace Blacker.MangaScraper.ViewModel
             Error
         }
 
-        private string GetNameForSave(ChapterRecord chapter)
+        private string GetNameForSave(IChapterRecord chapter)
         {
             string fileName = String.Format("{0} - {1}", chapter.MangaName, chapter.ChapterName).Replace(" ", "_");
 

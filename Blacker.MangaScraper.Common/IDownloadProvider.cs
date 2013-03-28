@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Blacker.Scraper.Models;
+using System;
 using System.IO;
-using System.Threading;
-using Blacker.Scraper.Utils;
+using Blacker.MangaScraper.Common.Events;
+using Blacker.MangaScraper.Common.Models;
+using Blacker.MangaScraper.Common.Utils;
 
-namespace Blacker.Scraper
+namespace Blacker.MangaScraper.Common
 {
     public interface IDownloadProvider
     {
@@ -17,7 +14,7 @@ namespace Blacker.Scraper
         /// <param name="semaphore">Semaphore used to limit maximal number of simultaneous downloads</param>
         /// <param name="chapter">Chapter info</param>
         /// <param name="file">Output file info</param>
-        void DownloadChapterAsync(ISemaphore semaphore, ChapterRecord chapter, FileInfo file);
+        void DownloadChapterAsync(ISemaphore semaphore, IChapterRecord chapter, FileInfo file);
 
         /// <summary>
         /// Download chapter to directory
@@ -26,7 +23,7 @@ namespace Blacker.Scraper
         /// <param name="chapter">Chapter info</param>
         /// <param name="directory">Output directory info</param>
         /// <param name="createDir">Flag if directory should be created if it does not exist (optional, defaul true)</param>
-        void DownloadChapterAsync(ISemaphore semaphore, ChapterRecord chapter, DirectoryInfo directory, bool createDir = true);
+        void DownloadChapterAsync(ISemaphore semaphore, IChapterRecord chapter, DirectoryInfo directory, bool createDir = true);
 
         /// <summary>
         /// Cancel the chapter download
@@ -36,6 +33,6 @@ namespace Blacker.Scraper
         /// <summary>
         /// Event signalling download progress
         /// </summary>
-        event EventHandler<Events.DownloadCompletedEventArgs> DownloadCompleted;
+        event EventHandler<DownloadCompletedEventArgs> DownloadCompleted;
     }
 }

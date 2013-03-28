@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Blacker.MangaScraper.Common;
+using Blacker.MangaScraper.Common.Models;
 using Blacker.Scraper.Models;
 using log4net;
 using Blacker.Scraper.Cache;
@@ -15,9 +17,9 @@ namespace Blacker.Scraper
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(FoOlSlide));
 
-        private FoOlSlideConfig _configuration;
+        private readonly FoOlSlideConfig _configuration;
 
-        private Cache<string, object> _cache;
+        private readonly Cache<string, object> _cache;
 
         private const string MangasCacheKey = "Mangas";
         private const string ChapterCacheKey = "Chapters";
@@ -58,7 +60,7 @@ namespace Blacker.Scraper
             get { return _configuration.ScraperGuid; }
         }
 
-        public IEnumerable<ChapterRecord> GetAvailableChapters(MangaRecord manga)
+        public IEnumerable<IChapterRecord> GetAvailableChapters(IMangaRecord manga)
         {
             if (manga == null)
                 throw new ArgumentNullException("manga");
@@ -96,7 +98,7 @@ namespace Blacker.Scraper
             return records;
         }
 
-        public IEnumerable<MangaRecord> GetAvailableMangas(string filter)
+        public IEnumerable<IMangaRecord> GetAvailableMangas(string filter)
         {
             if (filter == null)
                 throw new ArgumentNullException("filter");
@@ -113,7 +115,7 @@ namespace Blacker.Scraper
         
         #region IImmediateSearchProvider implementation
 
-        public IEnumerable<MangaRecord> GetAvailableMangasImmediate(string filter)
+        public IEnumerable<IMangaRecord> GetAvailableMangasImmediate(string filter)
         {
             if (filter == null)
                 throw new ArgumentNullException("filter");
@@ -185,7 +187,7 @@ namespace Blacker.Scraper
             return records;
         }
 
-        private IDictionary<int, string> GetPages(ChapterRecord chapter)
+        private IDictionary<int, string> GetPages(IChapterRecord chapter)
         {
             IDictionary<int, string> pages = new Dictionary<int, string>();
 

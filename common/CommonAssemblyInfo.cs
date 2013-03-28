@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyCopyright("Copyright © 2012 Lukáš Èerný")]
+[assembly: AssemblyCopyright("Copyright © 2012-2013 Lukáš Èerný")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyCompany("")]

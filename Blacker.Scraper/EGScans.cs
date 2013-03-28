@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Blacker.MangaScraper.Common;
+using Blacker.MangaScraper.Common.Models;
 using log4net;
 using Blacker.Scraper.Models;
 using Blacker.Scraper.Helpers;
@@ -18,7 +20,7 @@ namespace Blacker.Scraper
         private const string EGScansMangaUrlFormat = EGScansUrl + "/{0}";   // {0} - value of manga option from manga select list
         private const string EGScansChapterUrlFormat = "{0}/{1}";  // {0} - manga url, {1} - value of the chapter from chapter select list
 
-        private Cache<string, object> _cache;
+        private readonly Cache<string, object> _cache;
 
         private const string MangasCacheKey = "Mangas";
         private const string ChapterCacheKey = "Chapters";
@@ -51,7 +53,7 @@ namespace Blacker.Scraper
             get { return Guid.Parse("1f8913bc-dc18-4021-a2e6-41b6df27f2c4"); }
         }
 
-        public IEnumerable<ChapterRecord> GetAvailableChapters(MangaRecord manga)
+        public IEnumerable<IChapterRecord> GetAvailableChapters(IMangaRecord manga)
         {
             if (manga == null)
                 throw new ArgumentNullException("manga");
@@ -89,7 +91,7 @@ namespace Blacker.Scraper
             return records;
         }
 
-        public IEnumerable<MangaRecord> GetAvailableMangas(string filter)
+        public IEnumerable<IMangaRecord> GetAvailableMangas(string filter)
         {
             if (filter == null)
                 throw new ArgumentNullException("filter");
@@ -107,7 +109,7 @@ namespace Blacker.Scraper
 
         #region IImmediateSearchProvider implementation
 
-        public IEnumerable<MangaRecord> GetAvailableMangasImmediate(string filter)
+        public IEnumerable<IMangaRecord> GetAvailableMangasImmediate(string filter)
         {
             if (filter == null)
                 throw new ArgumentNullException("filter");
@@ -179,7 +181,7 @@ namespace Blacker.Scraper
             return records;
         }
 
-        private IDictionary<int, string> GetPages(ChapterRecord chapter)
+        private IDictionary<int, string> GetPages(IChapterRecord chapter)
         {
             IDictionary<int, string> pages = new Dictionary<int, string>();
 

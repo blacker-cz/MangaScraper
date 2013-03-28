@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using Blacker.Scraper.Models;
 using System;
+using System.Collections.Generic;
+using Blacker.MangaScraper.Common.Models;
 
-namespace Blacker.Scraper
+namespace Blacker.MangaScraper.Common
 {
     /// <summary>
     /// IScraper interface.
@@ -25,14 +25,14 @@ namespace Blacker.Scraper
         /// </summary>
         /// <param name="manga">Manga</param>
         /// <returns>List of available chapters</returns>
-        IEnumerable<ChapterRecord> GetAvailableChapters(MangaRecord manga);
+        IEnumerable<IChapterRecord> GetAvailableChapters(IMangaRecord manga);
 
         /// <summary>
         /// Get list of available mangas filtered by name (or its part)
         /// </summary>
         /// <param name="filter">Part of manga name (ignores case and diacritics)</param>
         /// <returns>List of available mangas</returns>
-        IEnumerable<MangaRecord> GetAvailableMangas(string filter);
+        IEnumerable<IMangaRecord> GetAvailableMangas(string filter);
 
         /// <summary>
         /// Method to get downloader which is already setup for this scraper

@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Blacker.MangaScraper.Common;
+using Blacker.MangaScraper.Common.Events;
+using Blacker.MangaScraper.Common.Models;
+using Blacker.MangaScraper.Common.Utils;
 using Blacker.Scraper.Models;
 using Blacker.Scraper.Helpers;
 using Blacker.Scraper.Exceptions;
 using System.IO;
 using Ionic.Zip;
-using Blacker.Scraper.Events;
 using log4net;
 using System.ComponentModel;
-using Blacker.Scraper.Utils;
 
 namespace Blacker.Scraper
 {
-    public interface IDownloader : IDownloadProvider, IDownloadProgressReporter { }
-
     public class Downloader : IDownloader
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(Downloader));
@@ -23,7 +23,7 @@ namespace Blacker.Scraper
         private readonly object _syncRoot = new object();
 
         private readonly Func<string, string> _imageFinder;
-        private readonly Func<ChapterRecord, IDictionary<int, string>> _pageResolver;
+        private readonly Func<IChapterRecord, IDictionary<int, string>> _pageResolver;
 
         private readonly BackgroundWorker _backgroundWorker;
 
@@ -43,14 +43,14 @@ namespace Blacker.Scraper
                 throw new ArgumentNullException("pages");
         }
 
-        public Downloader(Func<ChapterRecord, IDictionary<int, string>> pagesResolver, string imageXPath)
+        public Downloader(Func<IChapterRecord, IDictionary<int, string>> pagesResolver, string imageXPath)
             : this(pagesResolver, (x) => { return GetPageImageUrl(imageXPath, x); })
         {
             if (string.IsNullOrEmpty(imageXPath))
                 throw new ArgumentException("Invalid XPath", "imageXPath");
         }
 
-        public Downloader(Func<ChapterRecord, IDictionary<int, string>> pagesResolver, Func<string, string> imageFinder)
+        public Downloader(Func<IChapterRecord, IDictionary<int, string>> pagesResolver, Func<string, string> imageFinder)
         {
             if (pagesResolver == null)
                 throw new ArgumentNullException("pagesResolver");
@@ -72,7 +72,7 @@ namespace Blacker.Scraper
 
         #region IDownloadProgressReporter implementation
 
-        public event EventHandler<Events.DownloadProgressEventArgs> DownloadProgress;
+        public event EventHandler<DownloadProgressEventArgs> DownloadProgress;
 
         #endregion // IDownloadProgressReporter implementation
 
@@ -147,7 +147,7 @@ namespace Blacker.Scraper
 
         #region IDownloadProvider implementation
 
-        public virtual void DownloadChapterAsync(ISemaphore semaphore, ChapterRecord chapter, FileInfo file)
+        public virtual void DownloadChapterAsync(ISemaphore semaphore, IChapterRecord chapter, FileInfo file)
         {
             if (_backgroundWorker.IsBusy)
                 throw new InvalidOperationException("Download is currently in progress.");
@@ -170,7 +170,7 @@ namespace Blacker.Scraper
             _backgroundWorker.RunWorkerAsync(workerParams);
         }
 
-        public virtual void DownloadChapterAsync(ISemaphore semaphore, ChapterRecord chapter, DirectoryInfo directory, bool createDir = true)
+        public virtual void DownloadChapterAsync(ISemaphore semaphore, IChapterRecord chapter, DirectoryInfo directory, bool createDir = true)
         {
             if (_backgroundWorker.IsBusy)
                 throw new InvalidOperationException("Download is currently in progress.");
@@ -201,7 +201,7 @@ namespace Blacker.Scraper
             _backgroundWorker.CancelAsync();
         }
 
-        public event EventHandler<Events.DownloadCompletedEventArgs> DownloadCompleted;
+        public event EventHandler<DownloadCompletedEventArgs> DownloadCompleted;
 
         #endregion  // IDownloadProvider implementation
 
@@ -244,7 +244,7 @@ namespace Blacker.Scraper
             ReportProgress(e.ProgressPercentage, e.UserState as string);
         }
 
-        private void DownloadChapter(BackgroundWorker backgroundWorker, DoWorkEventArgs e, ChapterRecord chapter, FileInfo file)
+        private void DownloadChapter(BackgroundWorker backgroundWorker, DoWorkEventArgs e, IChapterRecord chapter, FileInfo file)
         {
             // add task -> zip file
             AddTask();
@@ -278,7 +278,7 @@ namespace Blacker.Scraper
             }
         }
 
-        private void DownloadChapter(BackgroundWorker backgroundWorker, DoWorkEventArgs e, ChapterRecord chapter, DirectoryInfo directory, bool createDir = true)
+        private void DownloadChapter(BackgroundWorker backgroundWorker, DoWorkEventArgs e, IChapterRecord chapter, DirectoryInfo directory, bool createDir = true)
         {
             if (createDir && !directory.Exists)
             {
@@ -371,7 +371,7 @@ namespace Blacker.Scraper
 
         private class WorkerParams
         {
-            public ChapterRecord Chapter { get; set; }
+            public IChapterRecord Chapter { get; set; }
             public bool IsFile { get; set; }
             public FileInfo File { get; set; }
             public DirectoryInfo Directory { get; set; }

@@ -24,6 +24,8 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Blacker.MangaScraper.Bootst
 		{79F2D1D5-DC26-4545-9C5A-4968E1845B4C} = {79F2D1D5-DC26-4545-9C5A-4968E1845B4C}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blacker.MangaScraper.Common", "Blacker.MangaScraper.Common\Blacker.MangaScraper.Common.csproj", "{093F9E77-0992-4ECB-877A-21D75C6E9DE2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,16 @@ Global
 		{47E4A0FD-661F-4BC7-8D4B-C1621B287B78}.Release|Mixed Platforms.Build.0 = Release|x86
 		{47E4A0FD-661F-4BC7-8D4B-C1621B287B78}.Release|x86.ActiveCfg = Release|x86
 		{47E4A0FD-661F-4BC7-8D4B-C1621B287B78}.Release|x86.Build.0 = Release|x86
+		{093F9E77-0992-4ECB-877A-21D75C6E9DE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{093F9E77-0992-4ECB-877A-21D75C6E9DE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{093F9E77-0992-4ECB-877A-21D75C6E9DE2}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{093F9E77-0992-4ECB-877A-21D75C6E9DE2}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{093F9E77-0992-4ECB-877A-21D75C6E9DE2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{093F9E77-0992-4ECB-877A-21D75C6E9DE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{093F9E77-0992-4ECB-877A-21D75C6E9DE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{093F9E77-0992-4ECB-877A-21D75C6E9DE2}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{093F9E77-0992-4ECB-877A-21D75C6E9DE2}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{093F9E77-0992-4ECB-877A-21D75C6E9DE2}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

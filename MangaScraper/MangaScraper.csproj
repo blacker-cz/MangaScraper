@@ -181,9 +181,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Blacker.Scraper\Blacker.Scraper.csproj">
-      <Project>{FEBBC7C0-4098-40C9-A68F-8E4800AA69A0}</Project>
-      <Name>Blacker.Scraper</Name>
+    <ProjectReference Include="..\Blacker.MangaScraper.Common\Blacker.MangaScraper.Common.csproj">
+      <Project>{093F9E77-0992-4ECB-877A-21D75C6E9DE2}</Project>
+      <Name>Blacker.MangaScraper.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

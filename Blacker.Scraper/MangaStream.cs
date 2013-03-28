@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Blacker.MangaScraper.Common;
+using Blacker.MangaScraper.Common.Models;
 using Blacker.Scraper.Models;
 using Blacker.Scraper.Helpers;
 using Blacker.Scraper.Exceptions;
@@ -16,7 +18,7 @@ namespace Blacker.Scraper
         private const string DictionaryUrl = "http://mangastream.com/manga";
         private const string MangaStreamUrl = "http://mangastream.com";
 
-        private Cache<string, object> _cache;
+        private readonly Cache<string, object> _cache;
 
         private const string MangasCacheKey = "Mangas";
         private const string ChapterCacheKey = "Chapters";
@@ -42,7 +44,7 @@ namespace Blacker.Scraper
             get { return Guid.Parse("9a2e1bcb-923f-45d1-849a-2e341427a58b"); }
         }
 
-        public IEnumerable<ChapterRecord> GetAvailableChapters(MangaRecord manga)
+        public IEnumerable<IChapterRecord> GetAvailableChapters(IMangaRecord manga)
         {
             if (manga == null)
                 throw new ArgumentNullException("manga");
@@ -101,7 +103,7 @@ namespace Blacker.Scraper
             return records;
         }
 
-        public IEnumerable<MangaRecord> GetAvailableMangas(string filter)
+        public IEnumerable<IMangaRecord> GetAvailableMangas(string filter)
         {
             if (filter == null)
                 throw new ArgumentNullException("filter");
@@ -118,7 +120,7 @@ namespace Blacker.Scraper
 
         #region IImmediateSearchProvider implementation
 
-        public IEnumerable<MangaRecord> GetAvailableMangasImmediate(string filter)
+        public IEnumerable<IMangaRecord> GetAvailableMangasImmediate(string filter)
         {
             if (filter == null)
                 throw new ArgumentNullException("filter");
@@ -189,7 +191,7 @@ namespace Blacker.Scraper
             return records;
         }
 
-        private IDictionary<int, string> GetPages(ChapterRecord chapter)
+        private IDictionary<int, string> GetPages(IChapterRecord chapter)
         {
             IDictionary<int, string> pages = new Dictionary<int, string>();
 

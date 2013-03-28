@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Blacker.MangaScraper.Common.Models;
 
 namespace Blacker.Scraper.Models
 {
-    public class ChapterRecord
+    public class ChapterRecord : IChapterRecord
     {
         public ChapterRecord(Guid scraper)
         {
@@ -21,7 +19,7 @@ namespace Blacker.Scraper.Models
 
         public string Url { get; set; }
 
-        public MangaRecord MangaRecord { get; set; }
+        public IMangaRecord MangaRecord { get; set; }
 
         public Guid Scraper { get; private set; }
     }

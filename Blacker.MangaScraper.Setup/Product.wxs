@@ -35,13 +35,16 @@
             <File Id="MangaScraper.exe" Source="$(var.BuildDir)MangaScraper.exe"/>
           </Component>
           <Component Id="MangaScraper.exe.config" Guid="*">
-            <File Id="MangaScraper.exe.config" Source="$(var.BuildDir)MangaScraper.exe.config" DefaultVersion="65535.0.0.0"/>
+            <File Id="MangaScraper.exe.config" Source="$(var.BuildDir)MangaScraper.exe.config" DefaultVersion="65535.0.0.0" DefaultLanguage="1033" />
           </Component>
           <Component Id="Blacker.Scraper.dll" Guid="*">
             <File Id="Blacker.Scraper.dll" Source="$(var.BuildDir)Blacker.Scraper.dll"/>
           </Component>
+          <Component Id="Blacker.MangaScraper.Common.dll" Guid="*">
+            <File Id="Blacker.MangaScraper.Common.dll" Source="$(var.BuildDir)Blacker.MangaScraper.Common.dll" />
+          </Component>
           <Component Id="readme.txt" Guid="*">
-            <File Id="readme.txt" Source="..\readme.txt" DefaultVersion="65535.0.0.0" />
+            <File Id="readme.txt" Source="..\readme.txt" DefaultVersion="65535.0.0.0" DefaultLanguage="1033" />
           </Component>
 
           <Component Id="HtmlAgilityPack.dll" Guid="*">
@@ -80,6 +83,7 @@
       <ComponentRef Id="MangaScraper.exe" />
       <ComponentRef Id="MangaScraper.exe.config" />
       <ComponentRef Id="Blacker.Scraper.dll" />
+      <ComponentRef Id="Blacker.MangaScraper.Common.dll"/>
       <ComponentRef Id="readme.txt" />
 
       <ComponentRef Id="HtmlAgilityPack.dll" />

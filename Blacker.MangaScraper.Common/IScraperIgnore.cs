@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Blacker.Scraper
+namespace Blacker.MangaScraper.Common
 {
     /// <summary>
     /// Use this interface to exclude scraper from automatic loading

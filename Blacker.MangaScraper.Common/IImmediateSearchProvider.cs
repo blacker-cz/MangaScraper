@@ -1,10 +1,7 @@
-﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Blacker.Scraper.Models;
+using Blacker.MangaScraper.Common.Models;
 
-namespace Blacker.Scraper
+namespace Blacker.MangaScraper.Common
 {
     /// <summary>
     /// Immediate search provider.
@@ -18,6 +15,6 @@ namespace Blacker.Scraper
         /// </summary>
         /// <param name="filter">Part of manga name (ignores case and diacritics)</param>
         /// <returns>List of available mangas</returns>
-        IEnumerable<MangaRecord> GetAvailableMangasImmediate(string filter);
+        IEnumerable<IMangaRecord> GetAvailableMangasImmediate(string filter);
     }
 }

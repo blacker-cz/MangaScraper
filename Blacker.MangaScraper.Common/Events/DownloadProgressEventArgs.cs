@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System;
 
-namespace Blacker.Scraper.Events
+namespace Blacker.MangaScraper.Common.Events
 {
     public class DownloadProgressEventArgs : EventArgs
     {

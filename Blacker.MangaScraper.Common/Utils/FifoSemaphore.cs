@@ -1,10 +1,7 @@
-﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
-namespace Blacker.Scraper.Utils
+namespace Blacker.MangaScraper.Common.Utils
 {
     /// <summary>
     /// Implementation of FIFO Semaphore.
