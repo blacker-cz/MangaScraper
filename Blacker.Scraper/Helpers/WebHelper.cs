@@ -31,7 +31,9 @@ namespace Blacker.Scraper.Helpers
                 var stopWatch = new Stopwatch();
                 stopWatch.Start();
 
-                var request = HttpWebRequest.Create(url);
+                var request = (HttpWebRequest)HttpWebRequest.Create(url);
+                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
                 using (var response = request.GetResponse())
                 using (var stream = response.GetResponseStream())
                 {
