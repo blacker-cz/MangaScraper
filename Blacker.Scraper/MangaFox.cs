@@ -70,10 +70,12 @@ namespace Blacker.Scraper
 
             foreach (var chapter in chapters)
             {
-                records.Add(new ChapterRecord(ScraperGuid)
+                var url = GetFullUrl(chapter.ChildNodes.FirstOrDefault(n => n.Name == "a").Attributes["href"].Value);
+
+                records.Add(new ChapterRecord(ScraperGuid, url)
                 {
                     ChapterName = CleanupText(chapter.InnerText),
-                    Url = GetFullUrl(chapter.ChildNodes.FirstOrDefault(n => n.Name == "a").Attributes["href"].Value),
+                    Url = url,
                     MangaRecord = manga
                 });
             }
@@ -163,10 +165,12 @@ namespace Blacker.Scraper
                 if (string.IsNullOrEmpty(manga.InnerText))
                     continue;
 
-                records.Add(new MangaRecord(ScraperGuid)
+                var url = GetFullUrl(manga.Attributes["href"].Value);
+
+                records.Add(new MangaRecord(ScraperGuid, url)
                 {
                     MangaName = CleanupText(manga.InnerText),
-                    Url = GetFullUrl(manga.Attributes["href"].Value)
+                    Url = url
                 });
             }
 

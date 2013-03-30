@@ -83,10 +83,12 @@ namespace Blacker.Scraper
                         case "a":
                             if (mangaName == manga.MangaName)
                             {
-                                records.Add(new ChapterRecord(ScraperGuid)
+                                var url = GetFullUrl(item.Attributes.First(a => a.Name == "href").Value);
+
+                                records.Add(new ChapterRecord(ScraperGuid, url)
                                 {
                                     ChapterName = CleanupText(item.InnerText),
-                                    Url = GetFullUrl(item.Attributes.FirstOrDefault(a => a.Name == "href").Value),
+                                    Url = url,
                                     MangaRecord = manga
                                 });
                             }
@@ -182,9 +184,12 @@ namespace Blacker.Scraper
                 if (string.IsNullOrEmpty(column.InnerText))
                     continue;
 
-                records.Add(new MangaRecord(ScraperGuid)
+                var mangaName = CleanupText(column.InnerText);
+
+                // use manga name as identifier, because we don't have any other unique information that we could use
+                records.Add(new MangaRecord(ScraperGuid, mangaName)
                 {
-                    MangaName = CleanupText(column.InnerText)
+                    MangaName = mangaName
                 });
             }
 

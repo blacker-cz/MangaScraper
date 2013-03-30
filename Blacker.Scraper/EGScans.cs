@@ -77,10 +77,12 @@ namespace Blacker.Scraper
 
             foreach (var chapter in chapters)
             {
-                records.Add(new ChapterRecord(ScraperGuid)
+                var url = String.Format(EGScansChapterUrlFormat, manga.Url, chapter.Attributes["value"].Value);
+
+                records.Add(new ChapterRecord(ScraperGuid, url)
                 {
                     ChapterName = CleanupText(chapter.InnerText),
-                    Url = String.Format(EGScansChapterUrlFormat, manga.Url, chapter.Attributes["value"].Value),
+                    Url = url,
                     MangaRecord = manga
                 });
             }
@@ -171,10 +173,12 @@ namespace Blacker.Scraper
                 if (string.IsNullOrEmpty(manga.InnerText))
                     continue;
 
-                records.Add(new MangaRecord(ScraperGuid)
+                var url = String.Format(EGScansMangaUrlFormat, manga.Attributes["value"].Value);
+
+                records.Add(new MangaRecord(ScraperGuid, url)
                 {
                     MangaName = CleanupText(manga.InnerText),
-                    Url = String.Format(EGScansMangaUrlFormat, manga.Attributes["value"].Value)
+                    Url = url
                 });
             }
 

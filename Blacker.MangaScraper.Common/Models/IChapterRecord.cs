@@ -4,6 +4,8 @@ namespace Blacker.MangaScraper.Common.Models
 {
     public interface IChapterRecord
     {
+        string ChapterId { get; }
+
         string MangaName { get; }
 
         string ChapterName { get; }
