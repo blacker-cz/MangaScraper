@@ -3,7 +3,7 @@ using Blacker.MangaScraper.Common.Models;
 
 namespace Blacker.Scraper.Models
 {
-    public class MangaRecord : IMangaRecord
+    internal class MangaRecord : IMangaRecord
     {
         public MangaRecord(Guid scraper)
         {
