@@ -25,6 +25,7 @@ MangaScraper is using following 3rd-party libraries:
 * DotNetZip Library - "http://dotnetzip.codeplex.com/(http://dotnetzip.codeplex.com/)":http://dotnetzip.codeplex.com/
 * log4net - "http://logging.apache.org/log4net/(http://logging.apache.org/log4net/)":http://logging.apache.org/log4net/
 * MahApps.Metro - "https://github.com/MahApps/MahApps.Metro(https://github.com/MahApps/MahApps.Metro)":https://github.com/MahApps/MahApps.Metro
+* System.Data.SQLite - "http://system.data.sqlite.org/(http://system.data.sqlite.org/)":http://system.data.sqlite.org/
 
 these libraries are automatically loaded to the solution using "NuGet(http://nuget.codeplex.com/)":http://nuget.codeplex.com/
 
