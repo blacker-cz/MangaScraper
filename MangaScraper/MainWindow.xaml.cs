@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -26,6 +27,27 @@ namespace Blacker.MangaScraper
 
             this.DataContext = new Blacker.MangaScraper.ViewModel.MainWindowViewModel(this);
             this.Closed += MainWindow_Closed;
+            this.Closing += MainWindow_Closing;
+        }
+
+        private void MainWindow_Closing(object sender, CancelEventArgs cancelEventArgs)
+        {
+            var viewModel = this.DataContext as Blacker.MangaScraper.ViewModel.MainWindowViewModel;
+            
+            if (viewModel == null)
+                return; // this should not happen
+
+            if (viewModel.DownloadManager.HasActiveDownloads)
+            {
+                if (MessageBox.Show("There are still unfinished downloads. Are you sure you want to quit?",
+                                    "Confirm exit",
+                                    MessageBoxButton.YesNo,
+                                    MessageBoxImage.Question) ==
+                    MessageBoxResult.No)
+                {
+                    cancelEventArgs.Cancel = true;
+                }
+            }
         }
 
         void MainWindow_Closed(object sender, EventArgs e)
