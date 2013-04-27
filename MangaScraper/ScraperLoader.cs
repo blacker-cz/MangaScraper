@@ -14,6 +14,8 @@ namespace Blacker.MangaScraper
         private static ScraperLoader _instance;
         private static readonly object _lock = new object();
 
+        private AppDomain _pluginsAppDomain;
+
         private IEnumerable<IScraper> _scrapers;
 
         private ScraperLoader()
@@ -35,18 +37,23 @@ namespace Blacker.MangaScraper
             }
         }
 
-        // fixme: this should be more intelligent so one failing scraper will not kill whole application
         public void Reload()
         {
             try
             {
-                // todo: this doesn't work if assemblies are not all loaded in AppDomain
-                AppDomain.CurrentDomain.Load("Blacker.Scraper");
+                if (_pluginsAppDomain != null)
+                {
+                    AppDomain.Unload(_pluginsAppDomain);
+                }
 
-                var factories = ReflectionHelper.GetInstances<IScraperFactory>();
+                _pluginsAppDomain = AppDomain.CreateDomain("Blacker.Scrapers.AppDomain");
+
+                ReflectionHelper.LoadAssembliesFromDir(_pluginsAppDomain, "*.Scraper.dll");
+
+                var factories = ReflectionHelper.GetInstances<IScraperFactory>(_pluginsAppDomain);
 
                 _scrapers = ReflectionHelper
-                    .GetInstances<IScraper>(new[] { typeof(IScraperIgnore) })
+                    .GetInstances<IScraper>(_pluginsAppDomain, new[] { typeof(IScraperIgnore) })
                     .Concat(factories.SelectMany(f => f.GetScrapers()));
             }
             catch (Exception ex)
