@@ -67,10 +67,7 @@ namespace Blacker.MangaScraper.ViewModel
                 if(_selectedTabIndex == value)
                     return;
 
-                _selectedTabIndex = value;
-                Properties.Settings.Default.SelectedDownloadsTab = _selectedTabIndex;
-
-                switch (_selectedTabIndex)
+                switch (value)
                 {
                     case -1:    // no tab selected, do nothing
                         break;
@@ -89,6 +86,9 @@ namespace Blacker.MangaScraper.ViewModel
                     default:
                         throw new InvalidOperationException("Unknown selected tab index.");
                 }
+
+                _selectedTabIndex = value;
+                Properties.Settings.Default.SelectedDownloadsTab = _selectedTabIndex;
             }
         }
 
