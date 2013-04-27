@@ -28,6 +28,17 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="23" />
         </Grid.RowDefinitions>
+        <Rectangle Height="20" Width="20" Margin="0,18,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Visibility="{Binding Path=DownloadManager.HasActiveDownloads, Mode=OneWay, Converter={StaticResource BoolToVisConverter}}" x:Name="DownloadIndicator">
+            <Rectangle.Fill>
+                <VisualBrush Visual="{StaticResource IconArrowDown}" />
+            </Rectangle.Fill>
+            <Rectangle.Effect>
+                <DropShadowEffect BlurRadius="3" RenderingBias="Performance" ShadowDepth="3" Opacity="0.2"></DropShadowEffect>
+            </Rectangle.Effect>
+            <Rectangle.RenderTransform>
+                <ScaleTransform CenterX="20" CenterY="0" ScaleX="1" ScaleY="1" />
+            </Rectangle.RenderTransform>
+        </Rectangle>
         <TabControl Grid.Row="0">
             <TabItem Header="Browser">
                 <Grid>
@@ -83,7 +94,13 @@
                     <Button Content="Browse" Height="23" HorizontalAlignment="Right" Margin="0,2,3,0" Name="browsePathButton" Command="{Binding Path=BrowseCommand}"  VerticalAlignment="Top" Width="75" Grid.Row="5" />
                     <RadioButton Content="Folder" HorizontalAlignment="Left" Margin="12,35,0,0" Name="radioButton1" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=false, Mode=TwoWay}" Grid.Row="5" Height="16" VerticalAlignment="Top" />
                     <RadioButton Content="Compressed file" HorizontalAlignment="Left" Margin="112,35,0,0" Name="radioButton2" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=true, Mode=TwoWay}" Grid.Row="5" Height="16" VerticalAlignment="Top" />
-                    <Button Content="Save" Margin="0,31,3,0" Name="button3" Command="{Binding Path=SaveCommand}" HorizontalAlignment="Right" Width="75" Grid.Row="5" Height="23" VerticalAlignment="Top" />
+                    <Button Content="Save" Margin="0,31,3,0" Name="button3" Command="{Binding Path=SaveCommand}" HorizontalAlignment="Right" Width="75" Grid.Row="5" Height="23" VerticalAlignment="Top">
+                        <Button.Triggers>
+                            <EventTrigger RoutedEvent="Button.Click">
+                                <BeginStoryboard Storyboard="{StaticResource DownloadIndicatorAnimation}" />
+                            </EventTrigger>
+                        </Button.Triggers>
+                    </Button>
                 </Grid>
             </TabItem>
             <TabItem Header="Downloads">

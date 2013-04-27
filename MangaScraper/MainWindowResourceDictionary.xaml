@@ -13,5 +13,24 @@
     <DataTemplate DataType="{x:Type vm:DownloadManagerViewModel}">
         <vw:DownloadManager />
     </DataTemplate>
+
+    <Canvas Width="48" Height="48" Clip="F1 M 0,0L 48,0L 48,48L 0,48L 0,0" UseLayoutRounding="False" x:Key="IconArrowDown">
+        <Path Width="18" Height="25" Canvas.Left="15" Canvas.Top="12" Stretch="Fill" Fill="{DynamicResource AccentColorBrush}" 
+              Data="F1 M 19,12 L 29,12 L 29,24 L 33,24 L 24,35 L 15,24 L 19,24 L 19,12 Z " />
+    </Canvas>
     
+    <Storyboard BeginTime="00:00:00" x:Key="DownloadIndicatorAnimation">
+        <DoubleAnimation Storyboard.TargetName="DownloadIndicator" Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)" From="3" To="1.0" Duration="00:00:00.8" />
+        <DoubleAnimation Storyboard.TargetName="DownloadIndicator" Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)" From="3" To="1.0" Duration="00:00:00.8" />
+        <DoubleAnimation Storyboard.TargetName="DownloadIndicator" Storyboard.TargetProperty="Opacity" From="0.75" To="0" Duration="00:00:00.8" AutoReverse="false" />
+        <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" Storyboard.TargetName="DownloadIndicator" Storyboard.TargetProperty="Opacity" BeginTime="00:00:00.8" Duration="00:00:03">
+            <LinearDoubleKeyFrame Value="0" KeyTime="00:00:00" />
+            <LinearDoubleKeyFrame Value="0.3" KeyTime="00:00:00.5" />
+            <LinearDoubleKeyFrame Value="0.6" KeyTime="00:00:01" />
+            <LinearDoubleKeyFrame Value="1" KeyTime="00:00:01.5" />
+            <LinearDoubleKeyFrame Value="0.6" KeyTime="00:00:02.5" />
+            <LinearDoubleKeyFrame Value="0.3" KeyTime="00:00:03" />
+        </DoubleAnimationUsingKeyFrames>
+    </Storyboard>
+
 </ResourceDictionary>
