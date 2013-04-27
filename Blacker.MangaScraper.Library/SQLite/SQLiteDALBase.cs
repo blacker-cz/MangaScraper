@@ -265,9 +265,9 @@ namespace Blacker.MangaScraper.Library.SQLite
 
         protected static DateTime GetDBSafeDateTime(DateTime date)
         {
-            return (DateTime) (date < SqlDateTime.MinValue
+            return (DateTime) (date < (DateTime) SqlDateTime.MinValue
                                    ? SqlDateTime.MinValue
-                                   : (date > SqlDateTime.MaxValue
+                                   : (date > (DateTime) SqlDateTime.MaxValue
                                           ? SqlDateTime.MaxValue
                                           : date));
         }
