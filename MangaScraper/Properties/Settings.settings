@@ -49,5 +49,8 @@
     <Setting Name="ChaptersSelectionMode" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Multiple</Value>
     </Setting>
+    <Setting Name="SelectedDownloadsTab" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

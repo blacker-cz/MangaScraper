@@ -7,8 +7,10 @@ using System.Windows.Input;
 using Blacker.MangaScraper.Commands;
 using System.IO;
 using System.Text.RegularExpressions;
+using Blacker.MangaScraper.Library.Models;
 using log4net;
 using Blacker.MangaScraper.Helpers;
+using System.Linq;
 
 namespace Blacker.MangaScraper.ViewModel
 {
@@ -16,35 +18,49 @@ namespace Blacker.MangaScraper.ViewModel
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(DownloadViewModel));
 
+        private const string ButtonCancelText = "Cancel";
+        private const string ButtonCancellingText = "Canceling";
+
+        private const string DownloadedChapterNotAvailable = "Chapter was not found in the download folder.";
+
         private readonly IDownloader _downloader;
-        private readonly IChapterRecord _chapter;
+
+        private readonly DownloadedChapterInfo _downloadInfo;
 
         private readonly ICommand _cancelDownloadCommand;
         private readonly ICommand _removeDownloadCommand;
         private readonly ICommand _openDownloadCommand;
 
         private DownloadState _downloadState;
-
-        private bool _isZipped;
-        private string _outputFullPath;
+        private int _progressValue;
+        private string _cancelText;
+        private string _currentActionText;
+        private bool _completed;
 
         private static readonly Regex _invalidPathCharsRegex = new Regex(string.Format("[{0}]",
                                     Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))),
                                RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private const string ButtonCancelText = @"Cancel";
-        private const string ButtonCancellingText = @"Canceling";
-
-        public DownloadViewModel(IDownloader downloader, IChapterRecord chapter)
-            : base()
+        public DownloadViewModel(DownloadedChapterInfo downloadInfo)
         {
-            if (downloader == null)
-                throw new ArgumentNullException("downloader");
-            if (chapter == null)
-                throw new ArgumentNullException("chapter");
+            if (downloadInfo == null)
+                throw new ArgumentNullException("downloadInfo");
 
-            _downloader = downloader;
-            _chapter = chapter;
+            if (downloadInfo.ChapterRecord == null)
+                throw new ArgumentException("Chapter record is invalid.", "downloadInfo");
+
+            if (String.IsNullOrEmpty(downloadInfo.ChapterRecord.ChapterId))
+                throw new ArgumentException("Chapter record id is invalid.", "downloadInfo");
+
+            if (downloadInfo.ChapterRecord.MangaRecord == null)
+                throw new ArgumentException("Manga record is invalid.", "downloadInfo");
+
+            if (String.IsNullOrEmpty(downloadInfo.ChapterRecord.MangaRecord.MangaId))
+                throw new ArgumentException("Manga record id is invalid.", "downloadInfo");
+
+            _downloadInfo = downloadInfo;
+
+            _downloader = ScraperLoader.Instance.AllScrapers.First(s => s.ScraperGuid == downloadInfo.ChapterRecord.Scraper).GetDownloader();
 
             // register downloader events
             _downloader.DownloadProgress += _downloader_DownloadProgress;
@@ -54,29 +70,86 @@ namespace Blacker.MangaScraper.ViewModel
             _removeDownloadCommand = new RemoveDownloadCommand(this);
             _openDownloadCommand = new OpenDownloadCommand(this);
 
-            State = DownloadState.Ok;
-            Completed = false;
-            CancelText = ButtonCancelText;
+            if (!String.IsNullOrEmpty(_downloadInfo.Path))
+            {
+                if ((Directory.Exists(_downloadInfo.Path) || File.Exists(_downloadInfo.Path)))
+                {
+                    // file is already downloaded
+                    State = DownloadState.Ok;
+                    Completed = true;
+                    ProgressValue = 100;
+                    CurrentActionText = _downloadInfo.Path;
+                }
+                else
+                {
+                    // file was downloaded but doesn't exist anymore
+                    State = DownloadState.Warning;
+                    Completed = true;
+                    CurrentActionText = DownloadedChapterNotAvailable;
+                }
+            }
+            else
+            {
+                // we will be downloading the file now
+                State = DownloadState.Ok;
+                Completed = false;
+                CancelText = ButtonCancelText;
+            }
         }
 
-        public event EventHandler DownloadCompleted;
-        public event EventHandler RemoveFromCollection;
+        public event EventHandler<EventArgs<DownloadedChapterInfo>> DownloadCompleted;
+        public event EventHandler<EventArgs<DownloadedChapterInfo>> RemoveFromCollection;
 
         public ICommand CancelDownloadCommand { get { return _cancelDownloadCommand; } }
         public ICommand RemoveDownloadCommand { get { return _removeDownloadCommand; } }
         public ICommand OpenDownloadCommand { get { return _openDownloadCommand; } }
 
-        public string CancelText { get; set; }
+        public string CancelText
+        {
+            get { return _cancelText; }
+            set
+            {
+                _cancelText = value;
+                InvokePropertyChanged("CancelText");
+            }
+        }
 
-        public int ProgressValue { get; set; }
+        public int ProgressValue
+        {
+            get { return _progressValue; }
+            set
+            {
+                _progressValue = value;
+                InvokePropertyChanged("ProgressValue");
+            }
+        }
 
-        public IChapterRecord Chapter { get { return _chapter; } }
+        public IChapterRecord Chapter { get { return _downloadInfo.ChapterRecord; } }
 
         public IDownloader Downloader { get { return _downloader; } }
 
-        public string CurrentActionText { get; set; }
+        public DateTime Downloaded { get { return _downloadInfo.Downloaded; } }
 
-        public bool Completed { get; private set; }
+        public string CurrentActionText
+        {
+            get { return _currentActionText; }
+            set
+            {
+                _currentActionText = value;
+                InvokePropertyChanged("CurrentActionText");
+            }
+        }
+
+        public bool Completed
+        {
+            get { return _completed; }
+            private set
+            {
+                _completed = value;
+                InvokePropertyChanged("Completed");
+                InvokePropertyChanged("CanOpen");
+            }
+        }
 
         public bool CanOpen { get { return Completed && State == DownloadState.Ok; } }
 
@@ -87,6 +160,7 @@ namespace Blacker.MangaScraper.ViewModel
             {
                 _downloadState = value;
                 InvokePropertyChanged("StateColor");
+                InvokePropertyChanged("CanOpen");
             } 
         }
 
@@ -113,39 +187,39 @@ namespace Blacker.MangaScraper.ViewModel
             if (string.IsNullOrEmpty(outputPath))
                 throw new ArgumentException("Invalid output path", "outputPath");
 
-            _isZipped = isZipped;
+            _downloadInfo.IsZip = isZipped;
 
             if (isZipped)
             {
                 var fileInfo = new FileInfo(Path.Combine(outputPath, GetNameForSave(Chapter) + ".zip"));
-                _outputFullPath = fileInfo.FullName;
+                _downloadInfo.Path = fileInfo.FullName;
                 Downloader.DownloadChapterAsync(semaphore, Chapter, fileInfo);
             }
             else
             {
                 var directoryInfo = new DirectoryInfo(Path.Combine(outputPath, GetNameForSave(Chapter)));
-                _outputFullPath = directoryInfo.FullName;
+                _downloadInfo.Path = directoryInfo.FullName;
                 Downloader.DownloadChapterAsync(semaphore, Chapter, directoryInfo);
             }
         }
 
         public void Open()
         {
-            if (!Completed && State != DownloadState.Ok)
+            if (!Completed || State != DownloadState.Ok)
                 throw new InvalidOperationException();
 
             try
             {
-                if (_isZipped)
+                if (_downloadInfo.IsZip)
                 {
                     if (!string.IsNullOrEmpty(Properties.Settings.Default.ReaderPath))
-                        System.Diagnostics.Process.Start(Properties.Settings.Default.ReaderPath, ProcessHelper.EscapeArguments(_outputFullPath));
+                        System.Diagnostics.Process.Start(Properties.Settings.Default.ReaderPath, ProcessHelper.EscapeArguments(_downloadInfo.Path));
                     else
-                        System.Diagnostics.Process.Start(_outputFullPath);
+                        System.Diagnostics.Process.Start(_downloadInfo.Path);
                 }
                 else
                 {
-                    System.Diagnostics.Process.Start(_outputFullPath);
+                    System.Diagnostics.Process.Start(_downloadInfo.Path);
                 }
             }
             catch (Exception ex)
@@ -159,7 +233,6 @@ namespace Blacker.MangaScraper.ViewModel
             _downloader.Cancel();
             
             CancelText = ButtonCancellingText;
-            InvokePropertyChanged("CancelText");
         }
 
         public void Remove()
@@ -173,9 +246,6 @@ namespace Blacker.MangaScraper.ViewModel
         {
             ProgressValue = e.PercentComplete;
             CurrentActionText = e.Message;
-
-            InvokePropertyChanged("ProgressValue");
-            InvokePropertyChanged("CurrentActionText");
         }
 
         void _downloader_DownloadCompleted(object sender, DownloadCompletedEventArgs e)
@@ -194,12 +264,8 @@ namespace Blacker.MangaScraper.ViewModel
                 _log.Error("Unable to download/save requested chapter.", e.Error);
             }
 
+            _downloadInfo.Downloaded = DateTime.UtcNow;
             Completed = true;
-
-            InvokePropertyChanged("ProgressValue");
-            InvokePropertyChanged("CurrentActionText");
-            InvokePropertyChanged("Completed");
-            InvokePropertyChanged("CanOpen");
 
             OnDownloadCompleted();
         }
@@ -208,7 +274,7 @@ namespace Blacker.MangaScraper.ViewModel
         {
             if (DownloadCompleted != null)
             {
-                DownloadCompleted(this, null);
+                DownloadCompleted(this, new EventArgs<DownloadedChapterInfo>(_downloadInfo));
             }
         }
 
@@ -216,7 +282,7 @@ namespace Blacker.MangaScraper.ViewModel
         {
             if (RemoveFromCollection != null)
             {
-                RemoveFromCollection(this, null);
+                RemoveFromCollection(this, new EventArgs<DownloadedChapterInfo>(_downloadInfo));
             }
         }
 

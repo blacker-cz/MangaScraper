@@ -19,7 +19,7 @@
     <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -29,7 +29,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\build\Release\</OutputPath>
@@ -41,15 +41,14 @@
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.0\lib\net40-client\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="MahApps.Metro, Version=0.10.0.1, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MahApps.Metro.0.10.0.1\lib\net40\MahApps.Metro.dll</HintPath>
+    <Reference Include="MahApps.Metro, Version=0.10.0.0, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
+      <HintPath>..\packages\MahApps.Metro.0.10.1.1\lib\net40\MahApps.Metro.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\MahApps.Metro.0.10.0.1\lib\net40\System.Windows.Interactivity.dll</HintPath>
+      <HintPath>..\packages\MahApps.Metro.0.10.1.1\lib\net40\System.Windows.Interactivity.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -184,6 +183,10 @@
     <ProjectReference Include="..\Blacker.MangaScraper.Common\Blacker.MangaScraper.Common.csproj">
       <Project>{093F9E77-0992-4ECB-877A-21D75C6E9DE2}</Project>
       <Name>Blacker.MangaScraper.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Blacker.MangaScraper.Library\Blacker.MangaScraper.Library.csproj">
+      <Project>{A8CFFF35-DBC6-4D73-9785-6E5752020487}</Project>
+      <Name>Blacker.MangaScraper.Library</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

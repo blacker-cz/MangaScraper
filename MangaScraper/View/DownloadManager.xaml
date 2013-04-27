@@ -7,7 +7,7 @@
              mc:Ignorable="d"
              d:DesignHeight="387" d:DesignWidth="614">
     <Grid>
-        <TabControl Name="DownloadsTabControl">
+        <TabControl Name="DownloadsTabControl" SelectedIndex="{Binding Path=SelectedTabIndex}">
             <TabControl.Resources>
                 <system:Double x:Key="TabItemFontSize">20</system:Double>
             </TabControl.Resources>
@@ -17,7 +17,7 @@
                         <ItemsControl Margin="3,12,3,7" HorizontalContentAlignment="Stretch"
                                       VirtualizingStackPanel.IsVirtualizing="True"
                                       ScrollViewer.CanContentScroll="True"
-                                      ItemsSource="{Binding DataContext.Downloads, ElementName=DownloadsTabControl}">
+                                      ItemsSource="{Binding DataContext.DownloadsCollectionView, ElementName=DownloadsTabControl}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel />
