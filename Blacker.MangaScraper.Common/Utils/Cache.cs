@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Timers;
 
-namespace Blacker.Scraper.Cache
+namespace Blacker.MangaScraper.Common.Utils
 {
     /// <summary>
     /// Simple cache implementation
     /// </summary>
-    internal class Cache<TKey, TValue> : IDisposable
+    public class Cache<TKey, TValue> : IDisposable
     {
         public static readonly TimeSpan DefaultTimeout = new TimeSpan(0, 5, 0);
 
@@ -24,7 +23,7 @@ namespace Blacker.Scraper.Cache
             : this(DefaultTimeout)
         { }
 
-        public Cache(TimeSpan timeout) : base()
+        public Cache(TimeSpan timeout)
         {
             _dict = new Dictionary<TKey, CachedObject<TValue>>();
 
@@ -43,10 +42,11 @@ namespace Blacker.Scraper.Cache
         {
             lock (_syncRoot)
             {
-                var invalidRecords = new List<TKey>(_dict.Keys.Where(k => !_dict[k].IsValid));
+                var invalidRecords = _dict.Where(kvp => !kvp.Value.IsValid).Select(kvp => kvp.Key).ToList();
+
                 foreach (var key in invalidRecords)
                 {
-                    _dict.Remove(key);
+                    Remove(key);
                 }
             }
         }
@@ -68,11 +68,7 @@ namespace Blacker.Scraper.Cache
                         }
                         else
                         {
-                            // dispose if cached object is disposable
-                            if (value.Value is IDisposable && value.Value != null)
-                                (value.Value as IDisposable).Dispose();
-
-                            _dict.Remove(key);
+                            Remove(key);
                             return default(TValue);
                         }
 
@@ -87,14 +83,30 @@ namespace Blacker.Scraper.Cache
             {
                 lock (_syncRoot)
                 {
-                    if (_dict.ContainsKey(key))
-                        _dict.Remove(key);
+                    Remove(key);
 
                     if (value == null)
                         return;
 
-                    _dict.Add(key, new CachedObject<TValue>(DefaultTimeout, value));
+                    _dict.Add(key, new CachedObject<TValue>(Timeout, value));
                 }
+            }
+        }
+
+        public void Remove(TKey key)
+        {
+            lock (_syncRoot)
+            {
+                if(!_dict.ContainsKey(key))
+                    return;
+
+                var value = _dict[key];
+
+                // dispose if cached object is disposable
+                if (value.Value is IDisposable)
+                    (value.Value as IDisposable).Dispose();
+
+                _dict.Remove(key);
             }
         }
 

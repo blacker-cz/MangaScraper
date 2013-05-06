@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Blacker.MangaScraper.Common;
 using Blacker.MangaScraper.Common.Models;
-using Blacker.Scraper.Cache;
+using Blacker.MangaScraper.Common.Utils;
 using Blacker.Scraper.Models;
 using Blacker.Scraper.Helpers;
 using Blacker.Scraper.Exceptions;

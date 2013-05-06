@@ -5,12 +5,12 @@ using System.Text;
 using System.IO;
 using Blacker.MangaScraper.Common;
 using Blacker.MangaScraper.Common.Models;
+using Blacker.MangaScraper.Common.Utils;
 using Blacker.Scraper.Models;
 using Blacker.Scraper.Helpers;
 using Blacker.Scraper.Exceptions;
 using System.Text.RegularExpressions;
 using log4net;
-using Blacker.Scraper.Cache;
 
 namespace Blacker.Scraper
 {

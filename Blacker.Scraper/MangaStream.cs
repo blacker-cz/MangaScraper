@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Blacker.MangaScraper.Common;
 using Blacker.MangaScraper.Common.Models;
+using Blacker.MangaScraper.Common.Utils;
 using Blacker.Scraper.Models;
 using Blacker.Scraper.Helpers;
 using Blacker.Scraper.Exceptions;
-using Blacker.Scraper.Cache;
 using log4net;
 
 namespace Blacker.Scraper
