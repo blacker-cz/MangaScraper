@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Timers;
 
@@ -12,10 +12,8 @@ namespace Blacker.MangaScraper.Common.Utils
     {
         public static readonly TimeSpan DefaultTimeout = new TimeSpan(0, 5, 0);
 
-        private readonly object _syncRoot = new Object();
         private readonly Timer _timer;
-
-        private readonly Dictionary<TKey, CachedObject<TValue>> _dict;
+        private readonly ConcurrentDictionary<TKey, CachedObject<TValue>> _dict;
 
         #region Constructors
 
@@ -25,7 +23,7 @@ namespace Blacker.MangaScraper.Common.Utils
 
         public Cache(TimeSpan timeout)
         {
-            _dict = new Dictionary<TKey, CachedObject<TValue>>();
+            _dict = new ConcurrentDictionary<TKey, CachedObject<TValue>>();
 
             Timeout = timeout;
             _timer = new Timer(500) { AutoReset = true };
@@ -40,73 +38,89 @@ namespace Blacker.MangaScraper.Common.Utils
         /// </summary>
         void _timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            lock (_syncRoot)
-            {
-                var invalidRecords = _dict.Where(kvp => !kvp.Value.IsValid).Select(kvp => kvp.Key).ToList();
+            var invalidRecords = _dict.Where(kvp => !kvp.Value.IsValid).Select(kvp => kvp.Key).ToList();
 
-                foreach (var key in invalidRecords)
-                {
-                    Remove(key);
-                }
+            foreach (var key in invalidRecords)
+            {
+                Remove(key);
             }
         }
 
         public TimeSpan Timeout { get; set; }
 
+        public Action<TValue> RemovalCallback { get; set; }
+
         public TValue this[TKey key]
         {
             get
             {
-                lock (_syncRoot)
+                CachedObject<TValue> value;
+                if (_dict.TryGetValue(key, out value))
                 {
-                    if (_dict.ContainsKey(key))
+                    if (value.IsValid)
                     {
-                        var value = _dict[key];
-                        if (value.IsValid)
-                        {
-                            return value.Value;
-                        }
-                        else
-                        {
-                            Remove(key);
-                            return default(TValue);
-                        }
-
+                        return value.Value;
                     }
                     else
                     {
+                        Remove(key);
                         return default(TValue);
                     }
+
+                }
+                else
+                {
+                    return default(TValue);
                 }
             }
             set
             {
-                lock (_syncRoot)
-                {
-                    Remove(key);
+                Remove(key);
 
-                    if (value == null)
-                        return;
+                if (value == null)
+                    return;
 
-                    _dict.Add(key, new CachedObject<TValue>(Timeout, value));
-                }
+                _dict.TryAdd(key, new CachedObject<TValue>(Timeout, value));
             }
+        }
+
+        public void Add(TKey key, TValue value)
+        {
+            Add(key, value, Timeout);
+        }
+
+        public void Add(TKey key, TValue value, TimeSpan timeout)
+        {
+            if (key == null)
+                throw new ArgumentNullException("key");
+
+            if (!_dict.TryAdd(key, new CachedObject<TValue>(timeout, value)))
+                throw new ArgumentException("An element with the same key already exists in the Cache.", "key");
+        }
+
+        public bool ContainsKey(TKey key)
+        {
+            return _dict.ContainsKey(key);
         }
 
         public void Remove(TKey key)
         {
-            lock (_syncRoot)
+            CachedObject<TValue> value;
+
+            if(!_dict.TryRemove(key, out value))
+                return;
+
+            var removalCallback = RemovalCallback;
+            if (removalCallback != null)
             {
-                if(!_dict.ContainsKey(key))
-                    return;
-
-                var value = _dict[key];
-
-                // dispose if cached object is disposable
-                if (value.Value is IDisposable)
-                    (value.Value as IDisposable).Dispose();
-
-                _dict.Remove(key);
+                try
+                {
+                    removalCallback(value.Value);
+                }
+                catch
+                {
+                    // make sure that broken callback doesn't break anything else
+                }
             }
         }
 

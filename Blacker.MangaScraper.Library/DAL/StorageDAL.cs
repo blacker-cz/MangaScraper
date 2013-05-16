@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Blacker.MangaScraper.Common;
+using Blacker.MangaScraper.Common.Utils;
 using Blacker.MangaScraper.Library.Models;
 using Blacker.MangaScraper.Library.SQLite;
 
@@ -25,6 +26,8 @@ namespace Blacker.MangaScraper.Library.DAL
                                     INNER JOIN Mangas m
                                         ON m.ScraperId = ch.ScraperId AND m.MangaId = ch.MangaId
                                     ";
+
+        private static readonly Cache<Tuple<Guid, string>, MangaRecord> MangaRecordsCache = new Cache<Tuple<Guid, string>, MangaRecord>();
 
         public DownloadedChapterInfo GetChapterInfo(string id)
         {
@@ -220,15 +223,21 @@ namespace Blacker.MangaScraper.Library.DAL
 
         private static ChapterRecord LoadChapterFromDataRow(DataRow row)
         {
-            // todo:: should this be caching MangaRecord and reuse it instead of creating new instances?
+            var mangaRecordKey = new Tuple<Guid, string>((Guid) row["ScraperId"], Convert.ToString(row["MangaId"]));
+            var mangaRecord = MangaRecordsCache[mangaRecordKey];
 
-            var mangaRecord = new MangaRecord()
+            if (mangaRecord == null)
+            {
+                mangaRecord = new MangaRecord()
                                   {
                                       MangaId = Convert.ToString(row["MangaId"]),
                                       MangaName = Convert.ToString(row["MangaName"]),
                                       Scraper = (Guid) row["ScraperId"],
                                       Url = row["MangaUrl"] as string
                                   };
+
+                MangaRecordsCache[mangaRecordKey] = mangaRecord;
+            }
 
             var chapterRecord = new ChapterRecord()
                                     {
