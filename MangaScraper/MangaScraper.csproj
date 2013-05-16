@@ -74,7 +74,6 @@
     <Compile Include="Commands\IClearCommand.cs" />
     <Compile Include="Commands\ISaveCommand.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
-    <Compile Include="Commands\SettingsCommand.cs" />
     <Compile Include="Converters\InverseBooleanConverter.cs" />
     <Compile Include="Converters\ValueConverterGroup.cs" />
     <Compile Include="Helpers\ListBoxExtension.cs" />
