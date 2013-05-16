@@ -30,6 +30,7 @@
                     <ProgressBar Value="{Binding Path=ProgressValue}" Maximum="100" IsIndeterminate="False" Width="150" Height="15" HorizontalAlignment="Right"  />
                     <Button Margin="10,3,3,3" Content="{Binding Path=CancelText}" ToolTip="Cancel download" Command="{Binding Path=CancelDownloadCommand}" Style="{StaticResource LinkButton}" />
                     <Button Margin="10,3,3,3" Content="Open" ToolTip="Open downloaded chapter" Command="{Binding Path=OpenDownloadCommand}" Style="{StaticResource LinkButton}" />
+                    <Button Margin="10,3,3,3" Content="Retry download" ToolTip="Retry to download the chapter" Command="{Binding Path=RetryDownloadCommand}" Style="{StaticResource LinkButton}" />
                 </StackPanel>
                 <TextBlock Text="{Binding Path=CurrentActionText}" FontStyle="Italic" Foreground="Gray" />
             </StackPanel>
