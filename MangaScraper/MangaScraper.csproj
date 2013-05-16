@@ -72,12 +72,10 @@
     </Compile>
     <Compile Include="Commands\ClearCommand.cs" />
     <Compile Include="Commands\IClearCommand.cs" />
-    <Compile Include="Commands\ISaveCommand.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Converters\InverseBooleanConverter.cs" />
     <Compile Include="Converters\ValueConverterGroup.cs" />
     <Compile Include="Helpers\ListBoxExtension.cs" />
-    <Compile Include="Commands\IBrowseCommand.cs" />
     <Compile Include="Helpers\ProcessHelper.cs" />
     <Compile Include="Models\GuidCollection.cs" />
     <Compile Include="Models\RecentItem.cs" />
@@ -104,11 +102,8 @@
     </Compile>
     <Compile Include="Helpers\AsyncObservableCollection.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
-    <Compile Include="Commands\SaveCommand.cs" />
     <Compile Include="Converters\BooleanConverter.cs" />
     <Compile Include="Commands\BaseCommand.cs" />
-    <Compile Include="Commands\BrowseCommand.cs" />
-    <Compile Include="Commands\SearchCommand.cs" />
     <Compile Include="ViewModel\DownloadViewModel.cs" />
     <Compile Include="Helpers\AsyncRequestQueue.cs" />
     <Compile Include="Helpers\AsyncWrapper.cs" />

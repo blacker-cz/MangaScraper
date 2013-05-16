@@ -10,18 +10,18 @@ using log4net;
 
 namespace Blacker.MangaScraper.ViewModel
 {
-    class SettingsWindowViewModel : BaseViewModel, IDataErrorInfo, IBrowseCommand, ISaveCommand, IClearCommand
+    class SettingsWindowViewModel : BaseViewModel, IDataErrorInfo, IClearCommand
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(SettingsWindowViewModel));
 
-        private readonly ICommand _saveSettingsCommand;
-        private readonly ICommand _browseCommand;
-        private readonly ICommand _clearCommand;
+        private readonly RelayCommand _saveSettingsCommand;
+        private readonly RelayCommand _browseCommand;
+        private readonly ICommand _clearCommand;    // todo:: this one should be changed to RelayCommand as well
 
         public SettingsWindowViewModel()
         {
-            _saveSettingsCommand = new SaveCommand(this);
-            _browseCommand = new BrowseCommand(this);
+            _saveSettingsCommand = new RelayCommand(SaveClicked);
+            _browseCommand = new RelayCommand(BrowseClicked);
             _clearCommand = new ClearCommand(this, false, true, "Do you really want to clear recent folder history?");
 
             MaxParallelDownloads = Properties.Settings.Default.MaxParallelDownloads;

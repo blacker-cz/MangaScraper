@@ -13,7 +13,7 @@ using log4net;
 
 namespace Blacker.MangaScraper.ViewModel
 {
-    class MainWindowViewModel : BaseViewModel, ICleanup, IBrowseCommand, ISaveCommand
+    class MainWindowViewModel : BaseViewModel, ICleanup
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(MainWindowViewModel));
 
@@ -23,9 +23,9 @@ namespace Blacker.MangaScraper.ViewModel
 
         private readonly AsyncRequestQueue _requestQueue;
 
-        private readonly ICommand _searchCommand;
-        private readonly ICommand _browseCommand;
-        private readonly ICommand _saveCommand;
+        private readonly RelayCommand _searchCommand;
+        private readonly RelayCommand _browseCommand;
+        private readonly RelayCommand _saveCommand;
 
         private IMangaRecord _selectedManga;
 
@@ -45,9 +45,9 @@ namespace Blacker.MangaScraper.ViewModel
 
             Owner = owner;
 
-            _searchCommand = new SearchCommand(this);
-            _browseCommand = new BrowseCommand(this);
-            _saveCommand = new SaveCommand(this);
+            _searchCommand = new RelayCommand(SearchManga);
+            _browseCommand = new RelayCommand(BrowseClicked);
+            _saveCommand = new RelayCommand(SaveClicked);
 
             // load all enabled scrapers
             _scrapers = ScraperLoader.Instance.EnabledScrapers;
@@ -172,7 +172,7 @@ namespace Blacker.MangaScraper.ViewModel
 
         #region Commands
 
-        public void SearchManga()
+        public void SearchManga(object parameter)
         {
             var scraper = CurrentScraper;
             var searchString = SearchString ?? String.Empty;
