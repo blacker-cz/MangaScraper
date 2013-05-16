@@ -136,7 +136,7 @@ namespace Blacker.MangaScraper.ViewModel
             {
                 try
                 {
-                    download.Cancel();
+                    download.Cancel(null);
                 }
                 catch (Exception ex)
                 {

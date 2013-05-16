@@ -19,6 +19,9 @@
             <Trigger Property="IsMouseOver" Value="true">
                 <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
             </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </Trigger>
         </Style.Triggers>
     </Style>
     

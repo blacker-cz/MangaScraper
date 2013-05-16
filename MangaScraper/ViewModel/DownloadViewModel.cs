@@ -27,9 +27,9 @@ namespace Blacker.MangaScraper.ViewModel
 
         private readonly DownloadedChapterInfo _downloadInfo;
 
-        private readonly ICommand _cancelDownloadCommand;
-        private readonly ICommand _removeDownloadCommand;
-        private readonly ICommand _openDownloadCommand;
+        private readonly RelayCommand _cancelDownloadCommand;
+        private readonly RelayCommand _removeDownloadCommand;
+        private readonly RelayCommand _openDownloadCommand;
 
         private DownloadState _downloadState;
         private int _progressValue;
@@ -66,9 +66,9 @@ namespace Blacker.MangaScraper.ViewModel
             _downloader.DownloadProgress += _downloader_DownloadProgress;
             _downloader.DownloadCompleted += _downloader_DownloadCompleted;
 
-            _cancelDownloadCommand = new CancelDownloadCommand(this);
-            _removeDownloadCommand = new RemoveDownloadCommand(this);
-            _openDownloadCommand = new OpenDownloadCommand(this);
+            _cancelDownloadCommand = new RelayCommand(Cancel);
+            _removeDownloadCommand = new RelayCommand(Remove);
+            _openDownloadCommand = new RelayCommand(Open);
 
             if (!String.IsNullOrEmpty(_downloadInfo.Path))
             {
@@ -76,7 +76,6 @@ namespace Blacker.MangaScraper.ViewModel
                 {
                     // file is already downloaded
                     State = DownloadState.Ok;
-                    Completed = true;
                     ProgressValue = 100;
                     CurrentActionText = _downloadInfo.Path;
                 }
@@ -84,9 +83,12 @@ namespace Blacker.MangaScraper.ViewModel
                 {
                     // file was downloaded but doesn't exist anymore
                     State = DownloadState.Warning;
-                    Completed = true;
                     CurrentActionText = DownloadedChapterNotAvailable;
+                    _openDownloadCommand.Disabled = true;
                 }
+
+                Completed = true;
+                _cancelDownloadCommand.Disabled = true;
             }
             else
             {
@@ -94,6 +96,8 @@ namespace Blacker.MangaScraper.ViewModel
                 State = DownloadState.Ok;
                 Completed = false;
                 CancelText = ButtonCancelText;
+                _cancelDownloadCommand.Disabled = false;
+                _openDownloadCommand.Disabled = true;
             }
         }
 
@@ -171,13 +175,13 @@ namespace Blacker.MangaScraper.ViewModel
                 switch (State)
                 {
                     case DownloadState.Ok:
-                        return "HoneyDew";
+                        return "YellowGreen";
                     case DownloadState.Warning:
-                        return "LemonChiffon";
+                        return "Orange";
                     case DownloadState.Error:
-                        return "LightSalmon";
+                        return "Crimson";
                     default:
-                        return "LightSalmon";
+                        return "Crimson";
                 }
             }
         }
@@ -203,7 +207,7 @@ namespace Blacker.MangaScraper.ViewModel
             }
         }
 
-        public void Open()
+        public void Open(object parameter)
         {
             if (!Completed || State != DownloadState.Ok)
                 throw new InvalidOperationException();
@@ -228,14 +232,14 @@ namespace Blacker.MangaScraper.ViewModel
             }
         }
 
-        public void Cancel()
+        public void Cancel(object parameter)
         {
             _downloader.Cancel();
             
             CancelText = ButtonCancellingText;
         }
 
-        public void Remove()
+        public void Remove(object parameter)
         {
             _downloader.Cancel();
 
@@ -250,8 +254,6 @@ namespace Blacker.MangaScraper.ViewModel
 
         void _downloader_DownloadCompleted(object sender, DownloadCompletedEventArgs e)
         {
-            State = DownloadState.Ok;
-
             if (e.Cancelled)
             {
                 CurrentActionText = "Download was cancelled.";
@@ -263,9 +265,15 @@ namespace Blacker.MangaScraper.ViewModel
                 State = DownloadState.Error;
                 _log.Error("Unable to download/save requested chapter.", e.Error);
             }
+            else
+            {
+                State = DownloadState.Ok;
+                _openDownloadCommand.Disabled = false;
+            }
 
             _downloadInfo.Downloaded = DateTime.UtcNow;
             Completed = true;
+            _cancelDownloadCommand.Disabled = true;
 
             OnDownloadCompleted();
         }

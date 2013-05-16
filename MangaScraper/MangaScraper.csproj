@@ -73,7 +73,7 @@
     <Compile Include="Commands\ClearCommand.cs" />
     <Compile Include="Commands\IClearCommand.cs" />
     <Compile Include="Commands\ISaveCommand.cs" />
-    <Compile Include="Commands\OpenDownloadCommand.cs" />
+    <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Commands\SettingsCommand.cs" />
     <Compile Include="Converters\InverseBooleanConverter.cs" />
     <Compile Include="Converters\ValueConverterGroup.cs" />
@@ -105,8 +105,6 @@
     </Compile>
     <Compile Include="Helpers\AsyncObservableCollection.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
-    <Compile Include="Commands\CancelDownloadCommand.cs" />
-    <Compile Include="Commands\RemoveDownloadCommand.cs" />
     <Compile Include="Commands\SaveCommand.cs" />
     <Compile Include="Converters\BooleanConverter.cs" />
     <Compile Include="Commands\BaseCommand.cs" />
