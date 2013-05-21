@@ -73,7 +73,7 @@ namespace Blacker.MangaScraper.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("800")]
+        [global::System.Configuration.DefaultSettingValueAttribute("900")]
         public double WindowWidth {
             get {
                 return ((double)(this["WindowWidth"]));
@@ -85,7 +85,7 @@ namespace Blacker.MangaScraper.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("450")]
+        [global::System.Configuration.DefaultSettingValueAttribute("630")]
         public double WindowHeight {
             get {
                 return ((double)(this["WindowHeight"]));

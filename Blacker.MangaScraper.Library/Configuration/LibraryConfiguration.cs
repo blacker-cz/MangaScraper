@@ -42,7 +42,7 @@ namespace Blacker.MangaScraper.Library.Configuration
         /// <summary>
         /// Storage location as can be found in the config file
         /// </summary>
-        [ConfigurationProperty("storageLocation", IsRequired = false, DefaultValue = @"%ALLUSERSPROFILE%\Blacker\MangaScraper\Data\library.sqlite")]
+        [ConfigurationProperty("storageLocation", IsRequired = false, DefaultValue = @"%APPDATA%\Blacker\MangaScraper\Data\library.sqlite")]
         public string StorageLocation
         {
             get { return (string) this["storageLocation"]; }
