@@ -313,7 +313,7 @@ namespace Blacker.Scraper
 
                 try
                 {
-                    WebHelper.DownloadImage(imgUrl, filePath);
+                    RetryHelper.Retry(() => WebHelper.DownloadImage(imgUrl, filePath));
                 }
                 catch (Exception ex)
                 {
@@ -361,12 +361,12 @@ namespace Blacker.Scraper
         {
             var document = WebHelper.GetHtmlDocument(pageUrl);
             var img = document.SelectSingleNode(imageXPath);
-            if (img == null)
+            if (img == null || !img.Attributes.Contains("src"))
             {
                 throw new ParserException("Could not find expected elements on website.", document.InnerHtml);
             }
 
-            return img.Attributes.FirstOrDefault(a => a.Name == "src").Value;
+            return img.Attributes.First(a => a.Name == "src").Value;
         }
 
         private class WorkerParams

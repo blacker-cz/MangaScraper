@@ -63,6 +63,7 @@
     <Compile Include="EGScans.cs" />
     <Compile Include="FoOlSlide.cs" />
     <Compile Include="FoOlSlideFactory.cs" />
+    <Compile Include="Helpers\RetryHelper.cs" />
     <Compile Include="MangaFox.cs" />
     <Compile Include="MangaReader.cs" />
     <Compile Include="Models\MangaRecord.cs" />
