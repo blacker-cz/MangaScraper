@@ -70,8 +70,6 @@
     <Compile Include="..\common\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Commands\ClearCommand.cs" />
-    <Compile Include="Commands\IClearCommand.cs" />
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Converters\InverseBooleanConverter.cs" />
     <Compile Include="Converters\ValueConverterGroup.cs" />
@@ -81,6 +79,10 @@
     <Compile Include="Models\RecentItem.cs" />
     <Compile Include="Models\RecentList.cs" />
     <Compile Include="ScraperLoader.cs" />
+    <Compile Include="Services\IInteractionService.cs" />
+    <Compile Include="Services\InteractionService.cs" />
+    <Compile Include="Services\IServiceLocator.cs" />
+    <Compile Include="Services\ServiceLocator.cs" />
     <Compile Include="ViewModel\DownloadManagerViewModel.cs" />
     <Compile Include="ViewModel\SettingsWindowViewModel.cs" />
     <Compile Include="View\Download.xaml.cs">

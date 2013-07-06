@@ -2,27 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using Blacker.MangaScraper.Commands;
 using System.ComponentModel;
 using Blacker.MangaScraper.Common;
+using Blacker.MangaScraper.Services;
 using log4net;
 
 namespace Blacker.MangaScraper.ViewModel
 {
-    class SettingsWindowViewModel : BaseViewModel, IDataErrorInfo, IClearCommand
+    class SettingsWindowViewModel : BaseViewModel, IDataErrorInfo
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(SettingsWindowViewModel));
 
         private readonly RelayCommand _saveSettingsCommand;
         private readonly RelayCommand _browseCommand;
-        private readonly ICommand _clearCommand;    // todo:: this one should be changed to RelayCommand as well
+        private readonly RelayCommand _clearCommand;
+        private string _readerPath;
 
         public SettingsWindowViewModel()
         {
             _saveSettingsCommand = new RelayCommand(SaveClicked);
             _browseCommand = new RelayCommand(BrowseClicked);
-            _clearCommand = new ClearCommand(this, false, true, "Do you really want to clear recent folder history?");
+            _clearCommand = new RelayCommand(ClearClicked);
+
 
             MaxParallelDownloads = Properties.Settings.Default.MaxParallelDownloads;
             ReaderPath = Properties.Settings.Default.ReaderPath;
@@ -56,7 +61,15 @@ namespace Blacker.MangaScraper.ViewModel
 
         public ushort MaxParallelDownloads { get; set; }
 
-        public string ReaderPath { get; set; }
+        public string ReaderPath
+        {
+            get { return _readerPath; }
+            set
+            {
+                _readerPath = value;
+                InvokePropertyChanged("ReaderPath");
+            }
+        }
 
         public bool EnablePreload { get; set; }
 
@@ -91,27 +104,29 @@ namespace Blacker.MangaScraper.ViewModel
 
         public void BrowseClicked(object parameter)
         {
-            // Configure open file dialog box
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog()
-                {
-                    DefaultExt = ".exe",
-                    Filter = "Executables (.exe,.cmd,.bat)|*.exe;*.cmd;*.bat"
-                };
-
-            // Show open file dialog box
-            Nullable<bool> result = dlg.ShowDialog();
-
-            // Process open file dialog box results
-            if (result == true)
-            {
-                ReaderPath = dlg.FileName;
-                InvokePropertyChanged("ReaderPath");
-            }
+            ServiceLocator.Instance.GetService<IInteractionService>()
+                          .ShowOpenFileDialog(".exe", "Executables (.exe,.cmd,.bat)|*.exe;*.cmd;*.bat",
+                                              (result, path) =>
+                                                  {
+                                                      if (result == DialogResult.OK)
+                                                      {
+                                                          ReaderPath = path;
+                                                      }
+                                                  });
         }
 
         public void ClearClicked(object parameter)
         {
-            Properties.Settings.Default.RecentFolders.Clear();
+            ServiceLocator.Instance.GetService<IInteractionService>()
+                          .ShowMessageBox("Do you really want to clear recent folder history?",
+                                          "Confirm action",
+                                          MessageBoxButton.YesNo,
+                                          MessageBoxImage.Question,
+                                          (result) =>
+                                              {
+                                                  if (result == MessageBoxResult.Yes)
+                                                      Properties.Settings.Default.RecentFolders.Clear();
+                                              });
         }
 
         #endregion // Commands

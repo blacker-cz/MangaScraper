@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
+using Blacker.MangaScraper.Services;
 using log4net;
 
 namespace Blacker.MangaScraper
@@ -32,16 +33,30 @@ namespace Blacker.MangaScraper
             // define application exception handler
             Application.Current.DispatcherUnhandledException += new DispatcherUnhandledExceptionEventHandler(AppDispatcherUnhandledException);
 
+            MigrateSettings();
+
+            RegisterServices();
+        }
+
+        private void RegisterServices()
+        {
+            ServiceLocator.Instance.RegisterService(typeof (IInteractionService), typeof (InteractionService));
+        }
+
+        /// <summary>
+        /// Migrate user settings in case of upgrade
+        /// </summary>
+        private void MigrateSettings()
+        {
             System.Reflection.Assembly a = System.Reflection.Assembly.GetExecutingAssembly();
             Version appVersion = a.GetName().Version;
             string appVersionString = appVersion.ToString();
 
-            if (Blacker.MangaScraper.Properties.Settings.Default.ApplicationVersion != appVersion.ToString())
+            if (MangaScraper.Properties.Settings.Default.ApplicationVersion != appVersion.ToString())
             {
-                Blacker.MangaScraper.Properties.Settings.Default.Upgrade();
-                Blacker.MangaScraper.Properties.Settings.Default.ApplicationVersion = appVersionString;
+                MangaScraper.Properties.Settings.Default.Upgrade();
+                MangaScraper.Properties.Settings.Default.ApplicationVersion = appVersionString;
             }
-
         }
 
         void AppDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)

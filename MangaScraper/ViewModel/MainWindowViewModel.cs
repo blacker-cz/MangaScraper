@@ -9,6 +9,7 @@ using System.Windows.Input;
 using Blacker.MangaScraper.Commands;
 using System.Collections.ObjectModel;
 using Blacker.MangaScraper.Helpers;
+using Blacker.MangaScraper.Services;
 using log4net;
 
 namespace Blacker.MangaScraper.ViewModel
@@ -133,6 +134,8 @@ namespace Blacker.MangaScraper.ViewModel
                 // remember path in user settings
                 Properties.Settings.Default.OutputPath = _outputPath;
                 Properties.Settings.Default.Save();
+
+                InvokePropertyChanged("OutputPath");
             }
         }
 
@@ -258,41 +261,40 @@ namespace Blacker.MangaScraper.ViewModel
         /// </summary>
         public void BrowseClicked(object parameter)
         {
-            // WPF doesn't have folder browser dialog, so we have to use the one from Windows.Forms
-            using (var dlg = new System.Windows.Forms.FolderBrowserDialog())
-            {
-                dlg.SelectedPath = OutputPath;
-                dlg.Description = "Select output directory.";
-                dlg.ShowNewFolderButton = true;
-
-                System.Windows.Forms.DialogResult result = dlg.ShowDialog();
-
-                if (result == System.Windows.Forms.DialogResult.OK)
-                {
-                    OutputPath = dlg.SelectedPath;
-                    InvokePropertyChanged("OutputPath");
-                }
-            }
+            ServiceLocator.Instance.GetService<IInteractionService>()
+                          .ShowFolderBrowserDialog(OutputPath,
+                                                   "Select output directory",
+                                                   true,
+                                                   (result, path) =>
+                                                       {
+                                                           if (result == System.Windows.Forms.DialogResult.OK)
+                                                           {
+                                                               OutputPath = path;
+                                                           }
+                                                       });
         }
 
         public void SaveClicked(object parameter)
         {
             if (string.IsNullOrEmpty(OutputPath))
             {
-                MessageBox.Show("Output folder must be selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ServiceLocator.Instance.GetService<IInteractionService>().ShowError("Output folder must be selected.");
                 return;
             }
 
             if (SelectedChapters.Count == 0)
             {
-                MessageBox.Show("Chapter must be selected.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ServiceLocator.Instance.GetService<IInteractionService>().ShowError("Chapter must be selected.");
                 return;
             }
 
             if (!Directory.Exists(OutputPath))
             {
-                if (MessageBox.Show("The output folder doesn't exist. Would you like to create it?", "Output folder",
-                    MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                if (ServiceLocator.Instance.GetService<IInteractionService>()
+                                  .ShowMessageBox("The output folder doesn't exist. Would you like to create it?",
+                                                  "Output folder",
+                                                  MessageBoxButton.YesNo,
+                                                  MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     try
                     {
@@ -301,7 +303,7 @@ namespace Blacker.MangaScraper.ViewModel
                     catch (Exception ex)
                     {
                         _log.Error("Unable to create output folder.", ex);
-                        MessageBox.Show("Unable to create output folder", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        ServiceLocator.Instance.GetService<IInteractionService>().ShowError("Unable to create output folder");
                         return;
                     }
                 }
