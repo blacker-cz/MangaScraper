@@ -39,13 +39,8 @@ namespace Blacker.MangaScraper.ViewModel
         private bool _operationInProgress;
         private string _currentActionText;
 
-        public MainWindowViewModel(Window owner)
+        public MainWindowViewModel()
         {
-            if (owner == null)
-                throw new ArgumentNullException("owner");
-
-            Owner = owner;
-
             _searchCommand = new RelayCommand(SearchManga);
             _browseCommand = new RelayCommand(BrowseClicked);
             _saveCommand = new RelayCommand(SaveClicked);

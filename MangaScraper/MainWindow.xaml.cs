@@ -25,14 +25,15 @@ namespace Blacker.MangaScraper
         {
             InitializeComponent();
 
-            this.DataContext = new Blacker.MangaScraper.ViewModel.MainWindowViewModel(this);
+            this.DataContext = new ViewModel.MainWindowViewModel();
+
             this.Closed += MainWindow_Closed;
             this.Closing += MainWindow_Closing;
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs cancelEventArgs)
         {
-            var viewModel = this.DataContext as Blacker.MangaScraper.ViewModel.MainWindowViewModel;
+            var viewModel = this.DataContext as ViewModel.MainWindowViewModel;
             
             if (viewModel == null)
                 return; // this should not happen
