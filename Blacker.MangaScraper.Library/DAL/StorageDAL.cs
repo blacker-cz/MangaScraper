@@ -221,6 +221,56 @@ namespace Blacker.MangaScraper.Library.DAL
             }
         }
 
+        public IDictionary<string, int> GetRecentFolders(Guid scraperId, string mangaId)
+        {
+            if (scraperId == Guid.Empty)
+                throw new ArgumentException("Scraper Id must not empty.", "scraperId");
+
+            if (String.IsNullOrEmpty(mangaId))
+                throw new ArgumentException("Manga Id must not be null or empty", "mangaId");
+
+            // let's select just latest 5 records
+            const string sql = @"SELECT Path, IsZip FROM Chapters WHERE ScraperId=@ScraperId AND MangaId=@MangaId ORDER BY Downloaded DESC LIMIT 5";
+
+            var folders = new Dictionary<string, int>();
+
+            using (var connection = GetConnection())
+            using (var command = GetTextCommand(sql))
+            {
+                command.Parameters.AddWithValue("@ScraperId", scraperId);
+                command.Parameters.AddWithValue("@MangaId", mangaId);
+
+                var table = ExecuteDataTable(command, connection);
+
+                if (table == null)
+                    return folders;
+
+                foreach (DataRow row in table.Rows)
+                {
+                    bool isFile = Convert.ToBoolean(row["IsZip"]);
+                    string downloadPath = Convert.ToString(row["Path"]);
+
+                    string folder = isFile
+                                        ? System.IO.Path.GetDirectoryName(downloadPath)
+                                        : System.IO.Directory.GetParent(downloadPath).FullName;
+
+                    if(folder == null)
+                        continue;
+
+                    if (folders.ContainsKey(folder))
+                    {
+                        folders[folder]++;
+                    }
+                    else
+                    {
+                        folders[folder] = 1;
+                    }
+                }
+            }
+
+            return folders;
+        }
+
         private static ChapterRecord LoadChapterFromDataRow(DataRow row)
         {
             var mangaRecordKey = new Tuple<Guid, string>((Guid) row["ScraperId"], Convert.ToString(row["MangaId"]));

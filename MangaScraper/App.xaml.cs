@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
+using Blacker.MangaScraper.Library;
 using Blacker.MangaScraper.Services;
 using log4net;
 
@@ -41,6 +42,7 @@ namespace Blacker.MangaScraper
         private void RegisterServices()
         {
             ServiceLocator.Instance.RegisterService(typeof (IInteractionService), typeof (InteractionService));
+            ServiceLocator.Instance.RegisterService(typeof (ILibraryManager), typeof (LibraryManager));
         }
 
         /// <summary>

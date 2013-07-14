@@ -1,28 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Blacker.MangaScraper.Common;
 using Blacker.MangaScraper.Common.Models;
 using Blacker.MangaScraper.Library.DAL;
+using Blacker.MangaScraper.Library.Exceptions;
 using Blacker.MangaScraper.Library.Models;
 
 namespace Blacker.MangaScraper.Library
 {
-    public class LibraryManager
+    public class LibraryManager : ILibraryManager
     {
         private readonly StorageDAL _storage = new StorageDAL();
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="existingScrapers">List of all available scrapers</param>
-        public LibraryManager(IEnumerable<IScraper> existingScrapers)
-        {
-            // fixme: this should be most likely done in a different way
-            if (existingScrapers != null)
-            {
-                _storage.UpdateScrapers(existingScrapers);
-            }
-        }
 
         public DownloadedChapterInfo GetDownloadInfo(string chapterId)
         {
@@ -80,6 +69,39 @@ namespace Blacker.MangaScraper.Library
                 throw new ArgumentException("Search string must not be null or emtpy.");
 
             return _storage.GetChaptersInfo(search);
+        }
+
+        public string GetRecentOutputFolder(IMangaRecord mangaRecord)
+        {
+            if (mangaRecord == null) 
+                throw new ArgumentNullException("mangaRecord");
+
+            try
+            {
+                IDictionary<string, int> folders = _storage.GetRecentFolders(mangaRecord.Scraper, mangaRecord.MangaId);
+
+                if (folders.Count == 0)
+                    return null;
+
+                // return the folder name with most usages
+                return folders.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+            }
+            catch (StorageException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public void UpdateScrapersList(IEnumerable<IScraper> existingScrapers)
+        {
+            if (existingScrapers != null)
+            {
+                _storage.UpdateScrapers(existingScrapers);
+            }
         }
     }
 }

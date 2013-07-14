@@ -9,6 +9,7 @@ using Blacker.MangaScraper.Common.Utils;
 using System.Collections.ObjectModel;
 using Blacker.MangaScraper.Library;
 using Blacker.MangaScraper.Library.Models;
+using Blacker.MangaScraper.Services;
 using log4net;
 
 namespace Blacker.MangaScraper.ViewModel
@@ -21,7 +22,6 @@ namespace Blacker.MangaScraper.ViewModel
         private static readonly ILog _log = LogManager.GetLogger(typeof (DownloadManagerViewModel));
 
         private readonly ISemaphore _downloadsSemaphore;
-        private readonly LibraryManager _libraryManager;
         private readonly ListCollectionView _downloadsCollectionView;
         
         /// <summary>
@@ -33,11 +33,11 @@ namespace Blacker.MangaScraper.ViewModel
         {
             _downloadsSemaphore = new FifoSemaphore(Properties.Settings.Default.MaxParallelDownloads);
 
-            _libraryManager = new LibraryManager(ScraperLoader.Instance.AllScrapers);
-
             var olderDownloads = new List<DownloadViewModel>();
 
-            foreach (DownloadedChapterInfo chapterInfo in _libraryManager.GetDownloads())
+            ServiceLocator.Instance.GetService<ILibraryManager>().UpdateScrapersList(ScraperLoader.Instance.AllScrapers);
+
+            foreach (DownloadedChapterInfo chapterInfo in ServiceLocator.Instance.GetService<ILibraryManager>().GetDownloads())
             {
                 var downloadViewModel = new DownloadViewModel(chapterInfo, _downloadsSemaphore);
                 
@@ -119,12 +119,12 @@ namespace Blacker.MangaScraper.ViewModel
 
             Downloads.Remove(downloadViewModel);
 
-            _libraryManager.RemoveDownloadInfo(eventArgs.Value);
+            ServiceLocator.Instance.GetService<ILibraryManager>().RemoveDownloadInfo(eventArgs.Value);
         }
 
         private void DownloadViewModel_DownloadCompleted(object sender, EventArgs<DownloadedChapterInfo> eventArgs)
         {
-            _libraryManager.StoreDownloadInfo(eventArgs.Value);
+            ServiceLocator.Instance.GetService<ILibraryManager>().StoreDownloadInfo(eventArgs.Value);
             _downloadsCollectionView.Refresh();
 
             InvokePropertyChanged("HasActiveDownloads");

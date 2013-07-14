@@ -162,7 +162,12 @@ namespace Blacker.MangaScraper.ViewModel
             set
             {
                 _selectedManga = value;
-                LoadChapters(_selectedManga);
+
+                if (value != null)
+                {
+                    LoadChapters(value);
+                    PreSelectDownloadFolder(value);
+                }
             }
         }
 
@@ -320,6 +325,22 @@ namespace Blacker.MangaScraper.ViewModel
         }
 
         #endregion // Commands
+
+        private void PreSelectDownloadFolder(IMangaRecord mangaRecord)
+        {
+            if (mangaRecord == null) 
+                throw new ArgumentNullException("mangaRecord");
+
+            if(!Properties.Settings.Default.PreselectOutputFolder)
+                return;
+
+            string folder = ServiceLocator.Instance.GetService<Library.ILibraryManager>().GetRecentOutputFolder(mangaRecord);
+
+            if (String.IsNullOrEmpty(folder))
+                return;
+
+            OutputPath = folder;
+        }
 
         private void PreloadMangas()
         {

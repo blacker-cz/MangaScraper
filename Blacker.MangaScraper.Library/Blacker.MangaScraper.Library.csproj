@@ -60,6 +60,7 @@
     <Compile Include="Configuration\LibraryConfiguration.cs" />
     <Compile Include="DAL\StorageDAL.cs" />
     <Compile Include="Exceptions\StorageException.cs" />
+    <Compile Include="ILibraryManager.cs" />
     <Compile Include="LibraryManager.cs" />
     <Compile Include="Models\ChapterRecord.cs" />
     <Compile Include="Models\DownloadedChapterInfo.cs" />
