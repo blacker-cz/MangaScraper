@@ -17,6 +17,7 @@ namespace Blacker.MangaScraper.Library
         IEnumerable<DownloadedChapterInfo> GetDownloads(DateTime newerThen);
         IEnumerable<DownloadedChapterInfo> GetDownloads(string search);
         string GetRecentOutputFolder(IMangaRecord mangaRecord);
+        IEnumerable<IMangaRecord> GetRecentlyDownloadedMangas(DateTime downloadedAfter);
         void UpdateScrapersList(IEnumerable<IScraper> existingScrapers);
     }
 }

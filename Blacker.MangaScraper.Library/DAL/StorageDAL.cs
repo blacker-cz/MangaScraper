@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Blacker.MangaScraper.Common;
+using Blacker.MangaScraper.Common.Models;
 using Blacker.MangaScraper.Common.Utils;
 using Blacker.MangaScraper.Library.Models;
 using Blacker.MangaScraper.Library.SQLite;
@@ -269,6 +270,39 @@ namespace Blacker.MangaScraper.Library.DAL
             }
 
             return folders;
+        }
+
+        public IEnumerable<IMangaRecord> GetRecentlyDownloadedMangas(DateTime downloadedAfter)
+        {
+            const string sql = @"SELECT 
+                                    m.ScraperId,
+                                    m.MangaId, 
+                                    m.MangaName, 
+                                    m.Url
+                                FROM Mangas m 
+                                INNER JOIN Chapters ch 
+                                    ON m.ScraperId = ch.ScraperId AND m.MangaId = ch.MangaId
+                                WHERE ch.Downloaded > @DownloadedAfter
+                                GROUP BY m.ScraperId, m.MangaId, m.MangaName, m.Url, strftime('%y-%m', ch.Downloaded)
+                                ORDER BY strftime('%y-%m', ch.Downloaded) DESC, COUNT(ch.ChapterId) DESC";
+
+            using (var connection = GetConnection())
+            using (var command = GetTextCommand(sql))
+            {
+                command.Parameters.AddWithValue("@DownloadedAfter", GetDBSafeDateTime(downloadedAfter));
+
+                var table = ExecuteDataTable(command, connection);
+
+                return (from DataRow row in table.Rows
+                        select new MangaRecord()
+                                   {
+                                       MangaId = Convert.ToString(row["MangaId"]),
+                                       MangaName = Convert.ToString(row["MangaName"]),
+                                       Scraper = (Guid) row["ScraperId"],
+                                       Url = row["Url"] as string
+                                   }
+                       ).ToList();
+            }
         }
 
         private static ChapterRecord LoadChapterFromDataRow(DataRow row)

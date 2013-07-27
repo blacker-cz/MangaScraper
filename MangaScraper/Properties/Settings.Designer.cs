@@ -223,5 +223,17 @@ namespace Blacker.MangaScraper.Properties {
                 this["PreselectOutputFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int RecentMangaDaysNum {
+            get {
+                return ((int)(this["RecentMangaDaysNum"]));
+            }
+            set {
+                this["RecentMangaDaysNum"] = value;
+            }
+        }
     }
 }

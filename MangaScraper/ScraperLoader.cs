@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Blacker.MangaScraper.Common;
 using Blacker.MangaScraper.Helpers;
+using Blacker.MangaScraper.Recent;
 using log4net;
 
 namespace Blacker.MangaScraper
@@ -53,8 +54,9 @@ namespace Blacker.MangaScraper
                 var factories = ReflectionHelper.GetInstances<IScraperFactory>(_pluginsAppDomain);
 
                 _scrapers = ReflectionHelper
-                    .GetInstances<IScraper>(_pluginsAppDomain, new[] { typeof(IScraperIgnore) })
-                    .Concat(factories.SelectMany(f => f.GetScrapers()));
+                    .GetInstances<IScraper>(_pluginsAppDomain, new[] {typeof (IScraperIgnore)})
+                    .Concat(factories.SelectMany(f => f.GetScrapers()))
+                    .Concat(new[] {new RecentMangaScraper()});
             }
             catch (Exception ex)
             {

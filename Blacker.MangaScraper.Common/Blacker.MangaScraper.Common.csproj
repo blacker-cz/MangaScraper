@@ -50,6 +50,7 @@
     <Compile Include="IDownloadProvider.cs" />
     <Compile Include="IImmediateSearchProvider.cs" />
     <Compile Include="IPreload.cs" />
+    <Compile Include="IPreview.cs" />
     <Compile Include="IScraper.cs" />
     <Compile Include="IScraperFactory.cs" />
     <Compile Include="IScraperIgnore.cs" />

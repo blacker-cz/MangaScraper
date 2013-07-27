@@ -96,6 +96,11 @@ namespace Blacker.MangaScraper.Library
             }
         }
 
+        public IEnumerable<IMangaRecord> GetRecentlyDownloadedMangas(DateTime downloadedAfter)
+        {
+            return _storage.GetRecentlyDownloadedMangas(downloadedAfter);
+        }
+
         public void UpdateScrapersList(IEnumerable<IScraper> existingScrapers)
         {
             if (existingScrapers != null)

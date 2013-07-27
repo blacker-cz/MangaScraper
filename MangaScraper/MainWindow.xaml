@@ -70,15 +70,7 @@
                              Because of that we need to wrap it with panel in order to hide it. -->
                         <MetroControls:ProgressIndicator ProgressColour="{StaticResource AccentColorBrush}" Height="5" Margin="12,2,3,2" />
                     </StackPanel>
-                    <ListBox Margin="12,0,3,3" Name="mangaList" ItemsSource="{Binding Path=Mangas}" SelectedItem="{Binding Path=SelectedManga}" Grid.Row="2" BorderThickness="0">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Margin="2,2,0,8" HorizontalAlignment="Stretch">
-                                    <TextBlock Text="{Binding Path=MangaName}" FontWeight="Bold"></TextBlock>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                    <ListBox Margin="12,0,3,3" Name="mangaList" ItemsSource="{Binding Path=Mangas}" SelectedItem="{Binding Path=SelectedManga}" Grid.Row="2" BorderThickness="0" ItemTemplateSelector="{StaticResource RecentMangaDataTemplateSelector}" />
                     <GridSplitter Grid.Row="3" ResizeDirection="Rows" HorizontalAlignment="Stretch" Margin="12,0,3,0" />
                     <ListBox Margin="12,3,3,4" Name="chapterList" ItemsSource="{Binding Path=Chapters}" SelectionMode="{Binding ChaptersSelectionMode, Source={x:Static Properties:Settings.Default}, Mode=OneWay}" helpers:ListBoxExtension.SelectedItemsSource="{Binding SelectedChapters}" Grid.Row="4" BorderThickness="0">
                         <ListBox.ItemTemplate>

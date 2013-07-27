@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:vm="clr-namespace:Blacker.MangaScraper.ViewModel"
                     xmlns:vw="clr-namespace:Blacker.MangaScraper.View"
+                    xmlns:rc="clr-namespace:Blacker.MangaScraper.Recent"
                     xmlns:cv="clr-namespace:Blacker.MangaScraper.Converters">
 
     <cv:BooleanConverter x:Key="booleanConverter" />
@@ -32,5 +33,23 @@
             <LinearDoubleKeyFrame Value="0.3" KeyTime="00:00:03" />
         </DoubleAnimationUsingKeyFrames>
     </Storyboard>
+
+    <DataTemplate x:Key="RecentMangaTemplate">
+        <DockPanel Margin="2,2,0,8" HorizontalAlignment="Stretch">
+            <TextBlock Text="{Binding Path=MangaName}" FontWeight="Bold" HorizontalAlignment="Left"></TextBlock>
+            <TextBlock Text="{Binding Path=ScraperName}" Foreground="DarkGray" HorizontalAlignment="Right" Margin="0,0,5,0"></TextBlock>
+        </DockPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="MangaRecordTemplate">
+        <StackPanel Margin="2,2,0,8" HorizontalAlignment="Stretch">
+            <TextBlock Text="{Binding Path=MangaName}" FontWeight="Bold"></TextBlock>
+        </StackPanel>
+    </DataTemplate>
+
+    <rc:RecentMangaDataTemplateSelector 
+                x:Key="RecentMangaDataTemplateSelector" 
+                MangaRecordTemplate="{StaticResource MangaRecordTemplate}" 
+                RecentMangaTemplate="{StaticResource RecentMangaTemplate}" />
 
 </ResourceDictionary>

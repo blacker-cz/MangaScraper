@@ -78,6 +78,9 @@
     <Compile Include="Models\GuidCollection.cs" />
     <Compile Include="Models\RecentItem.cs" />
     <Compile Include="Models\RecentList.cs" />
+    <Compile Include="Recent\RecentMangaDataTemplateSelector.cs" />
+    <Compile Include="Recent\RecentMangaRecord.cs" />
+    <Compile Include="Recent\RecentMangaScraper.cs" />
     <Compile Include="ScraperLoader.cs" />
     <Compile Include="Services\IInteractionService.cs" />
     <Compile Include="Services\InteractionService.cs" />
