@@ -23,6 +23,7 @@ namespace Blacker.MangaScraper.ViewModel
 
         private const string DownloadedChapterNotAvailable = "Chapter was not found in the download folder.";
 
+        private readonly IScraper _scraper;
         private readonly IDownloader _downloader;
 
         private readonly DownloadedChapterInfo _downloadInfo;
@@ -66,11 +67,16 @@ namespace Blacker.MangaScraper.ViewModel
             _downloadInfo = downloadInfo;
             _downloadSemaphore = downloadSemaphore;
 
-            _downloader = ScraperLoader.Instance.AllScrapers.First(s => s.ScraperGuid == downloadInfo.ChapterRecord.Scraper).GetDownloader();
+            _scraper = ScraperLoader.Instance.AllScrapers.FirstOrDefault(s => s.ScraperGuid == downloadInfo.ChapterRecord.Scraper);
 
-            // register downloader events
-            _downloader.DownloadProgress += _downloader_DownloadProgress;
-            _downloader.DownloadCompleted += _downloader_DownloadCompleted;
+            if (_scraper != null)
+            {
+                _downloader = _scraper.GetDownloader();
+
+                // register downloader events
+                _downloader.DownloadProgress += _downloader_DownloadProgress;
+                _downloader.DownloadCompleted += _downloader_DownloadCompleted;
+            }
 
             _cancelDownloadCommand = new RelayCommand(Cancel);
             _removeDownloadCommand = new RelayCommand(Remove);
@@ -92,7 +98,8 @@ namespace Blacker.MangaScraper.ViewModel
                     State = DownloadState.Warning;
                     CurrentActionText = DownloadedChapterNotAvailable;
                     _openDownloadCommand.Disabled = true;
-                    _retryDownloadCommand.Disabled = false;
+                    // enable re-download only in case that scraper/downloader is available
+                    _retryDownloadCommand.Disabled = _downloader == null;
                 }
 
                 Completed = true;
@@ -143,6 +150,8 @@ namespace Blacker.MangaScraper.ViewModel
 
         public DateTime Downloaded { get { return _downloadInfo.Downloaded; } }
 
+        public string ScraperName { get { return _scraper != null ? _scraper.Name : String.Empty; } }
+
         public string CurrentActionText
         {
             get { return _currentActionText; }
@@ -163,8 +172,6 @@ namespace Blacker.MangaScraper.ViewModel
                 InvokePropertyChanged("CanOpen");
             }
         }
-
-        public bool CanOpen { get { return Completed && State == DownloadState.Ok; } }
 
         private DownloadState State 
         {
@@ -199,6 +206,9 @@ namespace Blacker.MangaScraper.ViewModel
         {
             if (string.IsNullOrEmpty(outputPath))
                 throw new ArgumentException("Invalid output path", "outputPath");
+
+            if (Downloader == null)
+                throw new InvalidOperationException("There is no downloader configured for the chapter's scraper.");
 
             _downloadInfo.IsZip = isZipped;
 
@@ -243,20 +253,27 @@ namespace Blacker.MangaScraper.ViewModel
 
         public void Cancel(object parameter)
         {
-            _downloader.Cancel();
-            
-            CancelText = ButtonCancellingText;
+            if (Downloader != null)
+            {
+                _downloader.Cancel();
+
+                CancelText = ButtonCancellingText;
+            }
         }
 
         public void Remove(object parameter)
         {
-            _downloader.Cancel();
+            if (Downloader != null)
+                _downloader.Cancel();
 
             OnRemoveFromCollection();
         }
 
         public void RetryDownload(object parameter)
         {
+            if (Downloader == null)
+                throw new InvalidOperationException("There is no downloader configured for the chapter's scraper.");
+
             // we will be downloading the file now
             State = DownloadState.Ok;
             Completed = false;
