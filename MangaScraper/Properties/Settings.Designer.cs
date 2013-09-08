@@ -191,12 +191,15 @@ namespace Blacker.MangaScraper.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Multiple")]
         public string ChaptersSelectionMode {
             get {
                 return ((string)(this["ChaptersSelectionMode"]));
+            }
+            set {
+                this["ChaptersSelectionMode"] = value;
             }
         }
         

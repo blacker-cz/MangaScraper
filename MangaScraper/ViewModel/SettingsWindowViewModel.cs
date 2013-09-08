@@ -21,6 +21,7 @@ namespace Blacker.MangaScraper.ViewModel
         private readonly RelayCommand _browseCommand;
         private readonly RelayCommand _clearCommand;
         private string _readerPath;
+        private string _chaptersSelectionMode;
 
         public SettingsWindowViewModel()
         {
@@ -33,6 +34,9 @@ namespace Blacker.MangaScraper.ViewModel
             ReaderPath = Properties.Settings.Default.ReaderPath;
             EnablePreload = Properties.Settings.Default.EnablePreload;
             MaxRecentFolders = Properties.Settings.Default.RecentFolders.MaxItems;
+            PreselectDownloadFolder = Properties.Settings.Default.PreselectOutputFolder;
+            RecentMangaDaysNum = Properties.Settings.Default.RecentMangaDaysNum;
+            ChaptersSelectionMode = Properties.Settings.Default.ChaptersSelectionMode;
 
             Scrapers = ScraperLoader.Instance.AllScrapers
                 .Select(s =>
@@ -40,8 +44,10 @@ namespace Blacker.MangaScraper.ViewModel
 
             try
             {
-                var reader = new System.IO.StreamReader(System.Windows.Application.GetResourceStream(new System.Uri("/readme.txt", UriKind.Relative)).Stream, Encoding.UTF8);
-                AboutText = reader.ReadToEnd();
+                using (var reader = new System.IO.StreamReader(System.Windows.Application.GetResourceStream(new System.Uri("/readme.txt", UriKind.Relative)).Stream, Encoding.UTF8))
+                {
+                    AboutText = reader.ReadToEnd();
+                }
             }
             catch (System.IO.IOException ex)
             {
@@ -75,6 +81,23 @@ namespace Blacker.MangaScraper.ViewModel
 
         public uint MaxRecentFolders { get; set; }
 
+        public bool PreselectDownloadFolder { get; set; }
+
+        public int RecentMangaDaysNum { get; set; }
+
+        public string ChaptersSelectionMode
+        {
+            get
+            {
+                return _chaptersSelectionMode;
+            }
+            set
+            {
+                _chaptersSelectionMode = value;
+                InvokePropertyChanged("ChaptersSelectionMode");
+            }
+        }
+
         public IEnumerable<ScraperInfo> Scrapers { get; private set; }
 
         #region Commands
@@ -86,6 +109,9 @@ namespace Blacker.MangaScraper.ViewModel
                 Properties.Settings.Default.MaxParallelDownloads = MaxParallelDownloads;
                 Properties.Settings.Default.ReaderPath = ReaderPath;
                 Properties.Settings.Default.EnablePreload = EnablePreload;
+                Properties.Settings.Default.PreselectOutputFolder = PreselectDownloadFolder;
+                Properties.Settings.Default.RecentMangaDaysNum = RecentMangaDaysNum;
+                Properties.Settings.Default.ChaptersSelectionMode = ChaptersSelectionMode;
 
                 Properties.Settings.Default.RecentFolders.MaxItems = MaxRecentFolders;
 
