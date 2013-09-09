@@ -15,7 +15,23 @@ MangaScraper is simple application which allows you to download manga chapters f
 
 If you want support for any other site, let me know. If you feel like implemening it, let me know too ;-)
 
-Latest version can be downloaded here - https://github.com/blacker-cz/MangaScraper/downloads
+Download and installation instructions
+
+Latest version can be downloaded here - http://scraper.blacker.cz/. The latest folder should contain version based on the latest commit in repository. Starting with version 1.0 there are both installer and no-install package available for download.
+
+Using installer
+
+Using installer is straightforward, just start the installer and follow instructions in the install wizard. Installer will also make sure that all prerequisites are installed.
+
+Using no-install package
+
+Getting the no-install package up and running may be a bit tricky in some cases. Starting with Windows XP files downloaded from Interned are blocked by OS. You may have already encounter the following message "This file came from another computer and might be blocked to help protect this computer". So when you download the no-install package you need to unblock it before extracting its content to ensure that application can run properly. To unblock the file do the following:
+
+  1. Right click on file and select Properties
+  2. Under the General tab, click on the Unblock button
+  3. Click on OK button
+
+After unblocking the file you can safely extract it to wherever you need.
 
 3rd party software, libraries, etc.
 
