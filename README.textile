@@ -17,7 +17,7 @@ If you want support for any other site, let me know. If you feel like implemenin
 
 h2. Download and installation instructions
 
-Latest version can be downloaded "here(http://scraper.blacker.cz/)":http://scraper.blacker.cz/". The _latest_ folder should contain version based on the latest commit in repository. Starting with version 1.0 there are both installer and no-install package available for download.
+Latest version can be downloaded "here(http://scraper.blacker.cz/)":http://scraper.blacker.cz/. The _latest_ folder should contain version based on the latest commit in repository. Starting with version 1.0 there are both installer and no-install package available for download.
 
 h3. Using installer
 
