@@ -40,6 +40,8 @@ namespace Blacker.MangaScraper.ViewModel
         private string _currentActionText;
         private bool _completed;
 
+        private bool? _downloadExists = null;
+
         private static readonly Regex _invalidPathCharsRegex = new Regex(string.Format("[{0}]",
                                     Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))),
                                RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -78,42 +80,27 @@ namespace Blacker.MangaScraper.ViewModel
                 _downloader.DownloadCompleted += _downloader_DownloadCompleted;
             }
 
-            _cancelDownloadCommand = new RelayCommand(Cancel);
-            _removeDownloadCommand = new RelayCommand(Remove);
-            _openDownloadCommand = new RelayCommand(Open);
-            _retryDownloadCommand = new RelayCommand(RetryDownload, true);
-
             if (!String.IsNullOrEmpty(_downloadInfo.Path))
             {
-                if ((Directory.Exists(_downloadInfo.Path) || File.Exists(_downloadInfo.Path)))
-                {
-                    // file is already downloaded
-                    State = DownloadState.Ok;
-                    ProgressValue = 100;
-                    CurrentActionText = _downloadInfo.Path;
-                }
-                else
-                {
-                    // file was downloaded but doesn't exist anymore
-                    State = DownloadState.Warning;
-                    CurrentActionText = DownloadedChapterNotAvailable;
-                    _openDownloadCommand.Disabled = true;
-                    // enable re-download only in case that scraper/downloader is available
-                    _retryDownloadCommand.Disabled = _downloader == null;
-                }
-
+                // file was already downloaded
+                State = DownloadState.Unknown;
                 Completed = true;
-                _cancelDownloadCommand.Disabled = true;
             }
             else
             {
                 // we will be downloading the file now
                 State = DownloadState.Ok;
                 Completed = false;
-                CancelText = ButtonCancelText;
-                _cancelDownloadCommand.Disabled = false;
-                _openDownloadCommand.Disabled = true;
             }
+
+            CurrentActionText = String.Empty;
+
+            _cancelDownloadCommand = new RelayCommand(Cancel, x => !Completed);
+            _removeDownloadCommand = new RelayCommand(Remove);
+            _openDownloadCommand = new RelayCommand(Open, x => DownloadExists);
+            _retryDownloadCommand = new RelayCommand(RetryDownload, x => _downloader != null && Completed && !DownloadExists);
+
+            CancelText = ButtonCancelText;
         }
 
         public event EventHandler<EventArgs<DownloadedChapterInfo>> DownloadCompleted;
@@ -175,7 +162,14 @@ namespace Blacker.MangaScraper.ViewModel
 
         private DownloadState State 
         {
-            get { return _downloadState; }
+            get
+            {
+                // if the download state is unknown check if by any chance the file is not already downloaded
+                if (_downloadState == DownloadState.Unknown)
+                    return DownloadExists ? DownloadState.Ok : DownloadState.NotFound;
+
+                return _downloadState;
+            }
             set
             {
                 _downloadState = value;
@@ -192,13 +186,42 @@ namespace Blacker.MangaScraper.ViewModel
                 {
                     case DownloadState.Ok:
                         return "YellowGreen";
-                    case DownloadState.Warning:
+                    case DownloadState.Cancelled:
+                    case DownloadState.NotFound:
                         return "Orange";
                     case DownloadState.Error:
                         return "Crimson";
                     default:
                         return "Crimson";
                 }
+            }
+        }
+
+        public bool DownloadExists
+        {
+            get
+            {
+                if (_downloadExists.HasValue)
+                    return _downloadExists.Value;
+
+                _downloadExists = (!String.IsNullOrEmpty(_downloadInfo.Path)) && (Directory.Exists(_downloadInfo.Path) || File.Exists(_downloadInfo.Path));
+
+                if (CurrentActionText == String.Empty)
+                {
+                    if (_downloadExists.Value)
+                    {
+                        ProgressValue = 100;
+                        CurrentActionText = _downloadInfo.Path;
+                    }
+                    else
+                    {
+                        CurrentActionText = DownloadedChapterNotAvailable;
+                    }
+                }
+
+                InvokePropertyChanged("CurrentActionText");
+
+                return _downloadExists.Value;
             }
         }
 
@@ -304,7 +327,7 @@ namespace Blacker.MangaScraper.ViewModel
             if (e.Cancelled)
             {
                 CurrentActionText = "Download was cancelled.";
-                State = DownloadState.Warning;
+                State = DownloadState.Cancelled;
             }
             else if (e.Error != null)
             {
@@ -321,6 +344,7 @@ namespace Blacker.MangaScraper.ViewModel
             _downloadInfo.Downloaded = DateTime.UtcNow;
             Completed = true;
             _cancelDownloadCommand.Disabled = true;
+            _downloadExists = null; // reset the download exists flag
 
             OnDownloadCompleted();
         }
@@ -343,8 +367,10 @@ namespace Blacker.MangaScraper.ViewModel
 
         private enum DownloadState
         {
+            Unknown,
             Ok,
-            Warning,
+            Cancelled,
+            NotFound,
             Error
         }
 
