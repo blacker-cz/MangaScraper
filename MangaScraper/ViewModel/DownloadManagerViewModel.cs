@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Data;
 using Blacker.MangaScraper.Common;
@@ -42,7 +43,7 @@ namespace Blacker.MangaScraper.ViewModel
                 var downloadViewModel = new DownloadViewModel(chapterInfo, _downloadsSemaphore);
                 
                 downloadViewModel.RemoveFromCollection += DownloadViewModel_RemoveFromCollection;
-                downloadViewModel.DownloadCompleted += DownloadViewModel_DownloadCompleted;
+                downloadViewModel.DownloadStarted += DownloadViewModel_DownloadStarted;
 
                 olderDownloads.Add(downloadViewModel);
             }
@@ -102,7 +103,7 @@ namespace Blacker.MangaScraper.ViewModel
             var downloadViewModel = new DownloadViewModel(new DownloadedChapterInfo(chapter), _downloadsSemaphore);
             
             downloadViewModel.RemoveFromCollection += DownloadViewModel_RemoveFromCollection;
-            downloadViewModel.DownloadCompleted += DownloadViewModel_DownloadCompleted;
+            downloadViewModel.DownloadStarted += DownloadViewModel_DownloadStarted;
             
             Downloads.Add(downloadViewModel);
 
@@ -113,9 +114,11 @@ namespace Blacker.MangaScraper.ViewModel
 
         private void DownloadViewModel_RemoveFromCollection(object sender, EventArgs<DownloadedChapterInfo> eventArgs)
         {
-            var downloadViewModel = sender as DownloadViewModel;
+            var downloadViewModel = (DownloadViewModel) sender;
 
             downloadViewModel.RemoveFromCollection -= DownloadViewModel_RemoveFromCollection;
+            downloadViewModel.DownloadStarted -= DownloadViewModel_DownloadStarted;
+            downloadViewModel.DownloadCompleted -= DownloadViewModel_DownloadCompleted;
 
             Downloads.Remove(downloadViewModel);
 
@@ -124,10 +127,23 @@ namespace Blacker.MangaScraper.ViewModel
 
         private void DownloadViewModel_DownloadCompleted(object sender, EventArgs<DownloadedChapterInfo> eventArgs)
         {
+            var downloadViewModel = (DownloadViewModel) sender;
+
+            downloadViewModel.DownloadCompleted -= DownloadViewModel_DownloadCompleted;
+
             ServiceLocator.Instance.GetService<ILibraryManager>().StoreDownloadInfo(eventArgs.Value);
             _downloadsCollectionView.Refresh();
 
             InvokePropertyChanged("HasActiveDownloads");
+        }
+
+        private void DownloadViewModel_DownloadStarted(object sender, EventArgs e)
+        {
+            var downloadViewModel = (DownloadViewModel)sender;
+
+            downloadViewModel.DownloadCompleted += DownloadViewModel_DownloadCompleted;
+
+            _downloadsCollectionView.Refresh();
         }
 
         public void CancelRunningDownloads()
@@ -170,6 +186,19 @@ namespace Blacker.MangaScraper.ViewModel
                     throw new ArgumentException("DownloadAgeComparer can only sort non null objects of type DownloadViewModel", "x");
                 if (objY == null)
                     throw new ArgumentException("DownloadAgeComparer can only sort non null objects of type DownloadViewModel", "y");
+
+                // downloads that are now waiting in queue have lower priority (for ordering) than currently downloading one
+                if (objX.Downloaded == DateTime.MinValue && objY.Downloaded == DateTime.MinValue)
+                {
+                    if (objX.ProgressValue > 0 && objY.ProgressValue == 0)
+                        return -1;
+
+                    if (objX.ProgressValue == 0 && objY.ProgressValue > 0)
+                        return 1;
+
+                    // if both are downloading let's say that they are equal
+                    return 0;
+                }
 
                 if (objX.Downloaded == objY.Downloaded)
                     return 0;

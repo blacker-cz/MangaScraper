@@ -105,6 +105,7 @@ namespace Blacker.MangaScraper.ViewModel
 
         public event EventHandler<EventArgs<DownloadedChapterInfo>> DownloadCompleted;
         public event EventHandler<EventArgs<DownloadedChapterInfo>> RemoveFromCollection;
+        public event EventHandler<EventArgs> DownloadStarted;
 
         public ICommand CancelDownloadCommand { get { return _cancelDownloadCommand; } }
         public ICommand RemoveDownloadCommand { get { return _removeDownloadCommand; } }
@@ -318,6 +319,9 @@ namespace Blacker.MangaScraper.ViewModel
 
         void _downloader_DownloadProgress(object sender, DownloadProgressEventArgs e)
         {
+            if(ProgressValue == 0 && e.PercentComplete > 0)
+                OnDownloadStarted();
+
             ProgressValue = e.PercentComplete;
             CurrentActionText = e.Message;
         }
@@ -362,6 +366,14 @@ namespace Blacker.MangaScraper.ViewModel
             if (RemoveFromCollection != null)
             {
                 RemoveFromCollection(this, new EventArgs<DownloadedChapterInfo>(_downloadInfo));
+            }
+        }
+
+        private void OnDownloadStarted()
+        {
+            if (DownloadStarted != null)
+            {
+                DownloadStarted(this, EventArgs.Empty);
             }
         }
 
