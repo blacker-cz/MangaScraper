@@ -39,7 +39,7 @@ namespace Blacker.MangaScraper.Recent
 
         public IEnumerable<IMangaRecord> GetAvailableMangas(string filter)
         {
-            return Mangas.Where(mr => mr.MangaName.IndexOf(filter, StringComparison.InvariantCultureIgnoreCase) != -1).ToList();
+            return GetMangas(false).Where(mr => mr.MangaName.IndexOf(filter, StringComparison.InvariantCultureIgnoreCase) != -1).ToList();
         }
 
         public IDownloader GetDownloader()
@@ -55,33 +55,30 @@ namespace Blacker.MangaScraper.Recent
 
         public IEnumerable<IMangaRecord> Preview()
         {
-            return Mangas;
+            return GetMangas(true);
         }
 
-        private IEnumerable<RecentMangaRecord> Mangas
+        private IEnumerable<RecentMangaRecord> GetMangas(bool force)
         {
-            get
+            IEnumerable<RecentMangaRecord> mangas;
+
+            lock (_syncRoot)
             {
-                IEnumerable<RecentMangaRecord> mangas;
-
-                lock (_syncRoot)
+                if (force || _mangaRecords == null || ((mangas = _mangaRecords.Target as IEnumerable<RecentMangaRecord>) == null))
                 {
-                    if (_mangaRecords == null || ((mangas = _mangaRecords.Target as IEnumerable<RecentMangaRecord>) == null))
-                    {
-                        var cutoffDate = DateTime.UtcNow.AddDays(-Properties.Settings.Default.RecentMangaDaysNum);
+                    var cutoffDate = DateTime.UtcNow.AddDays(-Properties.Settings.Default.RecentMangaDaysNum);
 
-                        mangas = ServiceLocator.Instance.GetService<ILibraryManager>()
-                                               .GetRecentlyDownloadedMangas(cutoffDate)
-                                               .Select(mr => new RecentMangaRecord(mr))
-                                               .Where(rmr => rmr.ScraperInstance != null)
-                                               .ToList();
+                    mangas = ServiceLocator.Instance.GetService<ILibraryManager>()
+                                           .GetRecentlyDownloadedMangas(cutoffDate)
+                                           .Select(mr => new RecentMangaRecord(mr))
+                                           .Where(rmr => rmr.ScraperInstance != null)
+                                           .ToList();
 
-                        _mangaRecords = new WeakReference(mangas);
-                    }
+                    _mangaRecords = new WeakReference(mangas);
                 }
-
-                return mangas;
             }
+
+            return mangas;
         }
     }
 }
