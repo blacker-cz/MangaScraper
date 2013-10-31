@@ -2,7 +2,7 @@
 <Include>
 
   <?define ProductName = "MangaScraper" ?>
-  <?define ProductVersion = "1.0.0.1" ?>
+  <?define ProductVersion = "1.0.0.2" ?>
   <?define ProductDescription = "Simple application for download of manga chapters from online readers." ?>
   <?define ManufacturerName = "Lukas Cerny" ?>
   <?define ManufacturerWebUrl ="https://github.com/blacker-cz" ?>
