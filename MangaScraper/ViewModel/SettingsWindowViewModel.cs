@@ -73,7 +73,7 @@ namespace Blacker.MangaScraper.ViewModel
             set
             {
                 _readerPath = value;
-                InvokePropertyChanged("ReaderPath");
+                OnPropertyChanged(() => ReaderPath);
             }
         }
 
@@ -94,7 +94,7 @@ namespace Blacker.MangaScraper.ViewModel
             set
             {
                 _chaptersSelectionMode = value;
-                InvokePropertyChanged("ChaptersSelectionMode");
+                OnPropertyChanged(() => ChaptersSelectionMode);
             }
         }
 

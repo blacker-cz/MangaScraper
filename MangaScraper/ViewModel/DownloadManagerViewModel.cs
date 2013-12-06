@@ -109,7 +109,7 @@ namespace Blacker.MangaScraper.ViewModel
 
             downloadViewModel.DownloadChapter(outputPath, formatProvider);
 
-            InvokePropertyChanged("HasActiveDownloads");
+            OnPropertyChanged(() => HasActiveDownloads);
         }
 
         private void DownloadViewModel_RemoveFromCollection(object sender, EventArgs<DownloadedChapterInfo> eventArgs)
@@ -134,7 +134,7 @@ namespace Blacker.MangaScraper.ViewModel
             ServiceLocator.Instance.GetService<ILibraryManager>().StoreDownloadInfo(eventArgs.Value);
             _downloadsCollectionView.Refresh();
 
-            InvokePropertyChanged("HasActiveDownloads");
+            OnPropertyChanged(() => HasActiveDownloads);
         }
 
         private void DownloadViewModel_DownloadStarted(object sender, EventArgs e)

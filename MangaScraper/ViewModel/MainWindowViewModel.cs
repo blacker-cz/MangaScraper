@@ -150,7 +150,7 @@ namespace Blacker.MangaScraper.ViewModel
                 Properties.Settings.Default.OutputPath = _outputPath;
                 Properties.Settings.Default.Save();
 
-                InvokePropertyChanged("OutputPath");
+                OnPropertyChanged(() => OutputPath);
             }
         }
 
@@ -160,7 +160,7 @@ namespace Blacker.MangaScraper.ViewModel
             set
             {
                 _currentActionText = value;
-                InvokePropertyChanged("CurrentActionText");
+                OnPropertyChanged(() => CurrentActionText);
             }
         }
 
@@ -170,7 +170,7 @@ namespace Blacker.MangaScraper.ViewModel
             set
             {
                 _operationInProgress = value;
-                InvokePropertyChanged("OperationInProgress");
+                OnPropertyChanged(() => OperationInProgress);
             }
         }
 
@@ -211,7 +211,7 @@ namespace Blacker.MangaScraper.ViewModel
                         {
                             // just replace collection -> this is easier than removing and then adding records
                             Mangas = new AsyncObservableCollection<IMangaRecord>(records);
-                            InvokePropertyChanged("Mangas");
+                            OnPropertyChanged(() => Mangas);
                         }
                     }
                 }
@@ -239,7 +239,7 @@ namespace Blacker.MangaScraper.ViewModel
                         lock (_syncRoot)
                         {
                             Mangas = new AsyncObservableCollection<IMangaRecord>(requests);
-                            InvokePropertyChanged("Mangas");
+                            OnPropertyChanged(() => Mangas);
                         }
                     }
                 }
@@ -267,7 +267,7 @@ namespace Blacker.MangaScraper.ViewModel
                         {
                             // just replace collection -> this is easier than removing and then adding records
                             Chapters = new AsyncObservableCollection<IChapterRecord>(results);
-                            InvokePropertyChanged("Chapters");
+                            OnPropertyChanged(() => Chapters);
                         }
                     }
                 }
@@ -290,7 +290,7 @@ namespace Blacker.MangaScraper.ViewModel
                         {
                             // just replace collection -> this is easier than removing and then adding records
                             Mangas = new AsyncObservableCollection<IMangaRecord>(records);
-                            InvokePropertyChanged("Mangas");
+                            OnPropertyChanged(() => Mangas);
                         }
                     }
                 }
@@ -357,7 +357,7 @@ namespace Blacker.MangaScraper.ViewModel
 
             // save output path to recent list
             Properties.Settings.Default.RecentFolders.Add(OutputPath);
-            InvokePropertyChanged("RecentFolders");
+            OnPropertyChanged(() => RecentFolders);
 
             foreach (var selectedChapter in SelectedChapters)
             {

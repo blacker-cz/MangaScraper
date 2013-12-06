@@ -117,7 +117,7 @@ namespace Blacker.MangaScraper.ViewModel
             set
             {
                 _cancelText = value;
-                InvokePropertyChanged("CancelText");
+                OnPropertyChanged(() => CancelText);
             }
         }
 
@@ -127,7 +127,7 @@ namespace Blacker.MangaScraper.ViewModel
             set
             {
                 _progressValue = value;
-                InvokePropertyChanged("ProgressValue");
+                OnPropertyChanged(() => ProgressValue);
             }
         }
 
@@ -145,7 +145,7 @@ namespace Blacker.MangaScraper.ViewModel
             set
             {
                 _currentActionText = value;
-                InvokePropertyChanged("CurrentActionText");
+                OnPropertyChanged(() => CurrentActionText);
             }
         }
 
@@ -155,8 +155,7 @@ namespace Blacker.MangaScraper.ViewModel
             private set
             {
                 _completed = value;
-                InvokePropertyChanged("Completed");
-                InvokePropertyChanged("CanOpen");
+                OnPropertyChanged(() => Completed);
             }
         }
 
@@ -173,8 +172,7 @@ namespace Blacker.MangaScraper.ViewModel
             set
             {
                 _downloadState = value;
-                InvokePropertyChanged("StateColor");
-                InvokePropertyChanged("CanOpen");
+                OnPropertyChanged(() => StateColor);
             } 
         }
 
@@ -219,7 +217,7 @@ namespace Blacker.MangaScraper.ViewModel
                     }
                 }
 
-                InvokePropertyChanged("CurrentActionText");
+                OnPropertyChanged(() => CurrentActionText);
 
                 return _downloadExists.Value;
             }
