@@ -98,7 +98,7 @@ namespace Blacker.MangaScraper.ViewModel
             get { return Downloads.Any(dvm => !dvm.Completed); }
         }
 
-        public void Download(IChapterRecord chapter, string outputPath, bool zipFile)
+        public void Download(IChapterRecord chapter, string outputPath, IDownloadFormatProvider formatProvider)
         {
             var downloadViewModel = new DownloadViewModel(new DownloadedChapterInfo(chapter), _downloadsSemaphore);
             
@@ -107,7 +107,7 @@ namespace Blacker.MangaScraper.ViewModel
             
             Downloads.Add(downloadViewModel);
 
-            downloadViewModel.DownloadChapter(outputPath, zipFile);
+            downloadViewModel.DownloadChapter(outputPath, formatProvider);
 
             InvokePropertyChanged("HasActiveDownloads");
         }

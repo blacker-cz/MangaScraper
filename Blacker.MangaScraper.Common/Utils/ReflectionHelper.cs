@@ -5,9 +5,9 @@ using System.Linq;
 using System.Reflection;
 using log4net;
 
-namespace Blacker.MangaScraper.Helpers
+namespace Blacker.MangaScraper.Common.Utils
 {
-    static class ReflectionHelper
+    public static class ReflectionHelper
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(ReflectionHelper));
 

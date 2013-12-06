@@ -42,10 +42,6 @@ namespace Blacker.MangaScraper.ViewModel
 
         private bool? _downloadExists = null;
 
-        private static readonly Regex _invalidPathCharsRegex = new Regex(string.Format("[{0}]",
-                                    Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()))),
-                               RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
         public DownloadViewModel(DownloadedChapterInfo downloadInfo, ISemaphore downloadSemaphore)
         {
             if (downloadInfo == null)
@@ -98,7 +94,10 @@ namespace Blacker.MangaScraper.ViewModel
             _cancelDownloadCommand = new RelayCommand(Cancel, x => !Completed);
             _removeDownloadCommand = new RelayCommand(Remove);
             _openDownloadCommand = new RelayCommand(Open, x => DownloadExists);
-            _retryDownloadCommand = new RelayCommand(RetryDownload, x => _downloader != null && Completed && !DownloadExists);
+            _retryDownloadCommand = new RelayCommand(RetryDownload, x => _downloader != null
+                                                                         && Completed
+                                                                         && !DownloadExists
+                                                                         && !String.IsNullOrEmpty(_downloadInfo.DownloadFolder));
 
             CancelText = ButtonCancelText;
         }
@@ -226,28 +225,20 @@ namespace Blacker.MangaScraper.ViewModel
             }
         }
 
-        public void DownloadChapter(string outputPath, bool isZipped)
+        public void DownloadChapter(string outputPath, IDownloadFormatProvider formatProvider)
         {
             if (string.IsNullOrEmpty(outputPath))
                 throw new ArgumentException("Invalid output path", "outputPath");
 
+            if (formatProvider == null) 
+                throw new ArgumentNullException("formatProvider");
+
             if (Downloader == null)
                 throw new InvalidOperationException("There is no downloader configured for the chapter's scraper.");
 
-            _downloadInfo.IsZip = isZipped;
+            _downloadInfo.DownloadFolder = outputPath;
 
-            if (isZipped)
-            {
-                var fileInfo = new FileInfo(Path.Combine(outputPath, GetNameForSave(Chapter) + ".zip"));
-                _downloadInfo.Path = fileInfo.FullName;
-                Downloader.DownloadChapterAsync(_downloadSemaphore, Chapter, fileInfo);
-            }
-            else
-            {
-                var directoryInfo = new DirectoryInfo(Path.Combine(outputPath, GetNameForSave(Chapter)));
-                _downloadInfo.Path = directoryInfo.FullName;
-                Downloader.DownloadChapterAsync(_downloadSemaphore, Chapter, directoryInfo);
-            }
+            Downloader.DownloadChapterAsync(_downloadSemaphore, Chapter, _downloadInfo.DownloadFolder, formatProvider);
         }
 
         public void Open(object parameter)
@@ -257,12 +248,11 @@ namespace Blacker.MangaScraper.ViewModel
 
             try
             {
-                if (_downloadInfo.IsZip)
+                bool isFolder = Directory.Exists(_downloadInfo.Path);
+
+                if (!isFolder && !String.IsNullOrEmpty(Properties.Settings.Default.ReaderPath))
                 {
-                    if (!string.IsNullOrEmpty(Properties.Settings.Default.ReaderPath))
-                        System.Diagnostics.Process.Start(Properties.Settings.Default.ReaderPath, ProcessHelper.EscapeArguments(_downloadInfo.Path));
-                    else
-                        System.Diagnostics.Process.Start(_downloadInfo.Path);
+                    System.Diagnostics.Process.Start(Properties.Settings.Default.ReaderPath, ProcessHelper.EscapeArguments(_downloadInfo.Path));
                 }
                 else
                 {
@@ -305,16 +295,9 @@ namespace Blacker.MangaScraper.ViewModel
             _cancelDownloadCommand.Disabled = false;
             _retryDownloadCommand.Disabled = true;
 
-            if (_downloadInfo.IsZip)
-            {
-                var fileInfo = new FileInfo(_downloadInfo.Path);
-                Downloader.DownloadChapterAsync(_downloadSemaphore, Chapter, fileInfo);
-            }
-            else
-            {
-                var directoryInfo = new DirectoryInfo(_downloadInfo.Path);
-                Downloader.DownloadChapterAsync(_downloadSemaphore, Chapter, directoryInfo);
-            }
+            IDownloadFormatProvider formatProvider = ScraperLoader.Instance.GetFirstOrDefaultDownloadFormatProvider(_downloadInfo.DownloadFormatProviderId);
+
+            Downloader.DownloadChapterAsync(_downloadSemaphore, Chapter, _downloadInfo.DownloadFolder, formatProvider);
         }
 
         void _downloader_DownloadProgress(object sender, DownloadProgressEventArgs e)
@@ -343,6 +326,7 @@ namespace Blacker.MangaScraper.ViewModel
             {
                 State = DownloadState.Ok;
                 _openDownloadCommand.Disabled = false;
+                _downloadInfo.Path = e.DownloadedPath;
             }
 
             _downloadInfo.Downloaded = DateTime.UtcNow;
@@ -384,13 +368,6 @@ namespace Blacker.MangaScraper.ViewModel
             Cancelled,
             NotFound,
             Error
-        }
-
-        private string GetNameForSave(IChapterRecord chapter)
-        {
-            string fileName = String.Format("{0} - {1}", chapter.MangaName, chapter.ChapterName).Replace(" ", "_");
-
-            return _invalidPathCharsRegex.Replace(fileName, "");
         }
 
     }

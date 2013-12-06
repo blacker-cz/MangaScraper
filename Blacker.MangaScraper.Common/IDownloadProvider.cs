@@ -13,17 +13,9 @@ namespace Blacker.MangaScraper.Common
         /// </summary>
         /// <param name="semaphore">Semaphore used to limit maximal number of simultaneous downloads</param>
         /// <param name="chapter">Chapter info</param>
-        /// <param name="file">Output file info</param>
-        void DownloadChapterAsync(ISemaphore semaphore, IChapterRecord chapter, FileInfo file);
-
-        /// <summary>
-        /// Download chapter to directory
-        /// </summary>
-        /// <param name="semaphore">Semaphore used to limit maximal number of simultaneous downloads</param>
-        /// <param name="chapter">Chapter info</param>
-        /// <param name="directory">Output directory info</param>
-        /// <param name="createDir">Flag if directory should be created if it does not exist (optional, defaul true)</param>
-        void DownloadChapterAsync(ISemaphore semaphore, IChapterRecord chapter, DirectoryInfo directory, bool createDir = true);
+        /// <param name="outputFolder">Output folder</param>
+        /// <param name="formatProvider">Output format provider</param>
+        void DownloadChapterAsync(ISemaphore semaphore, IChapterRecord chapter, string outputFolder, IDownloadFormatProvider formatProvider);
 
         /// <summary>
         /// Cancel the chapter download

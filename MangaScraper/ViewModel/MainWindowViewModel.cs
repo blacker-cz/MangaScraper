@@ -19,8 +19,10 @@ namespace Blacker.MangaScraper.ViewModel
         private static readonly ILog _log = LogManager.GetLogger(typeof(MainWindowViewModel));
 
         private readonly IEnumerable<IScraper> _scrapers;
-
         private IScraper _currentScraper;
+
+        private readonly IEnumerable<IDownloadFormatProvider> _downloadFormatProviders;
+        private IDownloadFormatProvider _currentFormatProvider;
 
         private readonly AsyncRequestQueue _requestQueue;
 
@@ -52,8 +54,6 @@ namespace Blacker.MangaScraper.ViewModel
             Chapters = new AsyncObservableCollection<IChapterRecord>();
             SelectedChapters = new AsyncObservableCollection<IChapterRecord>();
 
-            ZipFile = true;
-
             _requestQueue = new AsyncRequestQueue();
             _requestQueue.TasksCompleted += _requestQueue_TasksCompleted;
             _requestQueue.Initialize();
@@ -68,6 +68,9 @@ namespace Blacker.MangaScraper.ViewModel
 
             if (CurrentScraper == null)
                 CurrentScraper = _scrapers.First();
+
+            _downloadFormatProviders = ScraperLoader.Instance.DownloadFormatProviders;
+            CurrentDownloadFormatProvider = ScraperLoader.Instance.GetFirstOrDefaultDownloadFormatProvider(Properties.Settings.Default.DownloadFormatProvider);
 
             if (Properties.Settings.Default.EnablePreload)
             {
@@ -96,6 +99,20 @@ namespace Blacker.MangaScraper.ViewModel
 
                 // try to load preview for the scraper if available
                 LoadScraperPreview(_currentScraper);
+            }
+        }
+
+        public IEnumerable<IDownloadFormatProvider> DownloadFormatProviders { get { return _downloadFormatProviders; } }
+
+        public IDownloadFormatProvider CurrentDownloadFormatProvider
+        {
+            get { return _currentFormatProvider; }
+            set
+            {
+                _currentFormatProvider = value;
+
+                Properties.Settings.Default.DownloadFormatProvider = _currentFormatProvider.FormatGuid;
+                Properties.Settings.Default.Save();
             }
         }
 
@@ -136,8 +153,6 @@ namespace Blacker.MangaScraper.ViewModel
                 InvokePropertyChanged("OutputPath");
             }
         }
-
-        public bool ZipFile { get; set; }
 
         public string CurrentActionText
         {
@@ -194,7 +209,7 @@ namespace Blacker.MangaScraper.ViewModel
                     {
                         lock (_syncRoot)
                         {
-                            // just replace collection -> this is easier than removing and than adding records
+                            // just replace collection -> this is easier than removing and then adding records
                             Mangas = new AsyncObservableCollection<IMangaRecord>(records);
                             InvokePropertyChanged("Mangas");
                         }
@@ -250,7 +265,7 @@ namespace Blacker.MangaScraper.ViewModel
                     {
                         lock (_syncRoot)
                         {
-                            // just replace collection -> this is easier than removing and than adding records
+                            // just replace collection -> this is easier than removing and then adding records
                             Chapters = new AsyncObservableCollection<IChapterRecord>(results);
                             InvokePropertyChanged("Chapters");
                         }
@@ -273,7 +288,7 @@ namespace Blacker.MangaScraper.ViewModel
                     {
                         lock (_syncRoot)
                         {
-                            // just replace collection -> this is easier than removing and than adding records
+                            // just replace collection -> this is easier than removing and then adding records
                             Mangas = new AsyncObservableCollection<IMangaRecord>(records);
                             InvokePropertyChanged("Mangas");
                         }
@@ -346,7 +361,7 @@ namespace Blacker.MangaScraper.ViewModel
 
             foreach (var selectedChapter in SelectedChapters)
             {
-                _downloadManager.Download(selectedChapter, OutputPath, ZipFile);
+                _downloadManager.Download(selectedChapter, OutputPath, CurrentDownloadFormatProvider);
             }
         }
 

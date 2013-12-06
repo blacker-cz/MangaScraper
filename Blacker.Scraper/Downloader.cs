@@ -147,7 +147,7 @@ namespace Blacker.Scraper
 
         #region IDownloadProvider implementation
 
-        public virtual void DownloadChapterAsync(ISemaphore semaphore, IChapterRecord chapter, FileInfo file)
+        public virtual void DownloadChapterAsync(ISemaphore semaphore, IChapterRecord chapter, string outputFolder, IDownloadFormatProvider formatProvider)
         {
             if (_backgroundWorker.IsBusy)
                 throw new InvalidOperationException("Download is currently in progress.");
@@ -156,42 +156,18 @@ namespace Blacker.Scraper
                 throw new ArgumentNullException("semaphore");
             if (chapter == null)
                 throw new ArgumentNullException("chapter");
-            if (file == null)
-                throw new ArgumentNullException("file");
+            if (String.IsNullOrEmpty(outputFolder))
+                throw new ArgumentException("Output folder must not be null or empty.", "outputFolder");
+            if (formatProvider == null) 
+                throw new ArgumentNullException("formatProvider");
 
             var workerParams = new WorkerParams()
-                    {
-                        Chapter = chapter,
-                        IsFile = true,
-                        File = file,
-                        Semaphore = semaphore
-                    };
-
-            _backgroundWorker.RunWorkerAsync(workerParams);
-        }
-
-        public virtual void DownloadChapterAsync(ISemaphore semaphore, IChapterRecord chapter, DirectoryInfo directory, bool createDir = true)
-        {
-            if (_backgroundWorker.IsBusy)
-                throw new InvalidOperationException("Download is currently in progress.");
-
-            if (semaphore == null)
-                throw new ArgumentNullException("semaphore");
-            if (chapter == null)
-                throw new ArgumentNullException("chapter");
-            if (directory == null)
-                throw new ArgumentNullException("directory");
-            if (!createDir && !directory.Exists)
-                throw new ArgumentException("Specified directory does not exists.", "directory");
-
-            var workerParams = new WorkerParams()
-                    {
-                        Chapter = chapter,
-                        IsFile = false,
-                        Directory = directory,
-                        CreateDirectory = createDir,
-                        Semaphore = semaphore
-                    };
+            {
+                Chapter = chapter,
+                Semaphore = semaphore,
+                OutputFolder = outputFolder,
+                FormatProvider = formatProvider
+            };
 
             _backgroundWorker.RunWorkerAsync(workerParams);
         }
@@ -218,10 +194,7 @@ namespace Blacker.Scraper
 
             try
             {
-                if (workerParams.IsFile)
-                    DownloadChapter(backgroundWorker, e, workerParams.Chapter, workerParams.File);
-                else
-                    DownloadChapter(backgroundWorker, e, workerParams.Chapter, workerParams.Directory, workerParams.CreateDirectory);
+                DownloadChapter(backgroundWorker, e, workerParams.Chapter, workerParams.OutputFolder, workerParams.FormatProvider);
             }
             finally
             {
@@ -235,7 +208,8 @@ namespace Blacker.Scraper
             OnDownloadCompleted(new DownloadCompletedEventArgs()
                     {
                         Cancelled = e.Cancelled,
-                        Error = e.Error
+                        Error = e.Error,
+                        DownloadedPath = e.Result as string
                     });
         }
 
@@ -244,17 +218,56 @@ namespace Blacker.Scraper
             ReportProgress(e.ProgressPercentage, e.UserState as string);
         }
 
-        private void DownloadChapter(BackgroundWorker backgroundWorker, DoWorkEventArgs e, IChapterRecord chapter, FileInfo file)
+        private void DownloadChapter(BackgroundWorker backgroundWorker, DoWorkEventArgs e, IChapterRecord chapter, string outputFolder, IDownloadFormatProvider formatProvider)
         {
-            // add task -> zip file
+            // add task -> export result
             AddTask();
 
-            var directory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()));
+            var directory = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "MangaScraper", Guid.NewGuid().ToString()));
+
             try
             {
-                DownloadChapter(backgroundWorker, e, chapter, directory);
+                AddTask();
+                backgroundWorker.ReportProgress(GetPercentComplete(), "Resolving list of pages.");
 
-                backgroundWorker.ReportProgress(GetPercentComplete(), "Compressing chapter to output file");
+                var pages = _pageResolver(chapter);
+
+                AddTask(pages.Count);
+
+                TaskDone();
+                backgroundWorker.ReportProgress(GetPercentComplete(), String.Format("List of pages resolved, chapter has {0} pages.", pages.Count));
+
+                int current = 1;
+
+                foreach (var page in pages)
+                {
+
+                    if (backgroundWorker.CancellationPending)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+
+                    backgroundWorker.ReportProgress(GetPercentComplete(), String.Format("Downloading page {0} from {1}", current, pages.Count));
+
+                    string imgUrl = _imageFinder(page.Value);
+                    string filePath = GetUniqueFileName(directory.FullName, page.Key, Path.GetExtension(imgUrl));
+
+                    try
+                    {
+                        RetryHelper.Retry(() => WebHelper.DownloadImage(imgUrl, filePath));
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.Error("Unable to download image from url: '" + imgUrl + "' to '" + filePath + "'", ex);
+                    }
+
+                    current++;
+                    TaskDone();
+                }
+
+                backgroundWorker.ReportProgress(GetPercentComplete(), "All pages downloaded.");
+                backgroundWorker.ReportProgress(GetPercentComplete(), "Exporting chapter");
 
                 if (backgroundWorker.CancellationPending)
                 {
@@ -262,11 +275,11 @@ namespace Blacker.Scraper
                     return;
                 }
 
-                using (var zip = new ZipFile())
-                {
-                    zip.AddDirectory(directory.FullName, null);
-                    zip.Save(file.FullName);
-                }
+                string path;
+                formatProvider.SaveDownloadedChapter(chapter, directory, outputFolder, out path);
+
+                // save result path of the downloaded file
+                e.Result = path;
 
                 TaskDone();
                 backgroundWorker.ReportProgress(GetPercentComplete(), "Download completed");
@@ -276,55 +289,6 @@ namespace Blacker.Scraper
                 // remove temp dir
                 directory.Delete(true);
             }
-        }
-
-        private void DownloadChapter(BackgroundWorker backgroundWorker, DoWorkEventArgs e, IChapterRecord chapter, DirectoryInfo directory, bool createDir = true)
-        {
-            if (createDir && !directory.Exists)
-            {
-                directory.Create();
-            }
-
-            AddTask();
-            backgroundWorker.ReportProgress(GetPercentComplete(), "Resolving list of pages.");
-
-            var pages = _pageResolver(chapter);
-
-            AddTask(pages.Count);
-
-            TaskDone();
-            backgroundWorker.ReportProgress(GetPercentComplete(), String.Format("List of pages resolved, chapter has {0} pages.", pages.Count));
-
-            int current = 1;
-
-            foreach (var page in pages)
-            {
-
-                if (backgroundWorker.CancellationPending)
-                {
-                    e.Cancel = true;
-                    return;
-                }
-
-                backgroundWorker.ReportProgress(GetPercentComplete(), String.Format("Downloading page {0} from {1}", current, pages.Count));
-
-                string imgUrl = _imageFinder(page.Value);
-                string filePath = GetUniqueFileName(directory.FullName, page.Key, Path.GetExtension(imgUrl));
-
-                try
-                {
-                    RetryHelper.Retry(() => WebHelper.DownloadImage(imgUrl, filePath));
-                }
-                catch (Exception ex)
-                {
-                    _log.Error("Unable to download image from url: '" + imgUrl + "' to '" + filePath + "'", ex);
-                }
-
-                current++;
-                TaskDone();
-            }
-
-            backgroundWorker.ReportProgress(GetPercentComplete(), "All pages downloaded.");
         }
 
         #endregion // Background worker
@@ -372,11 +336,9 @@ namespace Blacker.Scraper
         private class WorkerParams
         {
             public IChapterRecord Chapter { get; set; }
-            public bool IsFile { get; set; }
-            public FileInfo File { get; set; }
-            public DirectoryInfo Directory { get; set; }
-            public bool CreateDirectory { get; set; }
             public ISemaphore Semaphore { get; set; }
+            public string OutputFolder { get; set; }
+            public IDownloadFormatProvider FormatProvider { get; set; }
         }
     }
 }

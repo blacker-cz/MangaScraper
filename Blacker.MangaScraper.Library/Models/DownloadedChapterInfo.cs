@@ -34,8 +34,13 @@ namespace Blacker.MangaScraper.Library.Models
         public DateTime Downloaded { get; set; }
 
         /// <summary>
-        /// Flag if the downloaded file is zipped
+        /// Download folder
         /// </summary>
-        public bool IsZip { get; set; }
+        public string DownloadFolder { get; set; }
+
+        /// <summary>
+        /// Download format provider identifier
+        /// </summary>
+        public Guid DownloadFormatProviderId { get; set; }
     }
 }

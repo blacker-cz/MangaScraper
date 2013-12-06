@@ -20,7 +20,8 @@ namespace Blacker.MangaScraper.Library.DAL
                                             ch.Url as ChapterUrl, 
                                             ch.Downloaded,
                                             ch.Path,
-                                            ch.IsZip,
+                                            ch.DownloadFolder,
+                                            ch.FormatProviderId,
                                             m.MangaName, 
                                             m.Url as MangaUrl
                                     FROM Chapters ch
@@ -123,7 +124,7 @@ namespace Blacker.MangaScraper.Library.DAL
                                                         @MangaId, 
                                                         @MangaName,
                                                         @Url)";
-            
+
             const string insertChapterSql = @"INSERT OR REPLACE 
                                                 INTO Chapters(
                                                         ScraperId, 
@@ -133,7 +134,8 @@ namespace Blacker.MangaScraper.Library.DAL
                                                         Url, 
                                                         Downloaded, 
                                                         Path,
-                                                        IsZip) 
+                                                        DownloadFolder,
+                                                        FormatProviderId) 
                                                 VALUES (
                                                         @ScraperId, 
                                                         @MangaId, 
@@ -142,7 +144,8 @@ namespace Blacker.MangaScraper.Library.DAL
                                                         @Url, 
                                                         @Downloaded, 
                                                         @Path,
-                                                        @IsZip)";
+                                                        @DownloadFolder,
+                                                        @FormatProviderId);";
 
             int affectedRows;
 
@@ -168,7 +171,8 @@ namespace Blacker.MangaScraper.Library.DAL
                     command.Parameters.AddWithValue("@Url", chapterInfo.ChapterRecord.Url);
                     command.Parameters.AddWithValue("@Downloaded", GetDBSafeDateTime(chapterInfo.Downloaded));
                     command.Parameters.AddWithValue("@Path", chapterInfo.Path);
-                    command.Parameters.AddWithValue("@IsZip", chapterInfo.IsZip);
+                    command.Parameters.AddWithValue("@DownloadFolder", chapterInfo.DownloadFolder);
+                    command.Parameters.AddWithValue("@FormatProviderId", chapterInfo.DownloadFormatProviderId);
 
                     affectedRows = ExecuteNonQuery(command, connection, transaction);
                 }
@@ -231,7 +235,7 @@ namespace Blacker.MangaScraper.Library.DAL
                 throw new ArgumentException("Manga Id must not be null or empty", "mangaId");
 
             // let's select just latest 5 records
-            const string sql = @"SELECT Path, IsZip FROM Chapters WHERE ScraperId=@ScraperId AND MangaId=@MangaId ORDER BY Downloaded DESC LIMIT 5";
+            const string sql = @"SELECT DownloadFolder FROM Chapters WHERE ScraperId=@ScraperId AND MangaId=@MangaId ORDER BY Downloaded DESC LIMIT 5";
 
             var folders = new Dictionary<string, int>();
 
@@ -248,15 +252,12 @@ namespace Blacker.MangaScraper.Library.DAL
 
                 foreach (DataRow row in table.Rows)
                 {
-                    bool isFile = Convert.ToBoolean(row["IsZip"]);
-                    string downloadPath = Convert.ToString(row["Path"]);
+                    var folder = row["DownloadFolder"] as string;
 
-                    string folder = isFile
-                                        ? System.IO.Path.GetDirectoryName(downloadPath)
-                                        : System.IO.Directory.GetParent(downloadPath).FullName;
-
-                    if(folder == null)
+                    if (folder == null)
+                    {
                         continue;
+                    }
 
                     if (folders.ContainsKey(folder))
                     {
@@ -341,7 +342,8 @@ namespace Blacker.MangaScraper.Library.DAL
                        {
                            Path = row["Path"] as string,
                            Downloaded = Convert.ToDateTime(row["Downloaded"]),
-                           IsZip = Convert.ToBoolean(row["IsZip"])
+                           DownloadFolder = row["DownloadFolder"] as string,
+                           DownloadFormatProviderId = (Guid) row["FormatProviderId"]
                        };
         }
     }

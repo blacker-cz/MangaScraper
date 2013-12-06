@@ -238,5 +238,17 @@ namespace Blacker.MangaScraper.Properties {
                 this["RecentMangaDaysNum"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("00000000-0000-0000-0000-000000000000")]
+        public global::System.Guid DownloadFormatProvider {
+            get {
+                return ((global::System.Guid)(this["DownloadFormatProvider"]));
+            }
+            set {
+                this["DownloadFormatProvider"] = value;
+            }
+        }
     }
 }

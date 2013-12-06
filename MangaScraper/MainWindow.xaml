@@ -84,8 +84,14 @@
                     <ComboBox  Height="23" Margin="12,2,84,0" Text="{Binding Path=OutputPath}" IsEditable="True" IsTextSearchEnabled="True" IsTextSearchCaseSensitive="False" StaysOpenOnEdit="True" TextSearch.TextPath="Item"  
               ItemsSource="{Binding RecentFolders}" DisplayMemberPath="Item" VerticalAlignment="Top" Grid.Row="5" ToolTip="Output folder" />
                     <Button Content="Browse" Height="23" HorizontalAlignment="Right" Margin="0,2,3,0" Name="browsePathButton" Command="{Binding Path=BrowseCommand}"  VerticalAlignment="Top" Width="75" Grid.Row="5" />
-                    <RadioButton Content="Folder" HorizontalAlignment="Left" Margin="12,35,0,0" Name="radioButton1" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=false, Mode=TwoWay}" Grid.Row="5" Height="16" VerticalAlignment="Top" />
-                    <RadioButton Content="Compressed file" HorizontalAlignment="Left" Margin="112,35,0,0" Name="radioButton2" IsChecked="{Binding Path=ZipFile, Converter={StaticResource booleanConverter}, ConverterParameter=true, Mode=TwoWay}" Grid.Row="5" Height="16" VerticalAlignment="Top" />
+                    <ComboBox Height="23" HorizontalAlignment="Left" Margin="12,32,0,0" Name="downloadFormatList" VerticalAlignment="Top" Width="163" Grid.Row="5" ToolTip="Download Format"
+                              ItemsSource="{Binding DownloadFormatProviders}" SelectedItem="{Binding Path=CurrentDownloadFormatProvider, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=FormatName}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                     <Button Content="Save" Margin="0,31,3,0" Name="button3" Command="{Binding Path=SaveCommand}" HorizontalAlignment="Right" Width="75" Grid.Row="5" Height="23" VerticalAlignment="Top">
                         <Button.Triggers>
                             <EventTrigger RoutedEvent="Button.Click">
@@ -102,18 +108,9 @@
                 <Views:SettingsWindow />
             </TabItem>
         </TabControl>
-        <StatusBar Name="statusBar" Height="23" VerticalAlignment="Bottom" Grid.Row="1" Background="{x:Null}">
-            <StatusBar.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                    </Grid>
-                </ItemsPanelTemplate>
-            </StatusBar.ItemsPanel>
-            <StatusBarItem>
-                <TextBlock Text="{Binding Path=CurrentActionText}" />
+        <StatusBar Name="statusBar" Height="23" Margin="17,0,0,0" Grid.Row="1" Background="{x:Null}">
+            <StatusBarItem VerticalContentAlignment="Top">
+                <TextBlock Margin="0" Text="{Binding Path=CurrentActionText}" VerticalAlignment="Top" />
             </StatusBarItem>
         </StatusBar>
     </Grid>
