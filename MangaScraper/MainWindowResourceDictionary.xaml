@@ -19,7 +19,11 @@
         <Path Width="18" Height="25" Canvas.Left="15" Canvas.Top="12" Stretch="Fill" Fill="{DynamicResource AccentColorBrush}" 
               Data="F1 M 19,12 L 29,12 L 29,24 L 33,24 L 24,35 L 15,24 L 19,24 L 19,12 Z " />
     </Canvas>
-    
+
+    <Canvas Width="76" Height="76" Clip="F1 M 0,0L 76,0L 76,76L 0,76L 0,0" x:Key="IconDisk">
+        <Path Width="36" Height="36" Canvas.Left="20" Canvas.Top="20" Stretch="Fill" Fill="DarkGray" Data="F1 M 20,20L 50.25,20L 56,25.75L 56,56L 20,56L 20,20 Z M 52,27.25L 48.75,24L 48,24L 48,37L 28,37L 28,24L 24,24L 24,52L 52,52L 52,27.25 Z M 39,24L 39,34L 44,34L 44,24L 39,24 Z "/>
+    </Canvas>
+
     <Storyboard BeginTime="00:00:00" x:Key="DownloadIndicatorAnimation">
         <DoubleAnimation Storyboard.TargetName="DownloadIndicator" Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleX)" From="3" To="1.0" Duration="00:00:00.8" />
         <DoubleAnimation Storyboard.TargetName="DownloadIndicator" Storyboard.TargetProperty="RenderTransform.(ScaleTransform.ScaleY)" From="3" To="1.0" Duration="00:00:00.8" />

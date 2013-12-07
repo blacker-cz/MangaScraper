@@ -73,6 +73,18 @@ namespace Blacker.MangaScraper.Library.DAL
                                                                                                               });
         }
 
+        public IEnumerable<DownloadedChapterInfo> GetChaptersInfo(IMangaRecord mangaRecord)
+        {
+            if (mangaRecord == null) 
+                throw new ArgumentNullException("mangaRecord");
+
+            return GetChaptersInfo("ch.ScraperId = @ScraperId AND ch.MangaId = @MangaId", new Dictionary<string, object>()
+                                                                                             {
+                                                                                                 {"@ScraperId", mangaRecord.Scraper},
+                                                                                                 {"@MangaId", mangaRecord.MangaId}
+                                                                                             });
+        }
+
         private IEnumerable<DownloadedChapterInfo> GetChaptersInfo(string condition, IEnumerable<KeyValuePair<string, object>> parameters)
         {
             string sql = BaseSelect + (String.IsNullOrEmpty(condition) ? String.Empty : "WHERE " + condition);

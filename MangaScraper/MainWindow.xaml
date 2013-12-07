@@ -75,9 +75,14 @@
                     <ListBox Margin="12,3,3,4" Name="chapterList" ItemsSource="{Binding Path=Chapters}" SelectionMode="{Binding ChaptersSelectionMode, Source={x:Static Properties:Settings.Default}, Mode=OneWay}" helpers:ListBoxExtension.SelectedItemsSource="{Binding SelectedChapters}" Grid.Row="4" BorderThickness="0">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Margin="2,2,0,8" HorizontalAlignment="Stretch">
-                                    <TextBlock Text="{Binding Path=ChapterName}" FontWeight="Bold"></TextBlock>
-                                </StackPanel>
+                                <DockPanel Margin="2,2,0,8" HorizontalAlignment="Stretch">
+                                    <TextBlock Text="{Binding Path=ChapterName}" HorizontalAlignment="Left" FontWeight="Bold"></TextBlock>
+                                    <Rectangle Width="16" Height="16" HorizontalAlignment="Right" Margin="0,0,5,0" Visibility="{Binding Path=Downloaded, Mode=OneWay, Converter={StaticResource BoolToVisConverter}}">
+                                        <Rectangle.Fill>
+                                            <VisualBrush Visual="{StaticResource IconDisk}" />
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                </DockPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>

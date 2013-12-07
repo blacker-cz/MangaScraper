@@ -9,6 +9,7 @@ using System.Windows.Input;
 using Blacker.MangaScraper.Commands;
 using System.Collections.ObjectModel;
 using Blacker.MangaScraper.Helpers;
+using Blacker.MangaScraper.Models;
 using Blacker.MangaScraper.Services;
 using log4net;
 
@@ -51,7 +52,7 @@ namespace Blacker.MangaScraper.ViewModel
             _outputPath = Properties.Settings.Default.OutputPath;
 
             Mangas = new AsyncObservableCollection<IMangaRecord>();
-            Chapters = new AsyncObservableCollection<IChapterRecord>();
+            Chapters = new AsyncObservableCollection<ChapterViewModel>();
             SelectedChapters = new AsyncObservableCollection<IChapterRecord>();
 
             _requestQueue = new AsyncRequestQueue();
@@ -126,7 +127,7 @@ namespace Blacker.MangaScraper.ViewModel
             }
         }
 
-        public IEnumerable<Models.RecentItem> RecentFolders { get { return Properties.Settings.Default.RecentFolders; } }
+        public IEnumerable<RecentItem> RecentFolders { get { return Properties.Settings.Default.RecentFolders; } }
 
         public ICommand SearchCommand { get { return _searchCommand; } }
 
@@ -136,7 +137,7 @@ namespace Blacker.MangaScraper.ViewModel
 
         public ObservableCollection<IMangaRecord> Mangas { get; private set; }
 
-        public ObservableCollection<IChapterRecord> Chapters { get; private set; }
+        public ObservableCollection<ChapterViewModel> Chapters { get; private set; }
 
         public ObservableCollection<IChapterRecord> SelectedChapters { get; private set; }
 
@@ -261,12 +262,14 @@ namespace Blacker.MangaScraper.ViewModel
                 (r, e) =>
                 {
                     var results = r as IEnumerable<IChapterRecord>;
-                    if (e == null && r != null)
+                    if (e == null && results != null)
                     {
                         lock (_syncRoot)
                         {
                             // just replace collection -> this is easier than removing and then adding records
-                            Chapters = new AsyncObservableCollection<IChapterRecord>(results);
+                            Chapters =
+                                new AsyncObservableCollection<ChapterViewModel>(
+                                    results.Select(ch => new ChapterViewModel(ch, ServiceLocator.Instance.GetService<Library.ILibraryManager>().GetDownloadInfo(ch, true))));
                             OnPropertyChanged(() => Chapters);
                         }
                     }

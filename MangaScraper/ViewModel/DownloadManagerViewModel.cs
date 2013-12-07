@@ -134,6 +134,13 @@ namespace Blacker.MangaScraper.ViewModel
             ServiceLocator.Instance.GetService<ILibraryManager>().StoreDownloadInfo(eventArgs.Value);
             _downloadsCollectionView.Refresh();
 
+            // this is kind of dirty hack to update view model with new download info
+            var chapterViewModel = eventArgs.Value.ChapterRecord as ChapterViewModel;
+            if (chapterViewModel != null)
+            {
+                chapterViewModel.DownloadInfo = eventArgs.Value;
+            }
+
             OnPropertyChanged(() => HasActiveDownloads);
         }
 

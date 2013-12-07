@@ -45,7 +45,7 @@ MangaScraper is using following 3rd-party libraries:
 
 these libraries are automatically loaded to the solution using NuGet (http://nuget.codeplex.com/)
 
-MangaScraper is also using some of the icons from Silk icon set 1.3 (http://www.famfamfam.com/lab/icons/silk/) and the new color scheme is loosely based on Metro pallete by COLOURlover (http://www.colourlovers.com/palette/1/metro)
+MangaScraper is also using some of the icons from Silk icon set 1.3 (http://www.famfamfam.com/lab/icons/silk/), some icons from Templarian/WindowsIcons set (https://github.com/Templarian/WindowsIcons) and the new color scheme is loosely based on Metro pallete by COLOURlover (http://www.colourlovers.com/palette/1/metro)
 
 Notes
 
