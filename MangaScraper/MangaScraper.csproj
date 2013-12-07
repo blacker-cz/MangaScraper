@@ -110,7 +110,6 @@
     <Compile Include="Helpers\AsyncObservableCollection.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
     <Compile Include="Converters\BooleanConverter.cs" />
-    <Compile Include="Commands\BaseCommand.cs" />
     <Compile Include="ViewModel\DownloadViewModel.cs" />
     <Compile Include="Helpers\AsyncRequestQueue.cs" />
     <Compile Include="Helpers\AsyncWrapper.cs" />

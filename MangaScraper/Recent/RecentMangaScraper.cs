@@ -12,7 +12,7 @@ namespace Blacker.MangaScraper.Recent
     {
         private static readonly object _syncRoot = new object();
 
-        private WeakReference _mangaRecords = null;
+        private WeakReference _mangaRecords;
 
         public string Name
         {
@@ -45,7 +45,7 @@ namespace Blacker.MangaScraper.Recent
         public IDownloader GetDownloader()
         {
             // this should not get called as this scraper is basically used to redirect to other scrapers
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public IEnumerable<IMangaRecord> GetAvailableMangasImmediate(string filter)
