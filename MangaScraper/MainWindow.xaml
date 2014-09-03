@@ -8,7 +8,8 @@
         Title="Manga Scraper"
         Height="{Binding WindowHeight, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}"
         Width="{Binding WindowWidth, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}"
-        WindowState="{Binding WindowState, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}">
+        WindowState="{Binding WindowState, Source={x:Static Properties:Settings.Default}, Mode=TwoWay}"
+        ShowIconOnTitleBar="True">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
