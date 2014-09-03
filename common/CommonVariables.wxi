@@ -2,12 +2,12 @@
 <Include>
 
   <?define ProductName = "MangaScraper" ?>
-  <?define ProductVersion = "1.0.0.4" ?>
+  <?define ProductVersion = "1.0.0.6" ?>
   <?define ProductDescription = "Simple application for download of manga chapters from online readers." ?>
   <?define ManufacturerName = "Lukas Cerny" ?>
   <?define ManufacturerWebUrl ="https://github.com/blacker-cz" ?>
   <?define DefaultInstallDir = "MangaScraper" ?>
   <?define BuildDir = "..\Build\$(var.Configuration)\" ?>
-  <?define CopyrightInfo = "Copyright © 2012-2013 Lukas Cerny" ?>
+  <?define CopyrightInfo = "Copyright © 2012-2014 Lukas Cerny" ?>
 
 </Include>

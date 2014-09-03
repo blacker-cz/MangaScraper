@@ -54,7 +54,7 @@ This tool is intended for archiving of manga chapters from online readers, so yo
 License
 
 MangaScraper
-Copyright (c) 2012-2013, Lukáš Černý
+Copyright (c) 2012-2014, Lukáš Černý
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:

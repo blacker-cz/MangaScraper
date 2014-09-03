@@ -1,6 +1,6 @@
 using System.Reflection;
 
-[assembly: AssemblyCopyright("Copyright © 2012-2013 Lukáš Èerný")]
+[assembly: AssemblyCopyright("Copyright © 2012-2014 Lukáš Èerný")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyCompany("")]
@@ -12,4 +12,4 @@ using System.Reflection;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.0.0.4")]
+[assembly: AssemblyVersion("1.0.0.6")]
